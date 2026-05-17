@@ -29,7 +29,11 @@ export async function requestPushPermission(): Promise<PushResult> {
     const sw = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
     await navigator.serviceWorker.ready;
 
-    // Subscribe using the Web Push API
+    // Unsubscribe from any old subscription (e.g. previous Firebase VAPID key)
+    const existing = await sw.pushManager.getSubscription();
+    if (existing) await existing.unsubscribe();
+
+    // Subscribe using the Web Push API with the new VAPID key
     const subscription = await sw.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as BufferSource,
