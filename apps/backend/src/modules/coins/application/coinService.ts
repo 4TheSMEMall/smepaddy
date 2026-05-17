@@ -123,12 +123,12 @@ export class CoinService {
         }).catch(() => {});
       }
 
-      // Update streak, check bonuses
-      await this.updateStreak(businessProfileId, now);
-      await this.checkActivityBonuses(wallet.id, businessProfileId, now);
+      // Fire streak + bonus checks in background — never block the response
+      this.updateStreak(businessProfileId, now).catch(() => {});
       if (BOOKKEEPING_EVENTS.has(eventKey)) {
-        await this.checkBookkeepingBonus(wallet.id, businessProfileId, startOfDay, now);
+        this.checkBookkeepingBonus(wallet.id, businessProfileId, startOfDay, now).catch(() => {});
       }
+      // Weekly/monthly bonuses run in the daily cron — not on every transaction
 
       return result;
     }
@@ -216,20 +216,8 @@ export class CoinService {
     return { awarded: amount, balance: updatedWallet.availableBalance };
   }
 
-  private async checkActivityBonuses(
-    walletId: string,
-    businessProfileId: string,
-    now: Date,
-  ): Promise<void> {
-    const weekStart = getWeekStart(now);
-    const monthStart = getMonthStart(now);
-
-    // Run both checks in parallel
-    await Promise.all([
-      this.checkWeeklyBonus(walletId, businessProfileId, weekStart, now),
-      this.checkMonthlyBonus(walletId, businessProfileId, monthStart, now),
-    ]);
-  }
+  // checkActivityBonuses removed from hot path — weekly/monthly bonuses
+  // are checked by the daily cron to avoid blocking API responses.
 
   private async checkWeeklyBonus(
     walletId: string,

@@ -41,11 +41,8 @@ export class ExpenseService {
 
     invalidateBusinessCache(businessProfileId, ["dashboard-summary", "expenses"]);
 
-    try {
-      await coinService.awardCoins(businessProfileId, "EXPENSE_RECORDED", expense.id);
-    } catch (err) {
-      logger.warn("Failed to award coins for expense", { expenseId: expense.id, err });
-    }
+    coinService.awardCoins(businessProfileId, "EXPENSE_RECORDED", expense.id)
+      .catch((err) => logger.warn("coin award failed", { err }));
 
     return {
       expense: {

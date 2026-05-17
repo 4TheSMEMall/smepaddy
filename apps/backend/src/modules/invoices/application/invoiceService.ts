@@ -47,11 +47,8 @@ export class InvoiceService {
       "sales",
     ]);
 
-    try {
-      await coinService.awardCoins(businessProfileId, "INVOICE_CREATED", invoice.id);
-    } catch (err) {
-      logger.warn("Failed to award coins for invoice creation", { invoiceId: invoice.id, err });
-    }
+    coinService.awardCoins(businessProfileId, "INVOICE_CREATED", invoice.id)
+      .catch((err) => logger.warn("coin award failed", { err }));
 
     return { invoice: toInvoiceDto(invoice) };
   }
@@ -113,11 +110,8 @@ export class InvoiceService {
 
     // Award coins only when invoice is fully paid
     if (invoice.balanceKobo <= 0) {
-      try {
-        await coinService.awardCoins(businessProfileId, "INVOICE_PAID", invoice.id);
-      } catch (err) {
-        logger.warn("Failed to award coins for invoice payment", { invoiceId: invoice.id, err });
-      }
+      coinService.awardCoins(businessProfileId, "INVOICE_PAID", invoice.id)
+        .catch((err) => logger.warn("coin award failed", { err }));
     }
 
     return { invoice: toInvoiceDto(invoice) };

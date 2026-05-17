@@ -88,11 +88,8 @@ export class StockService {
       "stock-item-sales",
     ]);
 
-    try {
-      await coinService.awardCoins(businessProfileId, "STOCK_CREATED", item.id);
-    } catch (err) {
-      logger.warn("Failed to award coins for stock creation", { itemId: item.id, err });
-    }
+    coinService.awardCoins(businessProfileId, "STOCK_CREATED", item.id)
+      .catch((err) => logger.warn("coin award failed", { err }));
 
     return { item: this.toDto(item) };
   }

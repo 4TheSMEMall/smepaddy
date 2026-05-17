@@ -49,11 +49,8 @@ export class SalesService {
       "stock-item-sales",
     ]);
 
-    try {
-      await coinService.awardCoins(businessProfileId, "SALE_RECORDED", sale.id);
-    } catch (err) {
-      logger.warn("Failed to award coins for sale", { saleId: sale.id, err });
-    }
+    coinService.awardCoins(businessProfileId, "SALE_RECORDED", sale.id)
+      .catch((err) => logger.warn("coin award failed", { err }));
 
     return {
       sale: {
