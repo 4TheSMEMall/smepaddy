@@ -1,6 +1,9 @@
 "use client";
 
-const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
+// Public key is safe to embed — only the private key must stay secret (backend env var)
+const VAPID_PUBLIC_KEY =
+  process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ??
+  "BKYQLDr66JQTiN7CenX-Sz5x65v9UCCReR52pNXecULdSHrK4zlumNa76X5RQX3Uq3BUDHb1a7PZHPO9vT4DEz0";
 
 export type PushResult =
   | { ok: true; token: string; subscription: string }
