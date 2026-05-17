@@ -1,5 +1,6 @@
 import https from "node:https";
 
+import "./loadEnv.js";
 import { AppError } from "../application/AppError.js";
 
 const FLW_BASE = process.env.FLW_BASE_URL ?? "https://api.flutterwave.com";
