@@ -101,26 +101,30 @@ function proxyUrl(path: string) {
 
 const useProxy = () => process.env.SAVINGS_PAYOUT_PROVIDER === "PROXY";
 
+// The gateway wraps all responses in { data: ..., error: null }
+async function proxyGet<T>(path: string): Promise<T> {
+  const res = await httpsGet<{ data: T }>(proxyUrl(path), proxyHeaders());
+  return res.data;
+}
+
+async function proxyPost<T>(path: string, body: Record<string, unknown>): Promise<T> {
+  const res = await httpsPost<{ data: T }>(proxyUrl(path), proxyHeaders(), JSON.stringify(body));
+  return res.data;
+}
+
 // ─── Public API ───────────────────────────────────────────────────────────────
 
 export type FlwBank = { id: string | number; code: string; name: string };
 
 export async function listBanks(): Promise<FlwBank[]> {
-  if (useProxy()) {
-    const res = await httpsGet<FlwBank[]>(proxyUrl("/api/v1/banks"), proxyHeaders());
-    return res;
-  }
+  if (useProxy()) return proxyGet<FlwBank[]>("/api/v1/banks");
   const res = await httpsGet<{ data?: FlwBank[] }>(flwUrl("/v3/banks/NG"), flwHeaders());
   return (res.data ?? []).filter((b) => b.code && b.name);
 }
 
 export async function resolveAccount(accountNumber: string, bankCode: string): Promise<string> {
   if (useProxy()) {
-    const res = await httpsPost<{ accountName: string }>(
-      proxyUrl("/api/v1/accounts/resolve"),
-      proxyHeaders(),
-      JSON.stringify({ accountNumber, bankCode }),
-    );
+    const res = await proxyPost<{ accountName: string }>("/api/v1/accounts/resolve", { accountNumber, bankCode });
     return res.accountName;
   }
   const res = await httpsPost<{ status: string; data?: { account_name?: string }; message?: string }>(
@@ -137,9 +141,7 @@ export async function initiateTransfer(input: {
   accountBank: string; accountNumber: string; beneficiaryName: string;
   bankName: string; amount: number; reference: string; callbackUrl: string; narration: string;
 }): Promise<{ transferId: string | null; reference: string; status: string }> {
-  if (useProxy()) {
-    return httpsPost(proxyUrl("/api/v1/transfers"), proxyHeaders(), JSON.stringify(input));
-  }
+  if (useProxy()) return proxyPost("/api/v1/transfers", input as unknown as Record<string, unknown>);
   const res = await httpsPost<{ data?: { id?: number | string; reference?: string; status?: string } }>(
     flwUrl("/v3/transfers"),
     flwHeaders(),
@@ -161,9 +163,7 @@ export async function initializePayment(input: {
   email: string; amount: number; reference: string;
   redirectUrl: string; customerName: string; metadata: Record<string, unknown>;
 }): Promise<{ reference: string; authorizationUrl: string; accessCode: string | null }> {
-  if (useProxy()) {
-    return httpsPost(proxyUrl("/api/v1/payments"), proxyHeaders(), JSON.stringify(input));
-  }
+  if (useProxy()) return proxyPost("/api/v1/payments", input as unknown as Record<string, unknown>);
   const res = await httpsPost<{ status: string; data?: { link?: string }; message?: string }>(
     flwUrl("/v3/payments"),
     flwHeaders(),
@@ -184,9 +184,8 @@ export async function verifyTransaction(txRef: string): Promise<{
   transactionId: string | null; txRef: string; status: string; amount: number; paidAt: Date | null;
 }> {
   if (useProxy()) {
-    const res = await httpsGet<{ transactionId: string | null; txRef: string; status: string; amount: number; paidAt: string | null }>(
-      proxyUrl(`/api/v1/payments/${encodeURIComponent(txRef)}/verify`),
-      proxyHeaders(),
+    const res = await proxyGet<{ transactionId: string | null; txRef: string; status: string; amount: number; paidAt: string | null }>(
+      `/api/v1/payments/${encodeURIComponent(txRef)}/verify`,
     );
     return { ...res, paidAt: res.paidAt ? new Date(res.paidAt) : null };
   }
