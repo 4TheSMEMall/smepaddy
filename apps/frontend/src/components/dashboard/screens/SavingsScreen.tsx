@@ -476,7 +476,9 @@ function SetupTab({
   useEffect(() => {
     const token = getStoredAccessToken();
     if (!token) return;
-    listBanks(token).then((res) => setBanks(res.banks)).catch(() => {});
+    listBanks(token)
+      .then((res) => setBanks(res.banks))
+      .catch((err) => setMsg(err instanceof ApiError ? err.message : "Could not load banks — check gateway env vars"));
   }, []);
 
   async function handleResolve() {
