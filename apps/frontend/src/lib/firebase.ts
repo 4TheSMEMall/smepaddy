@@ -1,47 +1,23 @@
 "use client";
 
-import { getApps, initializeApp } from "firebase/app";
-import { getMessaging, getToken, onMessage, type Messaging } from "firebase/messaging";
-
-const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-};
-
-function getFirebaseApp() {
-  return getApps().length === 0 ? initializeApp(firebaseConfig) : getApps()[0]!;
-}
-
-let messagingInstance: Messaging | null = null;
-
-function getFirebaseMessaging(): Messaging | null {
-  if (typeof window === "undefined") return null;
-  if (!("serviceWorker" in navigator)) return null;
-  if (!messagingInstance) {
-    messagingInstance = getMessaging(getFirebaseApp());
-  }
-  return messagingInstance;
-}
+const VAPID_PUBLIC_KEY = process.env.NEXT_PUBLIC_VAPID_PUBLIC_KEY ?? "";
 
 export type PushResult =
-  | { ok: true; token: string }
+  | { ok: true; token: string; subscription: string }
   | { ok: false; reason: string };
 
 /**
- * Requests notification permission, registers the service worker, and returns
- * the FCM token — or a reason string explaining why it failed.
+ * Requests notification permission, registers the service worker,
+ * subscribes to web-push using VAPID, and returns the endpoint (token)
+ * and full subscription JSON.
  */
 export async function requestPushPermission(): Promise<PushResult> {
   if (typeof window === "undefined") return { ok: false, reason: "Not in browser" };
   if (!("Notification" in window)) return { ok: false, reason: "Notifications not supported on this browser" };
   if (!("serviceWorker" in navigator)) return { ok: false, reason: "Service workers not supported" };
+  if (!("PushManager" in window)) return { ok: false, reason: "Push notifications not supported on this browser" };
 
-  const vapidKey = process.env.NEXT_PUBLIC_FIREBASE_VAPID_KEY;
-  if (!vapidKey) return { ok: false, reason: "VAPID key not configured — check .env.local" };
+  if (!VAPID_PUBLIC_KEY) return { ok: false, reason: "VAPID key not configured — check env vars" };
 
   const permission = await Notification.requestPermission();
   if (permission !== "granted") return { ok: false, reason: `Permission ${permission}` };
@@ -50,32 +26,45 @@ export async function requestPushPermission(): Promise<PushResult> {
     const sw = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
     await navigator.serviceWorker.ready;
 
-    const messaging = getFirebaseMessaging();
-    if (!messaging) return { ok: false, reason: "Firebase messaging failed to initialise" };
+    // Subscribe using the Web Push API
+    const subscription = await sw.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as BufferSource,
+    });
 
-    const token = await getToken(messaging, { vapidKey, serviceWorkerRegistration: sw });
-    if (!token) return { ok: false, reason: "Firebase returned an empty token" };
+    const subJson = JSON.stringify(subscription);
+    const token = subscription.endpoint; // endpoint is the unique identifier
 
-    return { ok: true, token };
+    return { ok: true, token, subscription: subJson };
   } catch (err) {
-    const msg = err instanceof Error ? err.message : String(err);
-    return { ok: false, reason: msg };
+    return { ok: false, reason: err instanceof Error ? err.message : String(err) };
   }
 }
 
 /**
- * Listen for foreground messages while the app is open.
- * Returns an unsubscribe function.
+ * Listen for foreground messages via BroadcastChannel from the service worker.
  */
 export function onForegroundMessage(
   handler: (title: string, body: string) => void,
 ): () => void {
-  const messaging = getFirebaseMessaging();
-  if (!messaging) return () => {};
+  if (typeof window === "undefined") return () => {};
 
-  return onMessage(messaging, (payload) => {
-    const title = payload.notification?.title ?? "SME Paddy";
-    const body = payload.notification?.body ?? "";
-    handler(title, body);
-  });
+  const channel = new BroadcastChannel("smepaddy-push");
+  channel.onmessage = (event) => {
+    const { title, body } = event.data ?? {};
+    if (title) handler(title, body ?? "");
+  };
+
+  return () => channel.close();
+}
+
+// ─── Util ─────────────────────────────────────────────────────────────────────
+
+function urlBase64ToUint8Array(base64String: string): Uint8Array {
+  const padding = "=".repeat((4 - (base64String.length % 4)) % 4);
+  const base64 = (base64String + padding).replace(/-/g, "+").replace(/_/g, "/");
+  const rawData = atob(base64);
+  const output = new Uint8Array(rawData.length);
+  for (let i = 0; i < rawData.length; i++) output[i] = rawData.charCodeAt(i);
+  return output;
 }

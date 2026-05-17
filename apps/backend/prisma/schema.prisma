@@ -374,6 +374,7 @@ model DeviceToken {
   id                String          @id @default(cuid())
   businessProfileId String
   token             String          @unique
+  subscription      String?         // Full PushSubscription JSON for web-push
   platform          String          @default("web")
   isActive          Boolean         @default(true)
   createdAt         DateTime        @default(now())

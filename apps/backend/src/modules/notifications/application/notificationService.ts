@@ -1,8 +1,19 @@
-import { getMessaging } from "firebase-admin/messaging";
+import webpush from "web-push";
 
-import "../../../shared/infrastructure/firebaseAdmin.js";
 import { logger } from "../../../shared/infrastructure/logger.js";
 import { prisma } from "../../../shared/infrastructure/prismaClient.js";
+
+// ─── VAPID setup ──────────────────────────────────────────────────────────────
+
+const VAPID_PUBLIC  = process.env.VAPID_PUBLIC_KEY  ?? "";
+const VAPID_PRIVATE = process.env.VAPID_PRIVATE_KEY ?? "";
+const VAPID_EMAIL   = process.env.VAPID_EMAIL        ?? "mailto:admin@smepaddy.app";
+
+if (VAPID_PUBLIC && VAPID_PRIVATE) {
+  webpush.setVapidDetails(VAPID_EMAIL, VAPID_PUBLIC, VAPID_PRIVATE);
+}
+
+// ─── NotificationService ──────────────────────────────────────────────────────
 
 type PushPayload = {
   title: string;
@@ -11,11 +22,15 @@ type PushPayload = {
 };
 
 export class NotificationService {
-  async registerToken(businessProfileId: string, token: string): Promise<void> {
+  async registerToken(
+    businessProfileId: string,
+    token: string,
+    subscription?: string,
+  ): Promise<void> {
     await prisma.deviceToken.upsert({
       where: { token },
-      create: { businessProfileId, token },
-      update: { businessProfileId, isActive: true },
+      create: { businessProfileId, token, subscription: subscription ?? null },
+      update: { businessProfileId, isActive: true, subscription: subscription ?? undefined },
     });
   }
 
@@ -26,53 +41,54 @@ export class NotificationService {
     });
   }
 
-  /** Send a push notification to all active devices for a business. Fire-and-forget safe. */
+  /** Send a push notification to all active devices for a business. */
   async send(businessProfileId: string, payload: PushPayload): Promise<void> {
+    if (!VAPID_PUBLIC || !VAPID_PRIVATE) {
+      logger.warn("VAPID keys not configured — push notification skipped", { businessProfileId });
+      return;
+    }
+
     const tokens = await prisma.deviceToken.findMany({
       where: { businessProfileId, isActive: true },
-      select: { id: true, token: true },
+      select: { id: true, token: true, subscription: true },
     });
 
     if (tokens.length === 0) return;
 
-    const messaging = getMessaging();
+    const payloadStr = JSON.stringify({
+      title: payload.title,
+      body: payload.body,
+      data: payload.data ?? {},
+    });
 
     const results = await Promise.allSettled(
-      tokens.map(({ token }) =>
-        messaging.send({
-          token,
-          notification: { title: payload.title, body: payload.body },
-          data: payload.data ?? {},
-          webpush: {
-            notification: {
-              title: payload.title,
-              body: payload.body,
-              icon: "/icon-192.png",
-              badge: "/badge-72.png",
-            },
-          },
+      tokens
+        .filter((t) => t.subscription) // only tokens with full subscription
+        .map((t) => {
+          const sub = JSON.parse(t.subscription!) as webpush.PushSubscription;
+          return webpush.sendNotification(sub, payloadStr);
         }),
-      ),
     );
 
-    // Deactivate stale or invalid tokens so they don't get retried
-    for (let i = 0; i < results.length; i++) {
-      const result = results[i];
+    // Deactivate expired/invalid subscriptions
+    let i = 0;
+    for (const result of results) {
       if (result.status === "rejected") {
-        const code = (result.reason as { errorInfo?: { code?: string } })?.errorInfo?.code;
-        if (
-          code === "messaging/invalid-registration-token" ||
-          code === "messaging/registration-token-not-registered"
-        ) {
-          logger.info("Deactivating stale FCM token", { tokenId: tokens[i]!.id });
-          await prisma.deviceToken.update({
-            where: { id: tokens[i]!.id },
-            data: { isActive: false },
-          });
+        const status = (result.reason as { statusCode?: number })?.statusCode;
+        if (status === 410 || status === 404) {
+          // Gone / not found — subscription expired
+          logger.info("Deactivating expired push subscription", { tokenId: tokens[i]?.id });
+          if (tokens[i]) {
+            await prisma.deviceToken.update({
+              where: { id: tokens[i]!.id },
+              data: { isActive: false },
+            });
+          }
         } else {
-          logger.warn("FCM send failed", { code, tokenId: tokens[i]!.id });
+          logger.warn("Push notification failed", { status, tokenId: tokens[i]?.id });
         }
       }
+      i++;
     }
   }
 }

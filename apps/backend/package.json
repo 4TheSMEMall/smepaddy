@@ -3,7 +3,9 @@
   "version": "1.0.0",
   "private": true,
   "main": "dist/server.js",
-  "engines": { "node": ">=22" },
+  "engines": {
+    "node": ">=22"
+  },
   "scripts": {
     "dev": "tsx watch src/server.ts",
     "postinstall": "prisma generate --schema prisma/schema.prisma",
@@ -17,11 +19,13 @@
     "@prisma/client": "^7.8.0",
     "dotenv": "^17.4.2",
     "firebase-admin": "^13.9.0",
-    "pg": "^8.20.0"
+    "pg": "^8.20.0",
+    "web-push": "^3.6.7"
   },
   "devDependencies": {
     "@types/node": "latest",
     "@types/pg": "^8.20.0",
+    "@types/web-push": "^3.6.4",
     "prisma": "^7.8.0",
     "tsx": "latest",
     "typescript": "latest"

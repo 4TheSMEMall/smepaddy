@@ -99,7 +99,7 @@ export function DashboardApp() {
       if (!authToken) return;
       const result = await requestPushPermission();
       if (result.ok) {
-        registerDeviceToken(result.token, authToken).catch(() => {});
+        registerDeviceToken(result.token, result.subscription, authToken).catch(() => {});
       }
     }, 3000);
     return () => clearTimeout(timer);

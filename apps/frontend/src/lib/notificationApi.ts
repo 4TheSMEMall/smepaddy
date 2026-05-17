@@ -1,7 +1,11 @@
 import { postJson } from "@/lib/api";
 
-export function registerDeviceToken(token: string, authToken: string) {
-  return postJson<{ ok: boolean }>("/notifications/token", { token }, authToken);
+export function registerDeviceToken(
+  token: string,
+  subscription: string,
+  authToken: string,
+) {
+  return postJson<{ ok: boolean }>("/notifications/token", { token, subscription }, authToken);
 }
 
 export function sendTestNotification(authToken: string) {

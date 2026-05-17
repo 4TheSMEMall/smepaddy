@@ -25,12 +25,16 @@ export function createNotificationHandler() {
         const context = await requireAuth(request);
         if (!context.business) throw new AppError("Business required", 403, "BUSINESS_REQUIRED");
 
-        const body = await readJson<{ token?: string }>(request);
+        const body = await readJson<{ token?: string; subscription?: string }>(request);
         if (!body.token?.trim()) {
-          throw new AppError("FCM token is required", 422, "REQUIRED_FIELD");
+          throw new AppError("Token (endpoint) is required", 422, "REQUIRED_FIELD");
         }
 
-        await notificationService.registerToken(context.business.id, body.token.trim());
+        await notificationService.registerToken(
+          context.business.id,
+          body.token.trim(),
+          body.subscription,
+        );
         sendJson(response, 200, { ok: true });
         return;
       }

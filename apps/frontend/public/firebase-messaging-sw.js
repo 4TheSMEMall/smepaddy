@@ -1,25 +1,28 @@
-importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-app-compat.js");
-importScripts("https://www.gstatic.com/firebasejs/10.14.1/firebase-messaging-compat.js");
+// SME Paddy Push Notification Service Worker
+// Uses native Web Push API (no Firebase dependency)
 
-firebase.initializeApp({
-  apiKey: "AIzaSyCydUHblR96HfLXAnbMpHIewQW2EOXtuc4",
-  authDomain: "smepa-3d9e3.firebaseapp.com",
-  projectId: "smepa-3d9e3",
-  storageBucket: "smepa-3d9e3.firebasestorage.app",
-  messagingSenderId: "462875852905",
-  appId: "1:462875852905:web:7e688d24addd52e302e2f8",
-});
+self.addEventListener("push", function (event) {
+  if (!event.data) return;
 
-const messaging = firebase.messaging();
+  let payload;
+  try {
+    payload = event.data.json();
+  } catch {
+    payload = { title: "SME Paddy", body: event.data.text() };
+  }
 
-messaging.onBackgroundMessage((payload) => {
-  const title = payload.notification?.title ?? "SME Paddy";
-  const body = payload.notification?.body ?? "";
-
-  self.registration.showNotification(title, {
-    body,
+  const title = payload.title ?? "SME Paddy";
+  const options = {
+    body: payload.body ?? "",
     icon: "/icon-192.png",
     badge: "/badge-72.png",
     data: payload.data ?? {},
-  });
+  };
+
+  event.waitUntil(self.registration.showNotification(title, options));
+});
+
+self.addEventListener("notificationclick", function (event) {
+  event.notification.close();
+  event.waitUntil(clients.openWindow("/"));
 });

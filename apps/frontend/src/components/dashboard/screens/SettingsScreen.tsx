@@ -45,7 +45,7 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
       }
       const authToken = getStoredAccessToken();
       if (authToken) {
-        await registerDeviceToken(result.token, authToken);
+        await registerDeviceToken(result.token, result.subscription, authToken);
         setRegistered(true);
       }
     } catch (err) {
