@@ -84,7 +84,12 @@ app.post('/api/v1/accounts/resolve', requireGatewayToken, async (req, res) => {
 
 app.post('/api/v1/transfers', requireGatewayToken, async (req, res) => {
   const input = initiateTransferSchema.parse(req.body)
-  const result = await initiateFlutterwaveTransfer(input)
+  // Always use the gateway's own webhook URL for Flutterwave callbacks —
+  // never trust whatever the backend sends (could be localhost in dev)
+  const gatewayBase = env.GATEWAY_PUBLIC_URL?.trim() ||
+    `https://${req.headers.host}`
+  const callbackUrl = `${gatewayBase}/api/v1/flutterwave/webhook`
+  const result = await initiateFlutterwaveTransfer({ ...input, callbackUrl })
   res.status(200).json({ data: result, error: null })
 })
 

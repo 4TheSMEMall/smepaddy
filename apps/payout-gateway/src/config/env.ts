@@ -20,6 +20,7 @@ const envSchema = z.object({
   GATEWAY_TOKEN: z.string().min(12, 'GATEWAY_TOKEN is required'),
   GATEWAY_CALLBACK_URL: z.string().url().optional().default('http://localhost:4000/savings/webhook/provider-callback'),
   GATEWAY_CALLBACK_SECRET: z.string().min(12, 'GATEWAY_CALLBACK_SECRET is required'),
+  GATEWAY_PUBLIC_URL: z.string().url().optional(),
   FLW_SECRET_KEY: z.string().min(1, 'FLW_SECRET_KEY is required'),
   FLW_WEBHOOK_SECRET: z.string().min(8, 'FLW_WEBHOOK_SECRET must be at least 8 characters'),
   FLW_BASE_URL: z.string().default('https://api.flutterwave.com'),
