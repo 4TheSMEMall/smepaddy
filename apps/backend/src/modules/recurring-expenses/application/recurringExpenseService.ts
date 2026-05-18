@@ -138,29 +138,34 @@ export class RecurringExpenseService {
 
     for (const recurring of due) {
       try {
-        await prisma.$transaction(async (tx) => {
-          await tx.expenseTransaction.create({
-            data: {
-              businessProfileId: recurring.businessProfileId,
-              category: recurring.category,
-              amountKobo: recurring.amountKobo,
-              description: recurring.description,
-              paymentMethod: recurring.paymentMethod,
-            },
-          });
+        const nextRunAt = computeNextRunAt(
+          recurring.frequency,
+          recurring.hourOfDay,
+          recurring.dayOfWeek,
+          recurring.dayOfMonth,
+          now,
+        );
 
-          const nextRunAt = computeNextRunAt(
-            recurring.frequency,
-            recurring.hourOfDay,
-            recurring.dayOfWeek,
-            recurring.dayOfMonth,
-            now,
-          );
+        // Optimistic lock: atomically claim this entry by advancing nextRunAt.
+        // If another cron tick already claimed it, updateMany returns count=0 → skip.
+        const claimed = await prisma.recurringExpense.updateMany({
+          where: { id: recurring.id, nextRunAt: { lte: now } },
+          data: { lastRunAt: now, nextRunAt },
+        });
 
-          await tx.recurringExpense.update({
-            where: { id: recurring.id },
-            data: { lastRunAt: now, nextRunAt },
-          });
+        if (claimed.count === 0) {
+          logger.info("Recurring expense already claimed, skipping", { id: recurring.id });
+          continue;
+        }
+
+        await prisma.expenseTransaction.create({
+          data: {
+            businessProfileId: recurring.businessProfileId,
+            category: recurring.category,
+            amountKobo: recurring.amountKobo,
+            description: recurring.description,
+            paymentMethod: recurring.paymentMethod,
+          },
         });
 
         invalidateBusinessCache(recurring.businessProfileId, ["expenses", "dashboard-summary"]);
