@@ -9,6 +9,7 @@ export type CreateInvoiceItemData = {
 
 export type CreateInvoiceData = {
   businessProfileId: string;
+  customerId?: string;
   customerName: string;
   customerPhone?: string;
   dueDate: Date;

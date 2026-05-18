@@ -3,9 +3,11 @@
 import { ArrowLeft, CalendarDays, FileText, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 
+import { CustomerAutocomplete } from "@/components/dashboard/CustomerAutocomplete";
 import { Card } from "@/components/ui/card";
 import { ApiError } from "@/lib/api";
 import { makeCacheKey, removeClientCache } from "@/lib/clientCache";
+import type { Customer } from "@/lib/customerApi";
 import { createInvoice } from "@/lib/invoiceApi";
 import { getStoredAccessToken } from "@/lib/session";
 import { cn } from "@/lib/utils";
@@ -20,6 +22,7 @@ export function NewInvoiceScreen({
   onCreated: () => void;
 }) {
   const [createCredit, setCreateCredit] = useState(true);
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [customerName, setCustomerName] = useState("");
   const [customerPhone, setCustomerPhone] = useState("");
   const [itemName, setItemName] = useState("");
@@ -62,6 +65,7 @@ export function NewInvoiceScreen({
     setSaving(true);
     try {
       await createInvoice(token, {
+        customerId: selectedCustomer?.id,
         customerName: customerName.trim(),
         customerPhone: customerPhone.trim() || undefined,
         dueDate,
@@ -96,11 +100,17 @@ export function NewInvoiceScreen({
       </div>
 
       <div className="space-y-5">
-        <InvoiceField
-          label="Customer Name *"
-          placeholder="e.g. Oga Mike"
+        <CustomerAutocomplete
           value={customerName}
           onChange={setCustomerName}
+          onSelect={(c) => {
+            setSelectedCustomer(c);
+            if (c) {
+              setCustomerName(c.name);
+              setCustomerPhone(c.phone ?? "");
+            }
+          }}
+          placeholder="Customer name *"
         />
         <InvoiceField
           label="Phone (optional)"

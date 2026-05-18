@@ -7,12 +7,14 @@ export type CreateSalePayload = {
   stockItemId: string;
   quantity: number;
   unitPrice: number;
+  customerId?: string;
   customerName?: string;
   paymentStatus: PaymentStatus;
   paymentMethod?: PaymentMethod;
   amountPaid?: number;
   invoiceId?: string;
   createInvoice?: {
+    customerId?: string;
     customerName: string;
     customerPhone?: string;
     dueDate: string;

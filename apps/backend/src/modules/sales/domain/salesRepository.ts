@@ -2,6 +2,7 @@ export type PaymentStatus = "PAID" | "PART_PAYMENT" | "WILL_PAY_LATER";
 export type PaymentMethod = "CASH" | "TRANSFER" | "CARD";
 
 export type CreateInvoiceData = {
+  customerId?: string;
   customerName: string;
   customerPhone?: string;
   dueDate: Date;
@@ -13,6 +14,7 @@ export type CreateSaleData = {
   stockItemId: string;
   quantity: number;
   unitPriceKobo: number;
+  customerId?: string;
   customerName?: string;
   paymentStatus: PaymentStatus;
   paymentMethod?: PaymentMethod;

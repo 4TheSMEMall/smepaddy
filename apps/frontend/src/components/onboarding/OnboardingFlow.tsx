@@ -467,7 +467,7 @@ function CodeField({
       <div
         className={cn(
           "grid gap-2",
-          length === 4 ? "grid-cols-4 px-10 sm:px-14" : "grid-cols-6",
+          length === 4 ? "grid-cols-4 px-10 sm:px-14" : "grid-cols-6", 
         )}
         onClick={() => inputRef.current?.focus()}
       >

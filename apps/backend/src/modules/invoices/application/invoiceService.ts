@@ -15,6 +15,7 @@ import type {
 } from "../domain/invoiceRepository.js";
 
 type CreateInvoiceInput = {
+  customerId?: string;
   customerName?: string;
   customerPhone?: string;
   dueDate?: string;
@@ -130,6 +131,7 @@ export class InvoiceService {
 
     return {
       businessProfileId,
+      customerId: normalizeOptionalText(input.customerId),
       customerName: requireText(input.customerName, "Customer name"),
       customerPhone: normalizeOptionalText(input.customerPhone),
       dueDate,

@@ -16,6 +16,8 @@ import {
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
+import { CustomerAutocomplete } from "@/components/dashboard/CustomerAutocomplete";
+import { getCustomerUnpaidInvoices, type Customer } from "@/lib/customerApi";
 import { expenseCategoryItems } from "@/data/dashboard";
 import { ApiError } from "@/lib/api";
 import {
@@ -117,6 +119,7 @@ function SaleForm({
   const [useWholesale, setUseWholesale] = useState(false);
   const [quantity, setQuantity] = useState(1);
   const [customerName, setCustomerName] = useState("");
+  const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatusLabel>("Paid");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodLabel>("Cash");
   const [amountPaid, setAmountPaid] = useState("");
@@ -194,6 +197,7 @@ function SaleForm({
     if (!requiresInvoice) {
       setSelectedInvoiceId(null);
       setInvoiceMode("existing");
+      setInvoices([]);
       return;
     }
 
@@ -203,28 +207,43 @@ function SaleForm({
       const token = getStoredAccessToken();
       if (!token) return;
 
-      const cacheKey = makeCacheKey(token, "invoices", "credit-link");
-      const cached = readClientCache<{ invoices: Invoice[] }>(cacheKey);
-
-      if (cached && !cancelled) {
-        setInvoices(cached.value.invoices);
-      }
-
-      setInvoicesLoading(!cached);
+      setInvoicesLoading(true);
       try {
-        const response = await listInvoices(token, { limit: 50 });
-        if (!cancelled) {
-          setInvoices(response.invoices);
-          writeClientCache(cacheKey, { invoices: response.invoices });
+        // If a customer is selected, show only their unpaid invoices
+        if (selectedCustomer) {
+          const res = await getCustomerUnpaidInvoices(token, selectedCustomer.id);
+          if (!cancelled) {
+            // Map to Invoice shape expected by the form
+            setInvoices(
+              res.invoices.map((inv) => ({
+                id: inv.id,
+                customerName: selectedCustomer.name,
+                customerPhone: selectedCustomer.phone ?? null,
+                status: inv.status as "PAID" | "PENDING" | "OVERDUE",
+                subtotal: inv.subtotal,
+                amountPaid: inv.amountPaid,
+                balance: inv.balance,
+                dueDate: inv.dueDate,
+                notes: null,
+                createdAt: inv.createdAt,
+                updatedAt: inv.createdAt,
+                items: [{ id: "", stockItemId: null, description: inv.description, quantity: 1, unitPrice: inv.subtotal, total: inv.subtotal }],
+                payments: [],
+              })),
+            );
+          }
+        } else {
+          const cacheKey = makeCacheKey(token, "invoices", "credit-link");
+          const cached = readClientCache<{ invoices: Invoice[] }>(cacheKey);
+          if (cached && !cancelled) setInvoices(cached.value.invoices);
+          const response = await listInvoices(token, { limit: 50 });
+          if (!cancelled) {
+            setInvoices(response.invoices);
+            writeClientCache(cacheKey, { invoices: response.invoices });
+          }
         }
       } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof ApiError
-              ? err.message
-              : "Unable to load invoices for linking.",
-          );
-        }
+        if (!cancelled) setError(err instanceof ApiError ? err.message : "Unable to load invoices.");
       } finally {
         if (!cancelled) setInvoicesLoading(false);
       }
@@ -232,10 +251,8 @@ function SaleForm({
 
     void loadInvoices();
 
-    return () => {
-      cancelled = true;
-    };
-  }, [requiresInvoice]);
+    return () => { cancelled = true; };
+  }, [requiresInvoice, selectedCustomer]);
 
   async function submitSale() {
     setError(null);
@@ -281,6 +298,7 @@ function SaleForm({
         stockItemId: selectedItem.id,
         quantity,
         unitPrice,
+        customerId: selectedCustomer?.id,
         customerName: customerName.trim() || undefined,
         paymentStatus: normalizedStatus,
         paymentMethod:
@@ -295,6 +313,7 @@ function SaleForm({
             : undefined,
         createInvoice: requiresInvoice && invoiceMode === "new"
           ? {
+              customerId: selectedCustomer?.id,
               customerName: invoiceName,
               customerPhone: invoiceCustomerPhone.trim() || undefined,
               dueDate: invoiceDueDate,
@@ -415,11 +434,16 @@ function SaleForm({
         </>
       )}
 
-      <StockInput
-        label="Customer Name (optional)"
-        placeholder="e.g. Oga Mike"
+      <CustomerAutocomplete
         value={customerName}
         onChange={setCustomerName}
+        onSelect={(c) => {
+          setSelectedCustomer(c);
+          if (c) {
+            setCustomerName(c.name);
+            setSelectedInvoiceId(null); // reset invoice when customer changes
+          }
+        }}
       />
       <SegmentedControl
         label="Payment Status"

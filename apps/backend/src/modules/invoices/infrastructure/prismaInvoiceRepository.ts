@@ -53,6 +53,7 @@ export class PrismaInvoiceRepository implements InvoiceRepository {
     return prisma.invoice.create({
       data: {
         businessProfileId: input.businessProfileId,
+        customerId: input.customerId ?? null,
         customerName: input.customerName,
         customerPhone: input.customerPhone,
         subtotalKobo,

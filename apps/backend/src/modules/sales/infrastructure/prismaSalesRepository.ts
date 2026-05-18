@@ -86,6 +86,7 @@ export class PrismaSalesRepository implements SalesRepository {
         const invoice = await tx.invoice.create({
           data: {
             businessProfileId: input.businessProfileId,
+            customerId: input.createInvoice.customerId ?? null,
             customerName: input.createInvoice.customerName,
             customerPhone: input.createInvoice.customerPhone,
             subtotalKobo,
@@ -154,6 +155,7 @@ export class PrismaSalesRepository implements SalesRepository {
       const sale = await tx.saleTransaction.create({
         data: {
           businessProfileId: input.businessProfileId,
+          customerId: input.customerId ?? null,
           invoiceId,
           customerName: input.customerName,
           paymentStatus: input.paymentStatus,

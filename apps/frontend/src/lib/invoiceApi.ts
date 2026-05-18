@@ -38,6 +38,7 @@ export type InvoiceSummary = {
 };
 
 export type CreateInvoicePayload = {
+  customerId?: string;
   customerName: string;
   customerPhone?: string;
   dueDate: string;

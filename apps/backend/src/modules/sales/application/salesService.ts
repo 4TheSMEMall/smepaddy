@@ -19,12 +19,14 @@ type CreateSaleInput = {
   stockItemId?: string;
   quantity?: number;
   unitPrice?: number;
+  customerId?: string;
   customerName?: string;
   paymentStatus?: string;
   paymentMethod?: string;
   amountPaid?: number;
   invoiceId?: string;
   createInvoice?: {
+    customerId?: string;
     customerName?: string;
     customerPhone?: string;
     dueDate?: string;
@@ -149,6 +151,7 @@ export class SalesService {
       stockItemId: requireText(input.stockItemId, "Stock item"),
       quantity,
       unitPriceKobo,
+      customerId: normalizeOptionalText(input.customerId),
       customerName: normalizeOptionalText(input.customerName),
       paymentStatus,
       paymentMethod:
