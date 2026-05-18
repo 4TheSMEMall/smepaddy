@@ -1,9 +1,9 @@
 "use client";
 
-import { ChevronDown, User, X } from "lucide-react";
+import { Loader2, Plus, User, X } from "lucide-react";
 import { useEffect, useRef, useState } from "react";
 
-import { listCustomers, type Customer } from "@/lib/customerApi";
+import { createCustomer, listCustomers, type Customer } from "@/lib/customerApi";
 import { getStoredAccessToken } from "@/lib/session";
 
 export function CustomerAutocomplete({
@@ -20,6 +20,7 @@ export function CustomerAutocomplete({
   const [suggestions, setSuggestions] = useState<Customer[]>([]);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Customer | null>(null);
+  const [creating, setCreating] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
   // Close on outside click
@@ -33,15 +34,24 @@ export function CustomerAutocomplete({
 
   // Search customers as user types
   useEffect(() => {
-    if (selected) return; // don't search if already selected
-    if (!value.trim()) { setSuggestions([]); return; }
+    if (selected) return;
+    const trimmed = value.trim();
+
+    if (!trimmed) {
+      setSuggestions([]);
+      setOpen(false);
+      return;
+    }
 
     const token = getStoredAccessToken();
     if (!token) return;
 
     const t = setTimeout(() => {
-      listCustomers(token, value.trim())
-        .then((res) => { setSuggestions(res.customers); setOpen(res.customers.length > 0); })
+      listCustomers(token, trimmed)
+        .then((res) => {
+          setSuggestions(res.customers);
+          setOpen(true); // always open so "Add new" option is visible
+        })
         .catch(() => {});
     }, 250);
 
@@ -56,60 +66,87 @@ export function CustomerAutocomplete({
     setOpen(false);
   }
 
+  async function handleCreateNew() {
+    const trimmed = value.trim();
+    if (!trimmed) return;
+    const token = getStoredAccessToken();
+    if (!token) return;
+
+    setCreating(true);
+    try {
+      const res = await createCustomer(token, { name: trimmed });
+      handleSelect(res.customer);
+    } catch {
+      // silently fail — user can still type manually
+    } finally {
+      setCreating(false);
+    }
+  }
+
   function handleClear() {
     setSelected(null);
     onChange("");
     onSelect(null);
     setSuggestions([]);
+    setOpen(false);
   }
+
+  // Show "Add new" option when typed name isn't an exact case-insensitive match
+  const trimmedValue = value.trim();
+  const isExactMatch = suggestions.some(
+    (c) => c.name.toLowerCase() === trimmedValue.toLowerCase(),
+  );
+  const showAddNew = !selected && trimmedValue.length > 0 && !isExactMatch;
 
   return (
     <div ref={ref} className="relative">
       <label className="mb-2 block text-[24px] font-semibold">Customer</label>
-      <div className="flex items-center gap-2">
-        <div className="relative flex-1">
-          <input
-            type="text"
-            value={value}
-            onChange={(e) => {
-              if (selected) { setSelected(null); onSelect(null); }
-              onChange(e.target.value);
-            }}
-            onFocus={() => { if (suggestions.length > 0) setOpen(true); }}
-            placeholder={placeholder}
-            className="h-[64px] w-full rounded-[11px] border border-[#d3dbe6] bg-transparent pl-5 pr-10 text-[22px] text-[#334155] outline-none placeholder:text-[#94a3b8] focus:border-[#1557df]"
-          />
-          {selected ? (
-            <button type="button" onClick={handleClear}
-              className="absolute right-3 top-1/2 -translate-y-1/2">
-              <X className="size-5 text-[#94a3b8]" />
-            </button>
-          ) : (
-            <User className="absolute right-3 top-1/2 size-5 -translate-y-1/2 text-[#c3cdd8]" />
-          )}
-        </div>
+
+      <div className="relative">
+        <input
+          type="text"
+          value={value}
+          onChange={(e) => {
+            if (selected) { setSelected(null); onSelect(null); }
+            onChange(e.target.value);
+          }}
+          onFocus={() => { if (trimmedValue && !selected) setOpen(true); }}
+          placeholder={placeholder}
+          className="h-[64px] w-full rounded-[11px] border border-[#d3dbe6] bg-transparent pl-5 pr-10 text-[22px] text-[#334155] outline-none placeholder:text-[#94a3b8] focus:border-[#1557df]"
+        />
+        {selected ? (
+          <button type="button" onClick={handleClear}
+            className="absolute right-3 top-1/2 -translate-y-1/2">
+            <X className="size-5 text-[#94a3b8]" />
+          </button>
+        ) : (
+          <User className="absolute right-3 top-1/2 size-5 -translate-y-1/2 text-[#c3cdd8]" />
+        )}
       </div>
 
+      {/* Selected customer chip */}
       {selected && (
         <div className="mt-1.5 flex items-center gap-1.5 rounded-[10px] bg-[#eef4ff] px-3 py-1.5">
-          <div className="size-5 rounded-full bg-[#1557df] text-center text-[11px] font-bold leading-5 text-white">
+          <div className="grid size-5 place-items-center rounded-full bg-[#1557df] text-[11px] font-bold text-white">
             {selected.name.slice(0, 1).toUpperCase()}
           </div>
           <p className="text-[14px] font-semibold text-[#1557df]">
-            {selected.name}
-            {selected.phone && ` · ${selected.phone}`}
+            {selected.name}{selected.phone && ` · ${selected.phone}`}
           </p>
         </div>
       )}
 
-      {open && suggestions.length > 0 && (
+      {/* Dropdown */}
+      {open && (suggestions.length > 0 || showAddNew) && (
         <div className="absolute z-30 mt-1 w-full overflow-hidden rounded-[14px] border border-[#d3dbe6] bg-white shadow-[0_10px_24px_rgba(15,23,42,0.12)]">
+
+          {/* Existing customers */}
           {suggestions.map((c) => (
             <button
               key={c.id}
               type="button"
               onMouseDown={(e) => { e.preventDefault(); handleSelect(c); }}
-              className="flex w-full items-center gap-3 px-4 py-3 text-left hover:bg-[#f8fafc]"
+              className="flex w-full items-center gap-3 border-b border-[#f1f5f9] px-4 py-3 text-left last:border-0 hover:bg-[#f8fafc]"
             >
               <div className="grid size-9 shrink-0 place-items-center rounded-full bg-[#f1f5f9] text-[14px] font-bold text-[#334155]">
                 {c.name.slice(0, 1).toUpperCase()}
@@ -120,6 +157,32 @@ export function CustomerAutocomplete({
               </div>
             </button>
           ))}
+
+          {/* Add new customer option */}
+          {showAddNew && (
+            <button
+              type="button"
+              disabled={creating}
+              onMouseDown={(e) => { e.preventDefault(); void handleCreateNew(); }}
+              className="flex w-full items-center gap-3 bg-[#f0fdf4] px-4 py-3 text-left hover:bg-[#dcfce7] disabled:opacity-60"
+            >
+              {creating ? (
+                <Loader2 className="size-5 animate-spin text-[#059669]" />
+              ) : (
+                <div className="grid size-9 shrink-0 place-items-center rounded-full bg-[#dcfce7]">
+                  <Plus className="size-5 text-[#059669]" />
+                </div>
+              )}
+              <div>
+                <p className="text-[16px] font-bold text-[#059669]">
+                  {creating ? "Saving…" : `Add "${trimmedValue}" as new customer`}
+                </p>
+                <p className="text-[13px] text-[#16a34a]">
+                  Save and link to this {suggestions.length > 0 ? "invoice" : "record"}
+                </p>
+              </div>
+            </button>
+          )}
         </div>
       )}
     </div>
