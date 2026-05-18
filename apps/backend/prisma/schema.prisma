@@ -135,6 +135,7 @@ model BusinessProfile {
   coinRedemptions      CoinRedemption[]
   deviceTokens         DeviceToken[]
   loans                Loan[]
+  customers            Customer[]
   savingsEntries       SavingsEntry[]
   savingsTarget        SavingsTarget?
   savingsAccount       SavingsAccount?
@@ -235,6 +236,7 @@ model ConsignmentSettlement {
 model Invoice {
   id                String            @id @default(cuid())
   businessProfileId String
+  customerId        String?
   customerName      String
   customerPhone     String?
   status            InvoiceStatus     @default(PENDING)
@@ -246,6 +248,7 @@ model Invoice {
   createdAt         DateTime          @default(now())
   updatedAt         DateTime          @updatedAt
   businessProfile   BusinessProfile   @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  customer          Customer?         @relation(fields: [customerId], references: [id], onDelete: SetNull)
   items             InvoiceItem[]
   sales             SaleTransaction[]
   payments          InvoicePayment[]
@@ -286,6 +289,7 @@ model InvoiceItem {
 model SaleTransaction {
   id                String          @id @default(cuid())
   businessProfileId String
+  customerId        String?
   invoiceId         String?
   customerName      String?
   paymentStatus     PaymentStatus
@@ -296,6 +300,7 @@ model SaleTransaction {
   createdAt         DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
   businessProfile   BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  customer          Customer?       @relation(fields: [customerId], references: [id], onDelete: SetNull)
   invoice           Invoice?        @relation(fields: [invoiceId], references: [id], onDelete: SetNull)
   lineItems         SaleLineItem[]
 
@@ -465,6 +470,24 @@ model SavingsAccount {
   setupAt           DateTime        @default(now())
   updatedAt         DateTime        @updatedAt
   businessProfile   BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+}
+
+model Customer {
+  id                String          @id @default(cuid())
+  businessProfileId String
+  name              String
+  phone             String?
+  email             String?
+  address           String?
+  notes             String?
+  createdAt         DateTime        @default(now())
+  updatedAt         DateTime        @updatedAt
+  businessProfile   BusinessProfile @relation(fields: [businessProfileId], references: [id], onDelete: Cascade)
+  invoices          Invoice[]
+  sales             SaleTransaction[]
+
+  @@index([businessProfileId, name])
+  @@index([businessProfileId, phone])
 }
 
 model CoinRedemption {

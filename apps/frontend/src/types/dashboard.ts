@@ -26,7 +26,9 @@ export type Screen =
   | "loans"
   | "loan-apply"
   | "loan-detail"
-  | "savings";
+  | "savings"
+  | "customers"
+  | "customer-detail";
 
 export type Period = "This Week" | "This Month" | "This Quarter" | "This Year";
 

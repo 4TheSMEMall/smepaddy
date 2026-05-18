@@ -41,7 +41,7 @@ export const navItems: NavItem[] = [
 ];
 
 export const serviceItems: IconItem[] = [
-  { label: "My Services", icon: Wrench, tone: "purple" },
+  { label: "Customers", icon: Users, tone: "blue", active: true },
   { label: "Consignment", icon: Package, tone: "blue" },
   { label: "Analytics", icon: TrendingUp, tone: "purple", active: true },
   { label: "Rewards", icon: Gift, tone: "amber", active: true },

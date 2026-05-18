@@ -28,6 +28,8 @@ import { NewInvoiceScreen } from "./screens/NewInvoiceScreen";
 import { ProfileScreen } from "./screens/ProfileScreen";
 import { RecordTransactionScreen } from "./screens/RecordTransactionScreen";
 import { AnalyticsScreen } from "./screens/AnalyticsScreen";
+import { CustomerDetailScreen } from "./screens/CustomerDetailScreen";
+import { CustomersScreen } from "./screens/CustomersScreen";
 import { ExpenseDetailScreen } from "./screens/ExpenseDetailScreen";
 import { LoanApplicationScreen } from "./screens/LoanApplicationScreen";
 import { LoanDetailScreen } from "./screens/LoanDetailScreen";
@@ -64,6 +66,7 @@ export function DashboardApp() {
   const [wallet, setWallet] = useState<WalletInfo | null>(null);
   const [toast, setToast] = useState<{ title: string; body: string } | null>(null);
   const [savingsVerification, setSavingsVerification] = useState<{ entryId: string; reference: string } | null>(null);
+  const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
 
   // Detect Flutterwave savings verification redirect on page load
   useEffect(() => {
@@ -310,6 +313,7 @@ export function DashboardApp() {
               onAnalytics={() => setScreen("analytics")}
               onRewards={() => setScreen("rewards")}
               onSavings={() => setScreen("savings")}
+              onCustomers={() => setScreen("customers")}
             />
           )}
           {screen === "analytics" && (
@@ -317,6 +321,30 @@ export function DashboardApp() {
           )}
           {screen === "rewards" && (
             <RewardsScreen onBack={() => setScreen("more")} />
+          )}
+          {screen === "customers" && (
+            <CustomersScreen
+              onBack={() => setScreen("more")}
+              onSelect={(customer) => {
+                setSelectedCustomerId(customer.id);
+                setScreen("customer-detail");
+              }}
+            />
+          )}
+          {screen === "customer-detail" && selectedCustomerId && (
+            <CustomerDetailScreen
+              customerId={selectedCustomerId}
+              onBack={() => setScreen("customers")}
+              onDeleted={() => {
+                setSelectedCustomerId(null);
+                setScreen("customers");
+              }}
+              onOpenInvoice={(invoiceId) => {
+                setSelectedInvoiceId(invoiceId);
+                setActiveTab("invoices");
+                setScreen("invoice-details");
+              }}
+            />
           )}
           {screen === "savings" && (
             <SavingsScreen

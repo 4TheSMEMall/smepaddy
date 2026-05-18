@@ -14,6 +14,7 @@ export function MoreScreen({
   onAnalytics,
   onRewards,
   onSavings,
+  onCustomers,
 }: {
   onSettings: () => void;
   onProfile: () => void;
@@ -23,13 +24,14 @@ export function MoreScreen({
   onAnalytics: () => void;
   onRewards: () => void;
   onSavings: () => void;
+  onCustomers: () => void;
 }) {
   return (
     <div className="grid grid-cols-2 gap-y-6 rounded-[22px] border border-[#dce3ec] bg-white px-4 py-6 shadow-[0_1px_3px_rgba(15,23,42,0.14)]">
       {serviceItems.map((item) => (
         <button
           key={item.label}
-          onClick={getAction(item.label, onSettings, onProfile, onConsignment, onRecurring, onLoans, onAnalytics, onRewards, onSavings)}
+          onClick={getAction(item.label, onSettings, onProfile, onConsignment, onRecurring, onLoans, onAnalytics, onRewards, onSavings, onCustomers)}
           className={cn(
             "mx-auto flex h-[132px] w-[86%] flex-col items-center justify-center gap-3 rounded-[18px] text-[18px] font-medium text-[#334155]",
             item.active && item.label !== "Settings" && "bg-[#f3f6f9]",
@@ -57,6 +59,7 @@ function getAction(
   onAnalytics: () => void,
   onRewards: () => void,
   onSavings: () => void,
+  onCustomers: () => void,
 ) {
   if (label === "Settings") return onSettings;
   if (label === "Profile") return onProfile;
@@ -66,5 +69,6 @@ function getAction(
   if (label === "Analytics") return onAnalytics;
   if (label === "Rewards") return onRewards;
   if (label === "Savings") return onSavings;
+  if (label === "Customers") return onCustomers;
   return undefined;
 }

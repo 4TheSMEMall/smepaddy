@@ -6,6 +6,7 @@ import { createAccountHandler } from "./modules/account/presentation/accountRout
 import { createAuthHandler } from "./modules/auth/presentation/authRoutes.js";
 import { createConsignmentHandler } from "./modules/consignment/presentation/consignmentRoutes.js";
 import { createAnalyticsHandler } from "./modules/analytics/presentation/analyticsRoutes.js";
+import { createCustomerHandler } from "./modules/customers/presentation/customerRoutes.js";
 import { createRedemptionHandler } from "./modules/redemption/presentation/redemptionRoutes.js";
 import { createSavingsHandler } from "./modules/savings/presentation/savingsRoutes.js";
 import { createCoinHandler } from "./modules/coins/presentation/coinRoutes.js";
@@ -30,6 +31,7 @@ const dashboardHandler = createDashboardHandler();
 const invoiceHandler = createInvoiceHandler();
 const onboardingHandler = createOnboardingHandler();
 const analyticsHandler = createAnalyticsHandler();
+const customerHandler = createCustomerHandler();
 const redemptionHandler = createRedemptionHandler();
 const savingsHandler = createSavingsHandler();
 const coinHandler = createCoinHandler();
@@ -64,6 +66,11 @@ const server = createServer(async (request, response) => {
 
     if (request.url?.startsWith("/analytics")) {
       await analyticsHandler(request, response);
+      return;
+    }
+
+    if (request.url?.startsWith("/customers")) {
+      await customerHandler(request, response);
       return;
     }
 
