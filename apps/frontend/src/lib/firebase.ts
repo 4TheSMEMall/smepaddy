@@ -29,20 +29,45 @@ export async function requestPushPermission(): Promise<PushResult> {
     const sw = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
     await navigator.serviceWorker.ready;
 
-    // Unsubscribe from any old subscription (e.g. previous Firebase VAPID key)
+    // Reuse existing valid subscription — never destroy it on app reload.
+    // Only unsubscribe and re-create if explicitly called from Settings.
     const existing = await sw.pushManager.getSubscription();
-    if (existing) await existing.unsubscribe();
+    if (existing) {
+      return { ok: true, token: existing.endpoint, subscription: JSON.stringify(existing) };
+    }
 
-    // Subscribe using the Web Push API with the new VAPID key
+    // No subscription yet — create one
     const subscription = await sw.pushManager.subscribe({
       userVisibleOnly: true,
       applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as BufferSource,
     });
 
     const subJson = JSON.stringify(subscription);
-    const token = subscription.endpoint; // endpoint is the unique identifier
+    const token = subscription.endpoint;
 
     return { ok: true, token, subscription: subJson };
+  } catch (err) {
+    return { ok: false, reason: err instanceof Error ? err.message : String(err) };
+  }
+}
+
+/**
+ * Force unsubscribe + resubscribe — use only from Settings "Re-enable" button.
+ */
+export async function forceResubscribe(): Promise<PushResult> {
+  if (typeof window === "undefined" || !("serviceWorker" in navigator)) {
+    return { ok: false, reason: "Not supported" };
+  }
+  try {
+    const sw = await navigator.serviceWorker.register("/firebase-messaging-sw.js");
+    await navigator.serviceWorker.ready;
+    const existing = await sw.pushManager.getSubscription();
+    if (existing) await existing.unsubscribe();
+    const subscription = await sw.pushManager.subscribe({
+      userVisibleOnly: true,
+      applicationServerKey: urlBase64ToUint8Array(VAPID_PUBLIC_KEY) as BufferSource,
+    });
+    return { ok: true, token: subscription.endpoint, subscription: JSON.stringify(subscription) };
   } catch (err) {
     return { ok: false, reason: err instanceof Error ? err.message : String(err) };
   }

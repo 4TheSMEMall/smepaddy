@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 
 import { Card } from "@/components/ui/card";
 import { settingRows } from "@/data/dashboard";
-import { requestPushPermission, type PushResult } from "@/lib/firebase";
+import { forceResubscribe, requestPushPermission, type PushResult } from "@/lib/firebase";
 import { registerDeviceToken, sendTestNotification } from "@/lib/notificationApi";
 import { getStoredAccessToken } from "@/lib/session";
 import { cn } from "@/lib/utils";
@@ -33,7 +33,10 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
     setRegistering(true);
     setEnableError(null);
     try {
-      const result: PushResult = await requestPushPermission();
+      // If already granted, force a fresh subscription (re-enable after it disabled itself)
+      const result: PushResult = permState === "granted"
+        ? await forceResubscribe()
+        : await requestPushPermission();
       setPermState(
         typeof window !== "undefined" && "Notification" in window
           ? Notification.permission

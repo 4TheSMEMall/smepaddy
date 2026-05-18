@@ -170,18 +170,7 @@ export class RecurringExpenseService {
 
         invalidateBusinessCache(recurring.businessProfileId, ["expenses", "dashboard-summary"]);
 
-        const email = recurring.businessProfile.user.email;
-        if (email) {
-          sendRecurringExpenseEmail(email, {
-            businessName: recurring.businessProfile.businessName,
-            category: recurring.category,
-            amount: recurring.amountKobo / 100,
-          }).catch((err) => {
-            logger.warn("Failed to send recurring expense email", { id: recurring.id, err });
-          });
-        }
-
-        // Push notification alongside the email
+        // Push notification handles the user alert — no email needed
         const amount = new Intl.NumberFormat("en-NG", {
           style: "currency",
           currency: "NGN",
@@ -262,55 +251,7 @@ export function computeNextRunAt(
   return next;
 }
 
-async function sendRecurringExpenseEmail(
-  email: string,
-  data: { businessName: string; category: string; amount: number },
-) {
-  const apiKey = process.env.BREVO_API_KEY;
-  const sendUrl = process.env.BREVO_SEND_EMAIL_URL ?? "https://api.brevo.com/v3/smtp/email";
-  const senderEmail = process.env.BREVO_SENDER_EMAIL;
-  const senderName = process.env.BREVO_SENDER_NAME ?? "SME Paddy";
-
-  if (!apiKey || !senderEmail) return;
-
-  const formatted = new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
-    maximumFractionDigits: 0,
-  }).format(data.amount);
-
-  await fetch(sendUrl, {
-    method: "POST",
-    headers: {
-      accept: "application/json",
-      "api-key": apiKey,
-      "content-type": "application/json",
-    },
-    body: JSON.stringify({
-      sender: { name: senderName, email: senderEmail },
-      to: [{ email }],
-      subject: `Auto-recorded: ${data.category} – ${formatted}`,
-      htmlContent: `
-        <div style="font-family:Arial,sans-serif;max-width:520px;margin:0 auto;color:#071122">
-          <h2 style="font-size:22px;margin:0 0 12px">Expense Auto-Recorded</h2>
-          <p style="font-size:16px;line-height:1.5;margin:0 0 16px">
-            Hi <strong>${data.businessName}</strong>, your recurring expense has been automatically recorded on SME Paddy.
-          </p>
-          <div style="background:#fff5f5;border-radius:14px;padding:18px;margin:0 0 16px">
-            <p style="margin:0;font-size:15px;color:#64748b">Category</p>
-            <p style="margin:4px 0 12px;font-size:20px;font-weight:700">${data.category}</p>
-            <p style="margin:0;font-size:15px;color:#64748b">Amount Recorded</p>
-            <p style="margin:4px 0 0;font-size:28px;font-weight:800;color:#ef3b42">${formatted}</p>
-          </div>
-          <p style="font-size:14px;color:#64748b;margin:0">
-            Open SME Paddy to view or pause this recurring expense.
-          </p>
-        </div>
-      `,
-      tags: ["recurring_expense"],
-    }),
-  });
-}
+// Email removed — push notifications handle recurring expense alerts.
 
 function toDto(record: Awaited<ReturnType<RecurringExpenseRepository["list"]>>[number]) {
   return {
