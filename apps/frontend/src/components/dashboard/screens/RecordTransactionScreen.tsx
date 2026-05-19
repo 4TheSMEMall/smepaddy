@@ -38,7 +38,6 @@ import { listStockItems, type StockItem } from "@/lib/stockApi";
 import { cn } from "@/lib/utils";
 import type { RecordMode } from "@/types/dashboard";
 
-import { FormField } from "../FormField";
 
 type PaymentStatusLabel = "Paid" | "Part Payment" | "Will Pay Later";
 type PaymentMethodLabel = "Cash" | "Transfer" | "Card";
@@ -661,7 +660,7 @@ function InvoicePanel({
             placeholder="Customer name *"
           />
           <div className="mt-3">
-            <StockInputit
+            <StockInput
               label="Phone (optional)"
               placeholder="08012345678"
               value={customerPhone}
