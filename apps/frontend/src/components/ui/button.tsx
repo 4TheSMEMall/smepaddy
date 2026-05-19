@@ -20,8 +20,8 @@ const buttonVariants = cva(
         ghost: "text-[#334155] hover:bg-[#f1f5f9]",
       },
       size: {
-        default: "h-14 px-7 text-[22px]",
-        sm: "h-12 px-5 text-[18px]",
+        default: "h-12 px-5 text-[16px] sm:h-14 sm:px-7 sm:text-[22px]",
+        sm: "h-11 px-4 text-[15px] sm:h-12 sm:px-5 sm:text-[18px]",
         icon: "size-12 rounded-full",
       },
     },

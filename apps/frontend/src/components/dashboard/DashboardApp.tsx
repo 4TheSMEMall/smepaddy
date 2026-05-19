@@ -159,7 +159,7 @@ export function DashboardApp() {
           animate={{ opacity: 1, y: 0 }}
           exit={{ opacity: 0, y: -6 }}
           transition={{ duration: 0.18, ease: "easeOut" }}
-          className="mx-auto w-full max-w-[620px] px-4 pt-6 sm:px-0 sm:pt-7"
+          className="dashboard-content mx-auto w-full max-w-[620px] px-4 pb-6 pt-5 sm:px-0 sm:pt-7"
         >
           {screen === "home" && (
             <HomeScreen

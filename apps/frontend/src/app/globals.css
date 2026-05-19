@@ -48,6 +48,13 @@ button {
   min-height: 44px;
 }
 
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
 /* ── App scaling: full size on mobile, 75% on desktop ── */
 .app-scale {
   zoom: 1;
@@ -62,10 +69,23 @@ button {
 /* ── Main shell background ── */
 .soft-shell {
   background:
-    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.88), transparent 50%),
+    radial-gradient(circle at 50% 0%, rgba(255, 255, 255, 0.94), transparent 48%),
+    linear-gradient(180deg, #f7faff 0%, #edf3fa 42%, #e9f0f8 100%),
     #eef3f9;
   /* Safe area padding for iPhone notch at bottom */
   padding-bottom: calc(var(--nav-height) + var(--safe-bottom));
+}
+
+.dashboard-content {
+  overflow-x: hidden;
+}
+
+.dashboard-content * {
+  min-width: 0;
+}
+
+.no-scrollbar::-webkit-scrollbar {
+  display: none;
 }
 
 /* ── Bottom nav safe area ── */
@@ -105,5 +125,102 @@ button {
   /* Improve readability on small screens */
   input, textarea, select {
     font-size: 16px !important; /* Prevents iOS zoom on focus */
+  }
+}
+
+@media (max-width: 480px) {
+  :root {
+    --nav-height: 70px;
+  }
+
+  .dashboard-content {
+    padding-left: 14px;
+    padding-right: 14px;
+  }
+
+  .dashboard-content h2 {
+    font-size: clamp(1.35rem, 6vw, 1.75rem) !important;
+    line-height: 1.12 !important;
+  }
+
+  .dashboard-content h3 {
+    font-size: clamp(1.1rem, 5vw, 1.45rem) !important;
+    line-height: 1.18 !important;
+  }
+
+  .dashboard-content p,
+  .dashboard-content label,
+  .dashboard-content span {
+    overflow-wrap: anywhere;
+  }
+
+  .dashboard-content input,
+  .dashboard-content textarea,
+  .dashboard-content select {
+    min-height: 48px;
+    border-radius: 14px;
+  }
+
+  .dashboard-content [class*="h-[72px]"] {
+    height: 56px !important;
+  }
+
+  .dashboard-content [class*="text-[31px]"],
+  .dashboard-content [class*="text-[30px]"],
+  .dashboard-content [class*="text-[29px]"],
+  .dashboard-content [class*="text-[28px]"],
+  .dashboard-content [class*="text-[27px]"],
+  .dashboard-content [class*="text-[26px]"],
+  .dashboard-content [class*="text-[25px]"],
+  .dashboard-content [class*="text-[24px]"],
+  .dashboard-content [class*="text-[23px]"],
+  .dashboard-content [class*="text-[22px]"],
+  .dashboard-content [class*="text-[21px]"] {
+    font-size: 1rem !important;
+    line-height: 1.35 !important;
+  }
+
+  .dashboard-content [class*="text-[39px]"],
+  .dashboard-content [class*="text-[35px]"] {
+    font-size: 1.7rem !important;
+    line-height: 1.1 !important;
+  }
+
+  .dashboard-content [class*="gap-14"] {
+    gap: 0.85rem !important;
+  }
+
+  .dashboard-content [class*="gap-10"] {
+    gap: 0.75rem !important;
+  }
+
+  .dashboard-content [class*="px-9"],
+  .dashboard-content [class*="px-8"],
+  .dashboard-content [class*="px-7"],
+  .dashboard-content [class*="px-6"] {
+    padding-left: 1rem !important;
+    padding-right: 1rem !important;
+  }
+
+  .dashboard-content [class*="py-10"],
+  .dashboard-content [class*="py-9"],
+  .dashboard-content [class*="py-8"],
+  .dashboard-content [class*="py-7"] {
+    padding-top: 1.25rem !important;
+    padding-bottom: 1.25rem !important;
+  }
+
+  .dashboard-content [class*="size-[96px]"],
+  .dashboard-content [class*="size-[82px]"],
+  .dashboard-content [class*="size-[72px]"] {
+    width: 56px !important;
+    height: 56px !important;
+  }
+
+  .dashboard-content [class*="w-[202px]"],
+  .dashboard-content [class*="w-[300px]"],
+  .dashboard-content [class*="w-[352px]"] {
+    width: 100% !important;
+    max-width: 100% !important;
   }
 }

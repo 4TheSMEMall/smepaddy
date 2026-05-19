@@ -14,13 +14,13 @@ export function BottomNav({
   onChange: (tab: Tab) => void;
 }) {
   return (
-    <nav className="nav-safe fixed inset-x-0 bottom-0 z-30 border-t border-[#e4e9f0] bg-white/95 shadow-[0_-4px_24px_rgba(15,23,42,0.08)] backdrop-blur-xl">
-      <div className="mx-auto grid h-[72px] max-w-[620px] grid-cols-5">
+    <nav className="nav-safe fixed inset-x-0 bottom-0 z-30 border-t border-[#e4e9f0] bg-white/95 shadow-[0_-8px_28px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+      <div className="mx-auto grid h-[72px] max-w-[620px] grid-cols-5 px-1">
         {navItems.map((item) => (
           <button
             key={item.id}
             className={cn(
-              "relative flex flex-col items-center justify-center gap-1 py-2 text-[11px] font-semibold tracking-wide transition-colors duration-150",
+              "relative flex min-w-0 flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-semibold transition-colors duration-150 sm:text-[11px]",
               active === item.id
                 ? "text-[#1557df]"
                 : "text-[#94a3b8] active:text-[#1557df]",
@@ -43,7 +43,7 @@ export function BottomNav({
                 strokeWidth={active === item.id ? 2.5 : 2}
               />
             </div>
-            <span>{item.label}</span>
+            <span className="max-w-full truncate px-0.5">{item.label}</span>
           </button>
         ))}
       </div>

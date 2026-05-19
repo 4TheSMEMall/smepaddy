@@ -71,15 +71,15 @@ export function RecordTransactionScreen({
   const isExpense = mode === "expense";
 
   return (
-    <div className="mx-4 sm:mx-0">
-      <div className="mb-10 flex items-center gap-14">
-        <button className="grid size-9 place-items-center" onClick={onBack}>
+    <div className="space-y-5 sm:mx-0">
+      <div className="flex items-center gap-3">
+        <button className="grid size-10 shrink-0 place-items-center rounded-full bg-white shadow-[0_1px_5px_rgba(15,23,42,0.08)]" onClick={onBack}>
           <ArrowLeft className="size-7" />
         </button>
-        <h2 className="text-[31px] font-extrabold">Record Transaction</h2>
+        <h2 className="text-[29px] font-extrabold leading-tight text-[#071122]">Record Transaction</h2>
       </div>
 
-      <div className="mb-6 grid grid-cols-2 gap-10">
+      <div className="grid grid-cols-2 gap-3 sm:gap-6">
         <ModeButton
           active={!isExpense}
           icon={<ShoppingCart className="size-6" />}
@@ -195,10 +195,12 @@ function SaleForm({
 
   useEffect(() => {
     if (!requiresInvoice) {
-      setSelectedInvoiceId(null);
-      setInvoiceMode("existing");
-      setInvoices([]);
-      return;
+      const timer = setTimeout(() => {
+        setSelectedInvoiceId(null);
+        setInvoiceMode("existing");
+        setInvoices([]);
+      }, 0);
+      return () => clearTimeout(timer);
     }
 
     let cancelled = false;
@@ -343,7 +345,7 @@ function SaleForm({
         <button
           type="button"
           className={cn(
-            "flex h-[56px] items-center justify-between rounded-[11px] border border-[#d3dbe6] bg-transparent px-5 text-[23px] text-[#1f2937] shadow-[0_1px_2px_rgba(15,23,42,0.04)]",
+            "flex h-[56px] items-center justify-between rounded-[14px] border border-[#d3dbe6] bg-white px-4 text-[18px] text-[#1f2937] shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-5 sm:text-[23px]",
             selectedItem ? "w-full max-w-[520px]" : "w-[202px]",
           )}
           onClick={() => setDropdownOpen((open) => !open)}
@@ -356,7 +358,7 @@ function SaleForm({
           <ChevronDown className="ml-3 size-5 shrink-0 text-[#94a3b8]" />
         </button>
         {dropdownOpen && (
-          <div className="absolute z-20 mt-2 w-full max-w-[520px] overflow-hidden rounded-[11px] border border-[#d3dbe6] bg-white shadow-[0_10px_20px_rgba(15,23,42,0.12)]">
+          <div className="absolute z-20 mt-2 w-full max-w-[520px] overflow-hidden rounded-[14px] border border-[#d3dbe6] bg-white shadow-[0_10px_20px_rgba(15,23,42,0.12)]">
             {items.length === 0 && (
               <div className="px-5 py-4 text-[19px] text-[#64748b]">
                 No stock item available. Add stock before recording a sale.
@@ -366,7 +368,7 @@ function SaleForm({
               <button
                 key={item.id}
                 type="button"
-                className="flex min-h-[60px] w-full items-center justify-between gap-4 px-5 text-left text-[21px] hover:bg-[#f8fafc]"
+                className="flex min-h-[60px] w-full items-center justify-between gap-3 px-4 text-left text-[16px] hover:bg-[#f8fafc] sm:px-5 sm:text-[21px]"
                 onClick={() => {
                   setSelectedId(item.id);
                   setUseWholesale(false);
@@ -404,13 +406,13 @@ function SaleForm({
 
           <div>
             <p className="mb-3 text-[24px] font-semibold">Quantity</p>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-3 sm:gap-4">
               <QuantityButton
                 onClick={() => setQuantity((value) => Math.max(1, value - 1))}
               >
                 <Minus className="size-6" />
               </QuantityButton>
-              <div className="grid h-[72px] w-24 place-items-center rounded-[18px] border border-[#d3dbe6] text-[35px] font-bold">
+              <div className="grid h-14 w-20 place-items-center rounded-[18px] border border-[#d3dbe6] bg-white text-[28px] font-bold sm:h-[72px] sm:w-24 sm:text-[35px]">
                 {quantity}
               </div>
               <QuantityButton
@@ -423,7 +425,7 @@ function SaleForm({
             </div>
           </div>
 
-          <div className="grid h-[168px] place-items-center rounded-[20px] border border-[#d8f3e3] bg-[#ecfff4] text-center shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
+          <div className="grid min-h-[128px] place-items-center rounded-[20px] border border-[#d8f3e3] bg-[#ecfff4] px-4 py-6 text-center shadow-[0_1px_3px_rgba(15,23,42,0.08)] sm:h-[168px]">
             <div>
               <p className="text-[23px] text-[#334155]">Total</p>
               <p className="mt-2 text-[39px] font-extrabold text-[#12b981]">
@@ -519,7 +521,7 @@ function SaleForm({
 
       <button
         type="button"
-        className="h-[72px] w-full rounded-[18px] bg-[#18bd82] text-[23px] font-bold text-white disabled:cursor-not-allowed disabled:bg-[#8fb0ef]"
+          className="h-14 w-full rounded-[16px] bg-[#18bd82] text-[18px] font-bold text-white shadow-[0_8px_20px_rgba(24,189,130,0.24)] disabled:cursor-not-allowed disabled:bg-[#8fb0ef] sm:h-[72px] sm:rounded-[18px] sm:text-[23px]"
         disabled={saving || loading}
         onClick={() => void submitSale()}
       >
@@ -800,14 +802,14 @@ function ExpenseForm({
   return (
     <div>
       <h3 className="mb-3 text-[25px] font-semibold">Category</h3>
-      <div className="mb-10 grid grid-cols-4 gap-x-4 gap-y-4">
+      <div className="mb-8 grid grid-cols-2 gap-3 sm:mb-10 sm:grid-cols-4 sm:gap-x-4 sm:gap-y-4">
         {expenseCategoryItems.map((item) => (
           <button
             key={item.label}
             type="button"
             onClick={() => setCategory(item.label)}
             className={cn(
-              "flex h-[88px] flex-col items-center justify-center gap-2 rounded-[18px] text-[19px] transition-colors",
+              "flex h-[82px] flex-col items-center justify-center gap-2 rounded-[18px] text-[15px] font-semibold transition-colors sm:h-[88px] sm:text-[19px]",
               category === item.label
                 ? "bg-[#ef3b42] text-white"
                 : "bg-[#f1f5fa] text-[#334155]",
@@ -851,7 +853,7 @@ function ExpenseForm({
         type="button"
         onClick={handleSubmit}
         disabled={saving}
-        className="mt-9 h-[72px] w-full rounded-[18px] bg-[#ef3b42] text-[23px] font-semibold text-white shadow-[0_2px_5px_rgba(15,23,42,0.12)] disabled:opacity-60"
+        className="mt-8 h-14 w-full rounded-[16px] bg-[#ef3b42] text-[18px] font-semibold text-white shadow-[0_8px_20px_rgba(239,59,66,0.22)] disabled:opacity-60 sm:mt-9 sm:h-[72px] sm:rounded-[18px] sm:text-[23px]"
       >
         {saving ? "Recording..." : "Record Expense"}
       </button>
@@ -878,7 +880,7 @@ function ModeButton({
   return (
     <button
       className={cn(
-        "flex h-[82px] flex-col items-center justify-center gap-2 rounded-[16px] text-[19px] font-bold transition-colors",
+        "flex h-[74px] flex-col items-center justify-center gap-2 rounded-[16px] bg-white text-[15px] font-bold shadow-[0_1px_5px_rgba(15,23,42,0.08)] transition-colors sm:h-[82px] sm:text-[19px]",
         active ? `${activeClass} text-white shadow-[0_2px_5px_rgba(15,23,42,0.12)]` : "text-[#66758a]",
       )}
       onClick={onClick}
@@ -907,7 +909,7 @@ function StockInput({
       <span className="mb-2 block text-[24px] font-semibold">{label}</span>
       <input
         type={type}
-        className="h-[72px] w-full rounded-[11px] border border-[#d3dbe6] bg-transparent px-5 text-[23px] text-[#334155] outline-none placeholder:text-[#64748b] shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
+        className="h-14 w-full rounded-[14px] border border-[#d3dbe6] bg-white px-4 text-[16px] text-[#334155] outline-none placeholder:text-[#64748b] shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:h-[72px] sm:px-5 sm:text-[23px]"
         placeholder={placeholder}
         value={value}
         onChange={(event) => onChange(event.target.value)}
@@ -932,13 +934,13 @@ function SegmentedControl({
   return (
     <div>
       <p className="mb-3 text-[24px] font-semibold">{label}</p>
-      <div className="grid h-[60px] grid-cols-3 overflow-hidden rounded-[18px]">
+      <div className="grid min-h-[54px] grid-cols-3 overflow-hidden rounded-[16px] bg-white shadow-[0_1px_5px_rgba(15,23,42,0.08)] sm:h-[60px] sm:rounded-[18px]">
         {options.map((option) => (
           <button
             key={option}
             type="button"
             className={cn(
-              "text-[19px] font-semibold text-[#66758a]",
+              "px-2 text-[14px] font-semibold leading-tight text-[#66758a] sm:text-[19px]",
               option === active && activeClass,
             )}
             onClick={() => onChange(option)}
@@ -961,7 +963,7 @@ function QuantityButton({
   return (
     <button
       type="button"
-      className="grid size-[72px] place-items-center rounded-[18px] border border-[#d3dbe6] bg-white text-[#111827] shadow-[0_1px_2px_rgba(15,23,42,0.06)]"
+      className="grid size-14 place-items-center rounded-[18px] border border-[#d3dbe6] bg-white text-[#111827] shadow-[0_1px_2px_rgba(15,23,42,0.06)] sm:size-[72px]"
       onClick={onClick}
     >
       {children}

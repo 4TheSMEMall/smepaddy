@@ -38,9 +38,11 @@ export function CustomerAutocomplete({
     const trimmed = value.trim();
 
     if (!trimmed) {
-      setSuggestions([]);
-      setOpen(false);
-      return;
+      const t = setTimeout(() => {
+        setSuggestions([]);
+        setOpen(false);
+      }, 0);
+      return () => clearTimeout(t);
     }
 
     const token = getStoredAccessToken();
@@ -98,7 +100,7 @@ export function CustomerAutocomplete({
 
   return (
     <div ref={ref} className="relative">
-      <label className="mb-2 block text-[24px] font-semibold">Customer</label>
+      <label className="mb-2 block text-[16px] font-semibold text-[#071122] sm:text-[24px]">Customer</label>
 
       <div className="relative">
         <input
@@ -110,7 +112,7 @@ export function CustomerAutocomplete({
           }}
           onFocus={() => { if (trimmedValue && !selected) setOpen(true); }}
           placeholder={placeholder}
-          className="h-[64px] w-full rounded-[11px] border border-[#d3dbe6] bg-transparent pl-5 pr-10 text-[22px] text-[#334155] outline-none placeholder:text-[#94a3b8] focus:border-[#1557df]"
+          className="h-14 w-full rounded-[14px] border border-[#d3dbe6] bg-white pl-4 pr-10 text-[16px] text-[#334155] outline-none placeholder:text-[#94a3b8] focus:border-[#1557df] focus:ring-2 focus:ring-[#d7e4ff] sm:h-[64px] sm:rounded-[11px] sm:pl-5 sm:text-[22px]"
         />
         {selected ? (
           <button type="button" onClick={handleClear}
