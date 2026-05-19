@@ -48,11 +48,9 @@ export function CustomerAutocomplete({
 
     const t = setTimeout(() => {
       listCustomers(token, trimmed)
-        .then((res) => {
-          setSuggestions(res.customers);
-          setOpen(true); // always open so "Add new" option is visible
-        })
-        .catch(() => {});
+        .then((res) => { setSuggestions(res.customers); })
+        .catch(() => { setSuggestions([]); })
+        .finally(() => { setOpen(true); }); // always open — shows "Add new" even if API fails
     }, 250);
 
     return () => clearTimeout(t);

@@ -120,6 +120,7 @@ function SaleForm({
   const [quantity, setQuantity] = useState(1);
   const [customerName, setCustomerName] = useState("");
   const [selectedCustomer, setSelectedCustomer] = useState<Customer | null>(null);
+  const [selectedInvoiceCustomer, setSelectedInvoiceCustomer] = useState<Customer | null>(null);
   const [paymentStatus, setPaymentStatus] = useState<PaymentStatusLabel>("Paid");
   const [paymentMethod, setPaymentMethod] = useState<PaymentMethodLabel>("Cash");
   const [amountPaid, setAmountPaid] = useState("");
@@ -313,7 +314,7 @@ function SaleForm({
             : undefined,
         createInvoice: requiresInvoice && invoiceMode === "new"
           ? {
-              customerId: selectedCustomer?.id,
+              customerId: selectedInvoiceCustomer?.id ?? selectedCustomer?.id,
               customerName: invoiceName,
               customerPhone: invoiceCustomerPhone.trim() || undefined,
               dueDate: invoiceDueDate,
@@ -494,6 +495,10 @@ function SaleForm({
           onCustomerPhoneChange={setInvoiceCustomerPhone}
           onDueDateChange={setInvoiceDueDate}
           onNotesChange={setInvoiceNotes}
+          onCustomerSelect={(c) => {
+            setSelectedInvoiceCustomer(c);
+            if (c) setInvoiceCustomerPhone(c.phone ?? "");
+          }}
         />
       )}
 
@@ -543,6 +548,7 @@ function InvoicePanel({
   onCustomerPhoneChange,
   onDueDateChange,
   onNotesChange,
+  onCustomerSelect,
 }: {
   invoices: Invoice[];
   loading: boolean;
@@ -560,6 +566,7 @@ function InvoicePanel({
   onCustomerPhoneChange: (value: string) => void;
   onDueDateChange: (value: string) => void;
   onNotesChange: (value: string) => void;
+  onCustomerSelect?: (customer: import("@/lib/customerApi").Customer | null) => void;
 }) {
   return (
     <div className="rounded-[22px] border border-[#d8e5ff] bg-white px-5 py-5 shadow-[0_10px_28px_rgba(15,23,42,0.07)]">
@@ -641,13 +648,19 @@ function InvoicePanel({
               </button>
             )}
           </div>
-          <div className="grid gap-4 sm:grid-cols-2">
-            <StockInput
-              label="Invoice Customer *"
-              placeholder="Customer name"
-              value={customerName}
-              onChange={onCustomerNameChange}
-            />
+          <CustomerAutocomplete
+            value={customerName}
+            onChange={onCustomerNameChange}
+            onSelect={(c) => {
+              onCustomerSelect?.(c);
+              if (c) {
+                onCustomerNameChange(c.name);
+                onCustomerPhoneChange(c.phone ?? "");
+              }
+            }}
+            placeholder="Customer name *"
+          />
+          <div className="mt-3">
             <StockInput
               label="Phone (optional)"
               placeholder="08012345678"
