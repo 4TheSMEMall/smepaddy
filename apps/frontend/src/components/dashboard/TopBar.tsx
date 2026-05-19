@@ -5,7 +5,7 @@ import { useEffect, useRef, useState } from "react";
 
 import { PaddyCoinIcon } from "@/components/PaddyCoinIcon";
 
-export function TopBar({ coins }: { coins: number }) {
+export function TopBar({ coins, businessName }: { coins: number; businessName?: string }) {
   const [flash, setFlash] = useState<number | null>(null);
   const prevCoins = useRef(coins);
 
@@ -28,7 +28,7 @@ export function TopBar({ coins }: { coins: number }) {
             SP
           </div>
           <h1 className="text-[21px] font-semibold leading-none text-[#081124] sm:text-[22px]">
-            Mikama Services
+            {businessName ?? "SME Paddy"}
           </h1>
         </div>
         <div className="flex items-center gap-5 sm:gap-6">

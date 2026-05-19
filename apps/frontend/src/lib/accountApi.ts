@@ -13,6 +13,7 @@ export type CurrentAccountResponse = {
     businessName: string;
     businessType: string;
     location: string | null;
+    createdAt: string;
   } | null;
 };
 

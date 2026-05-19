@@ -19,6 +19,7 @@ export type AuthenticatedContext = {
     businessName: string;
     businessType: string;
     location: string | null;
+    createdAt: Date;
   } | null;
 };
 
@@ -55,6 +56,7 @@ export async function requireAuth(
               businessName: true,
               businessType: true,
               location: true,
+              createdAt: true,
             },
           },
         },

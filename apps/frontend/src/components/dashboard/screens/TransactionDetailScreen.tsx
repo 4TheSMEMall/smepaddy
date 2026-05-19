@@ -25,10 +25,12 @@ export function TransactionDetailScreen({
   sale,
   onBack,
   onOpenInvoice,
+  businessName,
 }: {
   sale: SaleListItem;
   onBack: () => void;
   onOpenInvoice?: (invoiceId: string) => void;
+  businessName?: string;
 }) {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
 
@@ -162,7 +164,7 @@ export function TransactionDetailScreen({
           onClick={() =>
             downloadSaleReceipt({
               receiptNo: sale.id.slice(-6).toUpperCase(),
-              businessName: "Mikama Services",
+              businessName: businessName ?? "SME Paddy",
               date: sale.createdAt,
               customerName: sale.customerName,
               items: sale.itemNames.map((name) => ({ name })),
@@ -183,7 +185,7 @@ export function TransactionDetailScreen({
           onClick={() =>
             shareSaleReceipt({
               receiptNo: sale.id.slice(-6).toUpperCase(),
-              businessName: "Mikama Services",
+              businessName: businessName ?? "SME Paddy",
               date: sale.createdAt,
               customerName: sale.customerName,
               items: sale.itemNames.map((name) => ({ name })),

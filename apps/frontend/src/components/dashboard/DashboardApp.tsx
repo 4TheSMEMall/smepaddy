@@ -3,9 +3,10 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useState } from "react";
 
+import { getCurrentAccount, type CurrentAccountResponse } from "@/lib/accountApi";
 import { claimDailyLogin, getWallet, type WalletInfo } from "@/lib/coinApi";
 import type { ExpenseItem } from "@/lib/expenseApi";
-import type { EligibilityResult, Loan } from "@/lib/loanApi";
+import type { EligibilityResult } from "@/lib/loanApi";
 import { onForegroundMessage, requestPushPermission } from "@/lib/firebase";
 import { registerDeviceToken } from "@/lib/notificationApi";
 import type { SaleListItem } from "@/lib/salesApi";
@@ -64,6 +65,7 @@ export function DashboardApp() {
   const [selectedLoanId, setSelectedLoanId] = useState<string | null>(null);
   const [loanEligibility, setLoanEligibility] = useState<EligibilityResult | null>(null);
   const [wallet, setWallet] = useState<WalletInfo | null>(null);
+  const [account, setAccount] = useState<CurrentAccountResponse | null>(null);
   const [toast, setToast] = useState<{ title: string; body: string } | null>(null);
   const [savingsVerification, setSavingsVerification] = useState<{ entryId: string; reference: string } | null>(null);
   const [selectedCustomerId, setSelectedCustomerId] = useState<string | null>(null);
@@ -80,6 +82,15 @@ export function DashboardApp() {
       // Clean the URL so refreshing doesn't re-trigger
       window.history.replaceState({}, "", window.location.pathname);
     }
+  }, []);
+
+  // Fetch account profile on mount
+  useEffect(() => {
+    const token = getStoredAccessToken();
+    if (!token) return;
+    getCurrentAccount(token)
+      .then(setAccount)
+      .catch(() => {});
   }, []);
 
   // Fetch wallet on mount and claim daily login bonus
@@ -143,7 +154,7 @@ export function DashboardApp() {
       className="soft-shell min-h-screen pb-[86px]"
       style={{ zoom: 0.75 }}
     >
-      <TopBar coins={wallet?.balance ?? 0} />
+      <TopBar coins={wallet?.balance ?? 0} businessName={account?.business?.businessName} />
       <AnimatePresence mode="wait">
         <motion.section
           key={screen}
@@ -186,6 +197,7 @@ export function DashboardApp() {
           {screen === "transaction-detail" && selectedSale && (
             <TransactionDetailScreen
               sale={selectedSale}
+              businessName={account?.business?.businessName}
               onBack={() => setScreen("transactions")}
               onOpenInvoice={(invoiceId) => {
                 setSelectedInvoiceId(invoiceId);
@@ -274,6 +286,7 @@ export function DashboardApp() {
           {screen === "invoice-details" && selectedInvoiceId && (
             <InvoiceDetailsScreen
               invoiceId={selectedInvoiceId}
+              businessName={account?.business?.businessName}
               onBack={() => {
                 // If we arrived here from a transaction detail, go back there.
                 if (selectedSale?.invoiceId === selectedInvoiceId) {
@@ -426,7 +439,7 @@ export function DashboardApp() {
               }}
             />
           )}
-          {screen === "profile" && <ProfileScreen onBack={() => setScreen("more")} wallet={wallet} />}
+          {screen === "profile" && <ProfileScreen onBack={() => setScreen("more")} wallet={wallet} account={account} />}
           {screen === "settings" && <SettingsScreen onBack={() => setScreen("more")} />}
         </motion.section>
       </AnimatePresence>

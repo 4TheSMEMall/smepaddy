@@ -34,10 +34,12 @@ export function InvoiceDetailsScreen({
   invoiceId,
   onBack,
   onChanged,
+  businessName,
 }: {
   invoiceId: string;
   onBack: () => void;
   onChanged: () => void;
+  businessName?: string;
 }) {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
   const [loading, setLoading] = useState(true);
@@ -467,7 +469,7 @@ export function InvoiceDetailsScreen({
             onClick={() =>
               downloadInvoiceReceipt({
                 invoiceNo: invoice.id.slice(-4).toUpperCase(),
-                businessName: "Mikama Services",
+                businessName: businessName ?? "SME Paddy",
                 customerName: invoice.customerName,
                 customerPhone: invoice.customerPhone,
                 issueDate: invoice.createdAt,
@@ -494,7 +496,7 @@ export function InvoiceDetailsScreen({
             onClick={() =>
               shareInvoiceReceipt({
                 invoiceNo: invoice.id.slice(-4).toUpperCase(),
-                businessName: "Mikama Services",
+                businessName: businessName ?? "SME Paddy",
                 customerName: invoice.customerName,
                 customerPhone: invoice.customerPhone,
                 issueDate: invoice.createdAt,

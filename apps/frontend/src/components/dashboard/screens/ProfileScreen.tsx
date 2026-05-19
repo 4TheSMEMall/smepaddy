@@ -16,14 +16,17 @@ import {
 import { PaddyCoinIcon } from "@/components/PaddyCoinIcon";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
+import type { CurrentAccountResponse } from "@/lib/accountApi";
 import type { WalletInfo } from "@/lib/coinApi";
 
 export function ProfileScreen({
   onBack,
   wallet,
+  account,
 }: {
   onBack: () => void;
   wallet?: WalletInfo | null;
+  account?: CurrentAccountResponse | null;
 }) {
   return (
     <div className="mx-4 space-y-6 sm:mx-0">
@@ -53,29 +56,35 @@ export function ProfileScreen({
           </div>
           <div>
             <h3 className="text-[28px] font-extrabold leading-tight text-[#050b18]">
-              Abraham Michael
+              {account?.user?.fullName ?? "—"}
             </h3>
-            <p className="mt-2 flex items-center gap-2 text-[21px] leading-6 text-[#4b5565]">
-              <Phone className="size-5" />
-              09060402750
-            </p>
-            <p className="mt-1 flex items-center gap-2 break-all text-[21px] leading-6 text-[#4b5565]">
-              <Mail className="size-5 shrink-0" />
-              csharpdevelopers334@gmail.com
-            </p>
+            {account?.user?.phone && (
+              <p className="mt-2 flex items-center gap-2 text-[21px] leading-6 text-[#4b5565]">
+                <Phone className="size-5" />
+                {account.user.phone}
+              </p>
+            )}
+            {account?.user?.email && (
+              <p className="mt-1 flex items-center gap-2 break-all text-[21px] leading-6 text-[#4b5565]">
+                <Mail className="size-5 shrink-0" />
+                {account.user.email}
+              </p>
+            )}
           </div>
         </div>
       </Card>
 
       <Card className="px-6 py-8">
         <SectionHeading icon={<Building2 className="size-6" />} title="Business Info" />
-        <InfoRow label="Name" value="Mikama Services" />
-        <InfoRow label="Type" value="Fashion & Clothing" />
+        <InfoRow label="Name" value={account?.business?.businessName ?? "—"} />
+        <InfoRow label="Type" value={account?.business?.businessType ?? "—"} />
       </Card>
 
       <Card className="px-6 py-8">
         <SectionHeading icon={<MapPin className="size-6" />} title="Location" />
-        <p className="mt-5 text-[22px] text-[#374151]">satellite town, Lagos</p>
+        <p className="mt-5 text-[22px] text-[#374151]">
+          {account?.business?.location ?? "Not set"}
+        </p>
       </Card>
 
       <Card className="px-6 py-8">
@@ -165,7 +174,11 @@ export function ProfileScreen({
         <SectionHeading icon={<CalendarDays className="size-6" />} title="Account" />
         <div className="mt-3 flex items-center justify-between gap-4 text-[22px]">
           <span className="text-[#374151]">Member since</span>
-          <span className="font-medium text-[#050b18]">24/04/2026</span>
+          <span className="font-medium text-[#050b18]">
+            {account?.business?.createdAt
+              ? new Intl.DateTimeFormat("en-NG", { day: "2-digit", month: "short", year: "numeric" }).format(new Date(account.business.createdAt))
+              : "—"}
+          </span>
         </div>
       </Card>
     </div>

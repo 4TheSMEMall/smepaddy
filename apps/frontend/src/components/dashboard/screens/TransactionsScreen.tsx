@@ -151,7 +151,7 @@ export function TransactionsScreen({
           Transactions
         </h2>
         <div className="flex items-center gap-3">
-          <Button variant="secondary" size="sm" className="h-12 rounded-3xl px-4">
+          <Button variant="secondary" size="sm" className="h-12 rounded-3xl px-4" onClick={() => exportCSV(filteredTransactions, activePeriod)}>
             <Download />
             Export
           </Button>
@@ -558,4 +558,49 @@ function formatMoney(value: number) {
     currency: "NGN",
     maximumFractionDigits: 0,
   }).format(value);
+}
+
+type TransactionItem =
+  | { kind: "sale"; data: SaleListItem; createdAt: string }
+  | { kind: "expense"; data: ExpenseItem; createdAt: string };
+
+function exportCSV(transactions: TransactionItem[], period: string) {
+  const fmt = (v: number) =>
+    new Intl.NumberFormat("en-NG", { maximumFractionDigits: 0 }).format(v);
+  const fmtDate = (iso: string) =>
+    new Intl.DateTimeFormat("en-NG", { day: "2-digit", month: "short", year: "numeric", hour: "2-digit", minute: "2-digit" }).format(new Date(iso));
+
+  const header = "Date,Type,Description,Amount (NGN),Payment Method,Status";
+  const rows = transactions.map((item) => {
+    if (item.kind === "sale") {
+      const s = item.data;
+      return [
+        fmtDate(s.createdAt),
+        "Sale",
+        `"${s.itemNames.join(", ") || "Sale"}"`,
+        fmt(s.amountPaid > 0 ? s.amountPaid : s.subtotal),
+        s.paymentMethod ?? "—",
+        s.paymentStatus === "PAID" ? "Paid" : s.paymentStatus === "PART_PAYMENT" ? "Partial" : "Credit",
+      ].join(",");
+    } else {
+      const e = item.data;
+      return [
+        fmtDate(e.createdAt),
+        "Expense",
+        `"${e.category}${e.description ? ` – ${e.description}` : ""}"`,
+        fmt(e.amount),
+        e.paymentMethod,
+        "—",
+      ].join(",");
+    }
+  });
+
+  const csv = [header, ...rows].join("\n");
+  const blob = new Blob([csv], { type: "text/csv;charset=utf-8;" });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = `SMEPaddy-Transactions-${period.replace(/\s/g, "-")}.csv`;
+  a.click();
+  setTimeout(() => URL.revokeObjectURL(url), 2000);
 }
