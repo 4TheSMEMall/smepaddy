@@ -150,10 +150,7 @@ export function DashboardApp() {
   }
 
   return (
-    <main
-      className="soft-shell min-h-screen pb-[86px]"
-      style={{ zoom: 0.75 }}
-    >
+    <main className="app-scale soft-shell min-h-screen">
       <TopBar coins={wallet?.balance ?? 0} businessName={account?.business?.businessName} />
       <AnimatePresence mode="wait">
         <motion.section

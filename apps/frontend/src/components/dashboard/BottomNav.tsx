@@ -14,24 +14,35 @@ export function BottomNav({
   onChange: (tab: Tab) => void;
 }) {
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-30 h-[72px] border-t border-[#e4e9f0] bg-white/96 shadow-[0_-1px_5px_rgba(15,23,42,0.04)] backdrop-blur sm:h-[76px]">
-      <div className="mx-auto grid h-full max-w-[620px] grid-cols-5">
+    <nav className="nav-safe fixed inset-x-0 bottom-0 z-30 border-t border-[#e4e9f0] bg-white/95 shadow-[0_-4px_24px_rgba(15,23,42,0.08)] backdrop-blur-xl">
+      <div className="mx-auto grid h-[72px] max-w-[620px] grid-cols-5">
         {navItems.map((item) => (
           <button
             key={item.id}
             className={cn(
-              "relative flex flex-col items-center justify-center gap-0.5 text-[14px] font-medium text-[#748199] sm:text-[15px]",
-              active === item.id && "text-[#1557df]",
+              "relative flex flex-col items-center justify-center gap-1 py-2 text-[11px] font-semibold tracking-wide transition-colors duration-150",
+              active === item.id
+                ? "text-[#1557df]"
+                : "text-[#94a3b8] active:text-[#1557df]",
             )}
             onClick={() => onChange(item.id)}
           >
             {active === item.id && (
               <motion.span
                 layoutId="nav-indicator"
-                className="absolute top-0 h-1 w-10 rounded-b bg-[#1557df]"
+                className="absolute top-0 h-[3px] w-8 rounded-b-full bg-[#1557df]"
+                transition={{ type: "spring", stiffness: 400, damping: 30 }}
               />
             )}
-            <item.icon className="size-6 sm:size-7" strokeWidth={2} />
+            <div className={cn(
+              "flex size-8 items-center justify-center rounded-[10px] transition-all duration-150",
+              active === item.id ? "bg-[#eff4ff]" : "",
+            )}>
+              <item.icon
+                className={cn("size-5", active === item.id && "stroke-[2.5]")}
+                strokeWidth={active === item.id ? 2.5 : 2}
+              />
+            </div>
             <span>{item.label}</span>
           </button>
         ))}

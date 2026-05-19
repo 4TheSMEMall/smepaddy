@@ -144,6 +144,7 @@ export function ProfileScreen({
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Button
             variant="secondary"
+            
             className="h-[72px] rounded-[18px] text-[22px] font-semibold"
           >
             <Copy />

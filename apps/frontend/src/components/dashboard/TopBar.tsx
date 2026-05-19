@@ -11,9 +11,8 @@ export function TopBar({ coins, businessName }: { coins: number; businessName?: 
 
   useEffect(() => {
     if (coins > prevCoins.current) {
-      const gained = coins - prevCoins.current;
-      setFlash(gained);
-      const t = setTimeout(() => setFlash(null), 2000);
+      setFlash(coins - prevCoins.current);
+      const t = setTimeout(() => setFlash(null), 2200);
       prevCoins.current = coins;
       return () => clearTimeout(t);
     }
@@ -21,28 +20,37 @@ export function TopBar({ coins, businessName }: { coins: number; businessName?: 
   }, [coins]);
 
   return (
-    <header className="sticky top-0 z-20 h-[68px] border-b border-[#dfe5ed] bg-white shadow-[0_1px_3px_rgba(15,23,42,0.06)] sm:h-[72px]">
-      <div className="mx-auto flex h-full max-w-[620px] items-center justify-between px-4 sm:px-0">
-        <div className="flex items-center gap-3">
-          <div className="grid size-10 place-items-center rounded-[12px] bg-[#1557df] text-[15px] font-semibold text-white shadow-[0_2px_4px_rgba(21,87,223,0.24)]">
+    <header className="sticky top-0 z-20 border-b border-[#e8edf5] bg-white/95 backdrop-blur-xl"
+      style={{ paddingTop: "env(safe-area-inset-top, 0px)" }}>
+      <div className="mx-auto flex h-[60px] max-w-[620px] items-center justify-between px-4 sm:px-0">
+        {/* Brand */}
+        <div className="flex items-center gap-2.5">
+          <div className="grid size-9 place-items-center rounded-[11px] bg-gradient-to-br from-[#1557df] to-[#0d40b8] text-[13px] font-bold text-white shadow-[0_2px_8px_rgba(21,87,223,0.35)]">
             SP
           </div>
-          <h1 className="text-[21px] font-semibold leading-none text-[#081124] sm:text-[22px]">
+          <h1 className="text-[17px] font-bold leading-none text-[#071122]">
             {businessName ?? "SME Paddy"}
           </h1>
         </div>
-        <div className="flex items-center gap-5 sm:gap-6">
-          <Bell className="size-6 text-[#26364d]" strokeWidth={2} />
-          <div className="relative flex h-[50px] min-w-[110px] items-center justify-center gap-2 rounded-[28px] border border-[#fde8a9] bg-[#fffdf3] px-4 text-[19px] font-semibold text-[#d57a00] shadow-[0_1px_1px_rgba(213,122,0,0.06)]">
-            <PaddyCoinIcon className="size-5" />
-            <span>{coins}</span>
-            <Sprout className="size-4 text-[#8cc84b]" />
+
+        {/* Right side */}
+        <div className="flex items-center gap-3">
+          {/* Coin badge */}
+          <div className="relative flex h-[38px] items-center gap-1.5 rounded-full border border-[#fde8a9] bg-[#fffdf3] px-3 text-[15px] font-bold text-[#d57a00]">
+            <PaddyCoinIcon className="size-4" />
+            <span>{coins.toLocaleString()}</span>
+            <Sprout className="size-3.5 text-[#8cc84b]" />
             {flash !== null && (
-              <span className="pointer-events-none absolute -top-6 left-1/2 -translate-x-1/2 animate-bounce rounded-full bg-[#f59e0b] px-2 py-0.5 text-[13px] font-extrabold text-white">
+              <span className="pointer-events-none absolute -top-5 left-1/2 -translate-x-1/2 whitespace-nowrap rounded-full bg-[#f59e0b] px-2 py-0.5 text-[11px] font-extrabold text-white shadow-sm animate-bounce">
                 +{flash}
               </span>
             )}
           </div>
+
+          {/* Notification bell */}
+          <button className="relative grid size-9 place-items-center rounded-full bg-[#f1f5f9] text-[#64748b] active:bg-[#e2e8f0]">
+            <Bell className="size-4.5" strokeWidth={2} />
+          </button>
         </div>
       </div>
     </header>
