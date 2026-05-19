@@ -661,7 +661,7 @@ function InvoicePanel({
             placeholder="Customer name *"
           />
           <div className="mt-3">
-            <StockInput
+            <StockInputit
               label="Phone (optional)"
               placeholder="08012345678"
               value={customerPhone}

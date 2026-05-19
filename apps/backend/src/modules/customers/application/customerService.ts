@@ -46,23 +46,33 @@ export class CustomerService {
 
   async getById(context: AuthenticatedContext, id: string) {
     const businessProfileId = this.requireBusiness(context);
-    const [customer, invoices, sales] = await Promise.all([
-      prisma.customer.findFirst({ where: { id, businessProfileId } }),
+
+    // Fetch customer first so we can also match by name for backward-compatible invoices
+    const customer = await prisma.customer.findFirst({ where: { id, businessProfileId } });
+    if (!customer) throw new AppError("Customer not found", 404, "NOT_FOUND");
+
+    const nameFilter = {
+      OR: [
+        { customerId: id },
+        // Also match invoices/sales created before customer linking existed
+        { customerId: null as string | null, customerName: customer.name },
+      ],
+    };
+
+    const [invoices, sales] = await Promise.all([
       prisma.invoice.findMany({
-        where: { customerId: id, businessProfileId },
+        where: { businessProfileId, ...nameFilter },
         orderBy: { createdAt: "desc" },
         take: 20,
         select: { id: true, status: true, subtotalKobo: true, amountPaidKobo: true, balanceKobo: true, dueDate: true, createdAt: true },
       }),
       prisma.saleTransaction.findMany({
-        where: { customerId: id, businessProfileId },
+        where: { businessProfileId, OR: [{ customerId: id }, { customerId: null, customerName: customer.name }] },
         orderBy: { createdAt: "desc" },
         take: 20,
         select: { id: true, paymentStatus: true, subtotalKobo: true, amountPaidKobo: true, balanceKobo: true, createdAt: true, lineItems: { select: { stockItem: { select: { name: true } } } } },
       }),
     ]);
-
-    if (!customer) throw new AppError("Customer not found", 404, "NOT_FOUND");
 
     const totalOutstanding = invoices.reduce((sum, inv) => sum + inv.balanceKobo, 0);
     const totalSpent = sales.reduce((sum, s) => sum + s.amountPaidKobo, 0);
@@ -148,11 +158,18 @@ export class CustomerService {
 
   async getUnpaidInvoices(context: AuthenticatedContext, customerId: string) {
     const businessProfileId = this.requireBusiness(context);
+
+    const customer = await prisma.customer.findFirst({ where: { id: customerId, businessProfileId } });
+    if (!customer) return { invoices: [] };
+
     const invoices = await prisma.invoice.findMany({
       where: {
         businessProfileId,
-        customerId,
         balanceKobo: { gt: 0 },
+        OR: [
+          { customerId },
+          { customerId: null, customerName: customer.name },
+        ],
       },
       orderBy: { dueDate: "asc" },
       select: {
