@@ -3,7 +3,6 @@
 import {
   AlertTriangle,
   CheckCircle2,
-  Download,
   Handshake,
   Package,
   Plus,
@@ -12,7 +11,6 @@ import {
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { ApiError } from "@/lib/api";
 import { makeCacheKey, readClientCache, writeClientCache } from "@/lib/clientCache";
 import { getStoredAccessToken } from "@/lib/session";
@@ -39,28 +37,14 @@ export function StockScreen({
 
   useEffect(() => {
     let cancelled = false;
-
-    async function loadStock() {
+    const timeout = window.setTimeout(async () => {
       const token = getStoredAccessToken();
+      if (!token) { setError("Session expired."); setLoading(false); return; }
 
-      if (!token) {
-        setError("Your login session has expired. Please log in again.");
-        setLoading(false);
-        return;
-      }
-
-      const cacheKey = makeCacheKey(
-        token,
-        "stock-items",
-        JSON.stringify({ search, category, filter }),
-      );
+      const cacheKey = makeCacheKey(token, "stock-items", JSON.stringify({ search, category, filter }));
       const cached = readClientCache<{ items: StockItem[] }>(cacheKey);
-      if (cached) {
-        setItems(cached.value.items);
-        setLoading(false);
-      } else {
-        setLoading(true);
-      }
+      if (cached) { setItems(cached.value.items); setLoading(false); }
+      else setLoading(true);
       setError(null);
 
       try {
@@ -68,130 +52,130 @@ export function StockScreen({
           search,
           category: category === "All" ? undefined : category,
           limit: 50,
-          ownershipType:
-            filter === "owned"
-              ? "OWNED"
-              : filter === "consignment"
-                ? "CONSIGNMENT"
-                : undefined,
+          ownershipType: filter === "owned" ? "OWNED" : filter === "consignment" ? "CONSIGNMENT" : undefined,
           restockOnly: filter === "restock",
         });
-
-        if (!cancelled) {
-          setItems(response.items);
-          writeClientCache(cacheKey, response);
-        }
+        if (!cancelled) { setItems(response.items); writeClientCache(cacheKey, response); }
       } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof ApiError
-              ? err.message
-              : "Unable to load stock right now.",
-          );
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
-    }
-
-    const timeout = window.setTimeout(() => {
-      void loadStock();
+        if (!cancelled) setError(err instanceof ApiError ? err.message : "Unable to load stock.");
+      } finally { if (!cancelled) setLoading(false); }
     }, 180);
 
-    return () => {
-      cancelled = true;
-      window.clearTimeout(timeout);
-    };
+    return () => { cancelled = true; window.clearTimeout(timeout); };
   }, [category, filter, refreshKey, search]);
 
-  const categories = useMemo(() => {
-    const unique = Array.from(new Set(items.map((item) => item.category)));
-    return ["All", ...unique];
-  }, [items]);
+  const categories = useMemo(() => ["All", ...Array.from(new Set(items.map((i) => i.category)))], [items]);
+  const lowStockCount = items.filter((i) => i.stockStatus === "LOW_STOCK").length;
 
-  const lowStockCount = items.filter((item) => item.stockStatus === "LOW_STOCK").length;
+  const filters: { key: StockFilter; icon: React.ReactNode; label: string; badge?: string }[] = [
+    { key: "all", icon: <Package className="size-4" />, label: "All" },
+    { key: "owned", icon: <CheckCircle2 className="size-4" />, label: "Owned" },
+    { key: "consignment", icon: <Handshake className="size-4" />, label: "Consignment" },
+    { key: "restock", icon: <AlertTriangle className="size-4" />, label: "Restock", badge: lowStockCount > 0 ? String(lowStockCount) : undefined },
+  ];
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-[28px] font-extrabold leading-tight text-[#101827] sm:text-[33px]">
-          My Stock
-        </h2>
-        <div className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:flex-none sm:gap-3">
-          <Button variant="secondary" size="sm" className="h-10 rounded-2xl px-3 text-[14px] sm:h-12 sm:rounded-3xl sm:px-4 sm:text-[18px]">
-            <Download />
-            <span className="hidden min-[380px]:inline">Export</span>
-          </Button>
-          <Button size="sm" className="h-10 rounded-2xl px-3 text-[14px] sm:h-12 sm:rounded-3xl sm:px-5 sm:text-[18px]" onClick={onAddItem}>
-            <Plus />
-            <span className="hidden min-[360px]:inline">Add Item</span>
-            <span className="min-[360px]:hidden">Add</span>
-          </Button>
-        </div>
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-[24px] font-extrabold text-[#101827] sm:text-[33px]">My Stock</h2>
+        <Button size="sm" className="h-10 rounded-2xl px-3 text-[13px] sm:h-12 sm:rounded-3xl sm:px-5 sm:text-[18px]" onClick={onAddItem}>
+          <Plus className="size-4" />
+          Add Item
+        </Button>
       </div>
 
-      <label className="flex h-14 items-center gap-3 rounded-[16px] border border-[#dce3ec] bg-white px-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)] sm:mb-6 sm:h-[66px] sm:gap-4 sm:rounded-[18px] sm:px-5">
-        <Search className="size-5 text-[#8da0ba] sm:size-6" />
+      {/* Search */}
+      <div className="flex h-12 items-center gap-3 rounded-[14px] border border-[#dce3ec] bg-white px-4 shadow-[0_1px_4px_rgba(15,23,42,0.06)] sm:h-[66px] sm:rounded-[18px]">
+        <Search className="size-4 shrink-0 text-[#8da0ba] sm:size-5" />
         <input
           value={search}
-          onChange={(event) => setSearch(event.target.value)}
-          className="w-full bg-transparent text-[16px] text-[#334155] outline-none placeholder:text-[#66758a] sm:text-[23px]"
+          onChange={(e) => setSearch(e.target.value)}
+          className="w-full bg-transparent text-[15px] text-[#334155] outline-none placeholder:text-[#94a3b8] sm:text-[20px]"
           placeholder="Search items..."
         />
-      </label>
+      </div>
 
-      <div className="no-scrollbar overflow-x-auto pb-1 sm:mb-4 sm:pb-2">
-        <div className="flex min-w-max gap-3">
-          <FilterPill
-            active={filter === "all"}
-            icon={<Package />}
-            label="All"
-            onClick={() => setFilter("all")}
-          />
-          <FilterPill
-            active={filter === "owned"}
-            icon={<CheckCircle2 />}
-            label="Owned"
-            onClick={() => setFilter("owned")}
-          />
-          <FilterPill
-            active={filter === "consignment"}
-            icon={<Handshake />}
-            label="Consignment"
-            onClick={() => setFilter("consignment")}
-          />
-          <FilterPill
-            active={filter === "restock"}
-            icon={<AlertTriangle />}
-            label="Restock"
-            badge={String(lowStockCount)}
-            onClick={() => setFilter("restock")}
-          />
+      {/* Filter pills — horizontal scroll */}
+      <div className="-mx-4 sm:mx-0">
+        <div className="flex gap-2 overflow-x-auto px-4 pb-1 sm:px-0 sm:flex-wrap"
+          style={{ scrollbarWidth: "none" }}>
+          {filters.map(({ key, icon, label, badge }) => (
+            <button
+              key={key}
+              onClick={() => setFilter(key)}
+              className={cn(
+                "flex h-9 shrink-0 items-center gap-1.5 rounded-full px-3 text-[13px] font-semibold transition-all duration-200 sm:h-10 sm:px-4 sm:text-[15px]",
+                filter === key
+                  ? "bg-[#1557df] text-white shadow-[0_4px_12px_rgba(21,87,223,0.3)]"
+                  : "bg-white text-[#64748b] shadow-[0_1px_4px_rgba(15,23,42,0.08)]",
+              )}
+            >
+              {icon}
+              {label}
+              {badge && (
+                <span className={cn(
+                  "ml-0.5 rounded-full px-1.5 py-0.5 text-[11px] font-extrabold",
+                  filter === key ? "bg-white/25 text-white" : "bg-[#ffe4e6] text-[#ef3b42]",
+                )}>
+                  {badge}
+                </span>
+              )}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1 sm:mb-7 sm:gap-3">
-        {categories.map((itemCategory) => (
-          <CategoryPill
-            key={itemCategory}
-            active={category === itemCategory}
-            label={itemCategory}
-            onClick={() => setCategory(itemCategory)}
-          />
-        ))}
-      </div>
-
-      {loading && <StockMessage title="Loading stock..." />}
-      {error && !loading && <StockMessage title={error} />}
-      {!loading && !error && items.length === 0 && (
-        <StockMessage
-          title="No stock items yet"
-          text="Add your first product or service to start tracking inventory."
-          action={onAddItem}
-        />
+      {/* Category pills */}
+      {categories.length > 1 && (
+        <div className="-mx-4 sm:mx-0">
+          <div className="flex gap-2 overflow-x-auto px-4 pb-1 sm:px-0 sm:flex-wrap"
+            style={{ scrollbarWidth: "none" }}>
+            {categories.map((cat) => (
+              <button
+                key={cat}
+                onClick={() => setCategory(cat)}
+                className={cn(
+                  "h-8 shrink-0 rounded-full px-3 text-[12px] font-semibold transition-all duration-200 sm:h-9 sm:px-4 sm:text-[14px]",
+                  category === cat
+                    ? "bg-[#071122] text-white"
+                    : "bg-white/80 text-[#64748b] shadow-[0_1px_3px_rgba(15,23,42,0.06)]",
+                )}
+              >
+                {cat}
+              </button>
+            ))}
+          </div>
+        </div>
       )}
+
+      {/* States */}
+      {loading && (
+        <div className="flex h-32 items-center justify-center text-[14px] text-[#94a3b8]">
+          Loading stock...
+        </div>
+      )}
+      {error && !loading && (
+        <div className="rounded-[14px] bg-[#fff0f0] px-4 py-3 text-[14px] font-semibold text-red-600">{error}</div>
+      )}
+      {!loading && !error && items.length === 0 && (
+        <div className="flex flex-col items-center gap-4 rounded-[20px] bg-white px-6 py-12 text-center shadow-[0_4px_16px_rgba(15,23,42,0.06)]">
+          <div className="grid size-16 place-items-center rounded-[20px] bg-[#f1f5fb]">
+            <Package className="size-8 text-[#9fb3ce]" />
+          </div>
+          <div>
+            <p className="text-[17px] font-extrabold text-[#0f172a]">No stock items yet</p>
+            <p className="mt-1 text-[13px] text-[#64748b]">Add your first product or service</p>
+          </div>
+          <Button className="h-10 rounded-[13px] px-5 text-[14px]" onClick={onAddItem}>
+            <Plus className="size-4" /> Add Item
+          </Button>
+        </div>
+      )}
+
+      {/* Stock grid */}
       {!loading && !error && items.length > 0 && (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
+        <div className="grid grid-cols-2 gap-3 sm:gap-4">
           {items.map((item) => (
             <StockCard key={item.id} item={item} onClick={() => onSelectItem(item)} />
           ))}
@@ -201,125 +185,67 @@ export function StockScreen({
   );
 }
 
-function FilterPill({
-  active,
-  icon,
-  label,
-  badge,
-  onClick,
-}: {
-  active?: boolean;
-  icon: React.ReactNode;
-  label: string;
-  badge?: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "flex h-11 items-center gap-2 rounded-2xl border border-[#d9e0ea] bg-white px-3 text-[14px] font-semibold text-[#66758a] shadow-[0_1px_2px_rgba(15,23,42,0.05)] sm:h-[56px] sm:px-5 sm:text-[22px] [&_svg]:size-5 sm:[&_svg]:size-6",
-        active && "border-[#2563eb] bg-[#2563eb] text-white",
-      )}
-    >
-      {icon}
-      {label}
-      {badge && (
-        <span className="ml-1 rounded-full bg-[#ffe8ea] px-2.5 py-0.5 text-[#ef3b42]">
-          {badge}
-        </span>
-      )}
-    </button>
-  );
-}
-
-function CategoryPill({
-  active,
-  label,
-  onClick,
-}: {
-  active?: boolean;
-  label: string;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      onClick={onClick}
-      className={cn(
-        "h-10 shrink-0 rounded-2xl border border-[#d9e0ea] bg-white px-4 text-[14px] font-semibold text-[#66758a] sm:h-11 sm:px-6 sm:text-[18px]",
-        active && "border-[#2563eb] bg-[#2563eb] text-white",
-      )}
-    >
-      {label}
-    </button>
-  );
-}
-
 function StockCard({ item, onClick }: { item: StockItem; onClick: () => void }) {
-  return (
-    <button type="button" className="w-full text-left" onClick={onClick}>
-      <Card className="w-full px-4 py-5 transition hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.12)] sm:max-w-[352px] sm:px-5 sm:py-6">
-      <div className="mb-4 grid min-h-[92px] place-items-center rounded-[18px] bg-[#f3f6fa] text-[#c6d1df] sm:mb-5 sm:h-[120px]">
-        <Package className="size-10 sm:size-12" strokeWidth={2.4} />
-      </div>
-      <h3 className="truncate text-[17px] font-bold text-[#1f2937] sm:text-[24px]">{item.name}</h3>
-      <div className="mt-1 flex items-center gap-2">
-        <span className="truncate text-[14px] text-[#8b99b3] sm:text-[19px]">{item.category}</span>
-        {item.ownershipType === "CONSIGNMENT" && (
-          <span className="rounded-full bg-[#fff0d4] px-2.5 py-0.5 text-[15px] font-bold text-[#f59e0b]">
-            Consignment
-          </span>
-        )}
-      </div>
-      <div className="mt-4 flex items-center justify-between gap-3 sm:mt-6">
-        <span className="break-words text-[17px] font-extrabold text-[#2563eb] sm:text-[25px]">
-          {formatMoney(item.sellingPrice)}
-        </span>
-        {item.itemType === "PRODUCT" && (
-          <span
-            className={cn(
-              "shrink-0 rounded-full px-2.5 py-1 text-[13px] font-extrabold text-white sm:px-3 sm:text-[19px]",
-              item.stockStatus === "IN_STOCK" && "bg-[#16a34a]",
-              item.stockStatus === "LOW_STOCK" && "bg-[#f59e0b]",
-              item.stockStatus === "OUT_OF_STOCK" && "bg-[#e90012]",
-            )}
-          >
-            {item.quantity} {item.unitType.toLowerCase()}
-          </span>
-        )}
-      </div>
-      </Card>
-    </button>
-  );
-}
+  const isLow = item.stockStatus === "LOW_STOCK";
+  const isOut = item.stockStatus === "OUT_OF_STOCK";
+  const isConsignment = item.ownershipType === "CONSIGNMENT";
 
-function StockMessage({
-  title,
-  text,
-  action,
-}: {
-  title: string;
-  text?: string;
-  action?: () => void;
-}) {
   return (
-    <Card className="grid min-h-[280px] place-items-center px-6 text-center">
-      <div>
-        <div className="mx-auto mb-5 grid size-20 place-items-center rounded-3xl bg-[#f1f5fb] text-[#9fb3ce]">
-          <Package className="size-9" />
-        </div>
-        <h3 className="text-[25px] font-extrabold text-[#0f172a]">{title}</h3>
-        {text && <p className="mt-2 text-[19px] text-[#64748b]">{text}</p>}
-        {action && (
-          <Button className="mt-6 h-12 rounded-2xl px-6" onClick={action}>
-            <Plus />
-            Add Item
-          </Button>
+    <button
+      type="button"
+      onClick={onClick}
+      className="flex w-full flex-col overflow-hidden rounded-[18px] bg-white text-left shadow-[0_2px_12px_rgba(15,23,42,0.08)] active:scale-[0.97] transition-transform"
+    >
+      {/* Image placeholder */}
+      <div className="relative flex h-[80px] w-full items-center justify-center bg-gradient-to-br from-[#f8fafc] to-[#f1f5f9] sm:h-[100px]">
+        <Package className="size-8 text-[#cbd5e1] sm:size-10" strokeWidth={1.5} />
+        {/* Ownership badge — top right */}
+        {isConsignment && (
+          <span className="absolute right-2 top-2 rounded-full bg-[#fff0d4] px-1.5 py-0.5 text-[10px] font-bold text-[#d97706]">
+            Consign
+          </span>
+        )}
+        {!isConsignment && (
+          <span className="absolute right-2 top-2 rounded-full bg-[#eff6ff] px-1.5 py-0.5 text-[10px] font-bold text-[#3b82f6]">
+            Owned
+          </span>
+        )}
+        {/* Low/out stock alert */}
+        {(isLow || isOut) && (
+          <span className={cn(
+            "absolute left-2 top-2 rounded-full px-1.5 py-0.5 text-[10px] font-bold",
+            isOut ? "bg-[#fee2e2] text-[#ef4444]" : "bg-[#fef3c7] text-[#d97706]",
+          )}>
+            {isOut ? "Out" : "Low"}
+          </span>
         )}
       </div>
-    </Card>
+
+      {/* Content */}
+      <div className="flex flex-1 flex-col px-3 pb-3 pt-2.5 sm:px-4 sm:pb-4 sm:pt-3">
+        <p className="truncate text-[13px] font-extrabold text-[#071122] sm:text-[16px]">
+          {item.name}
+        </p>
+        <p className="mt-0.5 truncate text-[11px] text-[#94a3b8] sm:text-[13px]">
+          {item.category}
+        </p>
+
+        <div className="mt-2.5 flex items-end justify-between gap-1">
+          <p className="break-words text-[13px] font-extrabold text-[#1557df] sm:text-[16px]">
+            {formatMoney(item.sellingPrice)}
+          </p>
+          {item.itemType === "PRODUCT" && (
+            <span className={cn(
+              "shrink-0 rounded-full px-2 py-0.5 text-[10px] font-bold text-white sm:text-[12px]",
+              item.stockStatus === "IN_STOCK" ? "bg-[#16a34a]" :
+              item.stockStatus === "LOW_STOCK" ? "bg-[#d97706]" : "bg-[#ef4444]",
+            )}>
+              {item.quantity} {item.unitType.toLowerCase()}
+            </span>
+          )}
+        </div>
+      </div>
+    </button>
   );
 }
 

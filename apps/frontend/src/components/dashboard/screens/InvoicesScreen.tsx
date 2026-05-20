@@ -4,14 +4,12 @@ import {
   AlertTriangle,
   CheckCircle2,
   Clock3,
-  Download,
   FileText,
   Plus,
 } from "lucide-react";
 import { useEffect, useMemo, useState } from "react";
 
 import { Button } from "@/components/ui/button";
-import { Card } from "@/components/ui/card";
 import { ApiError } from "@/lib/api";
 import { makeCacheKey, readClientCache, writeClientCache } from "@/lib/clientCache";
 import { listInvoices, type Invoice, type InvoiceSummary } from "@/lib/invoiceApi";
@@ -39,29 +37,14 @@ export function InvoicesScreen({
 
   useEffect(() => {
     let cancelled = false;
-
     async function loadInvoices() {
       const token = getStoredAccessToken();
-      if (!token) {
-        setError("Your login session has expired. Please log in again.");
-        setLoading(false);
-        return;
-      }
-
+      if (!token) { setError("Session expired."); setLoading(false); return; }
       const cacheKey = makeCacheKey(token, "invoices");
-      const cached = readClientCache<{
-        invoices: Invoice[];
-        summary: InvoiceSummary;
-      }>(cacheKey);
-      if (cached) {
-        setInvoices(cached.value.invoices);
-        setSummary(cached.value.summary);
-        setLoading(false);
-      } else {
-        setLoading(true);
-      }
+      const cached = readClientCache<{ invoices: Invoice[]; summary: InvoiceSummary }>(cacheKey);
+      if (cached) { setInvoices(cached.value.invoices); setSummary(cached.value.summary); setLoading(false); }
+      else setLoading(true);
       setError(null);
-
       try {
         const response = await listInvoices(token, { limit: 50 });
         if (!cancelled) {
@@ -70,109 +53,94 @@ export function InvoicesScreen({
           writeClientCache(cacheKey, response);
         }
       } catch (err) {
-        if (!cancelled) {
-          setError(
-            err instanceof ApiError ? err.message : "Unable to load invoices right now.",
-          );
-        }
-      } finally {
-        if (!cancelled) setLoading(false);
-      }
+        if (!cancelled) setError(err instanceof ApiError ? err.message : "Unable to load invoices.");
+      } finally { if (!cancelled) setLoading(false); }
     }
-
     void loadInvoices();
-
-    return () => {
-      cancelled = true;
-    };
+    return () => { cancelled = true; };
   }, [refreshKey]);
 
   const filteredInvoices = useMemo(() => {
     if (activeFilter === "All") return invoices;
-    return invoices.filter((invoice) => invoice.status === activeFilter.toUpperCase());
+    return invoices.filter((inv) => inv.status === activeFilter.toUpperCase());
   }, [activeFilter, invoices]);
 
   return (
-    <div className="space-y-5">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <h2 className="text-[28px] font-extrabold text-[#071122] sm:text-[33px]">Invoices</h2>
-        <div className="flex min-w-0 flex-1 justify-end gap-2 sm:flex-none sm:gap-3">
-          <Button
-            variant="secondary"
-            size="sm"
-            className="h-10 rounded-2xl px-3 text-[14px] text-[#94a3b8] sm:h-12 sm:rounded-3xl sm:px-4 sm:text-[18px]"
-          >
-            <Download />
-            <span className="hidden min-[380px]:inline">Export</span>
-          </Button>
-          <Button size="sm" className="h-10 rounded-2xl px-3 text-[14px] sm:h-12 sm:rounded-3xl sm:px-5 sm:text-[18px]" onClick={onNewInvoice}>
-            <Plus />
-            New
-          </Button>
+    <div className="space-y-4">
+      {/* Header */}
+      <div className="flex items-center justify-between gap-3">
+        <h2 className="text-[24px] font-extrabold text-[#071122] sm:text-[33px]">Invoices</h2>
+        <Button size="sm" className="h-10 rounded-2xl px-3 text-[13px] sm:h-12 sm:rounded-3xl sm:px-5 sm:text-[18px]" onClick={onNewInvoice}>
+          <Plus className="size-4" />
+          New Invoice
+        </Button>
+      </div>
+
+      {/* Stats */}
+      <div className="grid grid-cols-3 gap-2 sm:gap-3">
+        <StatCard
+          tone="paid"
+          icon={<CheckCircle2 className="size-5" />}
+          label="Paid"
+          value={formatMoney(summary.paid)}
+          active={activeFilter === "Paid"}
+          onClick={() => setActiveFilter(activeFilter === "Paid" ? "All" : "Paid")}
+        />
+        <StatCard
+          tone="pending"
+          icon={<Clock3 className="size-5" />}
+          label="Pending"
+          value={formatMoney(summary.pending)}
+          active={activeFilter === "Pending"}
+          onClick={() => setActiveFilter(activeFilter === "Pending" ? "All" : "Pending")}
+        />
+        <StatCard
+          tone="overdue"
+          icon={<AlertTriangle className="size-5" />}
+          label="Overdue"
+          value={formatMoney(summary.overdue)}
+          active={activeFilter === "Overdue"}
+          onClick={() => setActiveFilter(activeFilter === "Overdue" ? "All" : "Overdue")}
+        />
+      </div>
+
+      {/* Filter pills */}
+      <div className="-mx-4 sm:mx-0">
+        <div className="flex gap-2 overflow-x-auto px-4 pb-1 sm:px-0 sm:flex-wrap"
+          style={{ scrollbarWidth: "none" }}>
+          {(["All", "Paid", "Pending", "Overdue"] as InvoiceFilter[]).map((f) => (
+            <button
+              key={f}
+              onClick={() => setActiveFilter(f)}
+              className={cn(
+                "h-9 shrink-0 rounded-full px-4 text-[13px] font-semibold transition-all duration-200 sm:h-10 sm:text-[15px]",
+                activeFilter === f
+                  ? "bg-[#1557df] text-white shadow-[0_4px_12px_rgba(21,87,223,0.3)]"
+                  : "bg-white text-[#64748b] shadow-[0_1px_4px_rgba(15,23,42,0.08)]",
+              )}
+            >
+              {f}
+            </button>
+          ))}
         </div>
       </div>
 
-      <div className="grid grid-cols-1 gap-3 min-[390px]:grid-cols-3 sm:mb-6 sm:gap-4">
-        <InvoiceStat
-          tone="paid"
-          icon={<CheckCircle2 className="size-6" />}
-          label="PAID"
-          value={formatMoney(summary.paid)}
-          onClick={() => setActiveFilter("Paid")}
-        />
-        <InvoiceStat
-          tone="pending"
-          icon={<Clock3 className="size-6" />}
-          label="PENDING"
-          value={formatMoney(summary.pending)}
-          onClick={() => setActiveFilter("Pending")}
-        />
-        <InvoiceStat
-          tone="overdue"
-          icon={<AlertTriangle className="size-6" />}
-          label="OVERDUE"
-          value={formatMoney(summary.overdue)}
-          onClick={() => setActiveFilter("Overdue")}
-        />
-      </div>
-
-      <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1 sm:mb-7 sm:flex-wrap sm:gap-3">
-        {(["All", "Paid", "Pending", "Overdue"] as InvoiceFilter[]).map((filter) => (
-          <button
-            key={filter}
-            className={cn(
-              "h-10 shrink-0 rounded-2xl border border-[#d9e0ea] bg-white px-4 text-[14px] font-semibold text-[#526075] shadow-[0_1px_2px_rgba(15,23,42,0.06)] sm:h-[56px] sm:px-6 sm:text-[22px]",
-              activeFilter === filter &&
-                "border-[#2563eb] bg-[#2563eb] text-white shadow-[0_2px_5px_rgba(37,99,235,0.28)]",
-            )}
-            onClick={() => setActiveFilter(filter)}
-          >
-            {filter}
-          </button>
-        ))}
-      </div>
-
-      {loading && <InvoiceMessage title="Loading invoices..." />}
-      {error && !loading && <InvoiceMessage title={error} />}
+      {/* List */}
+      {loading && (
+        <div className="flex h-32 items-center justify-center text-[14px] text-[#94a3b8]">
+          Loading invoices...
+        </div>
+      )}
+      {error && !loading && (
+        <div className="rounded-[14px] bg-[#fff0f0] px-4 py-3 text-[14px] font-semibold text-red-600">{error}</div>
+      )}
       {!loading && !error && filteredInvoices.length === 0 && (
-        <InvoiceMessage
-          title={invoices.length === 0 ? "No invoices yet" : "No invoices found"}
-          text={
-            invoices.length === 0
-              ? "Create a professional invoice and send it to your customer"
-              : "Try another invoice filter."
-          }
-          action={invoices.length === 0 ? onNewInvoice : undefined}
-        />
+        <EmptyState isEmpty={invoices.length === 0} onNew={onNewInvoice} />
       )}
       {!loading && !error && filteredInvoices.length > 0 && (
-        <div className="space-y-3 sm:space-y-4">
+        <div className="space-y-3">
           {filteredInvoices.map((invoice) => (
-            <InvoiceCard
-              key={invoice.id}
-              invoice={invoice}
-              onClick={() => onSelectInvoice(invoice.id)}
-            />
+            <InvoiceCard key={invoice.id} invoice={invoice} onClick={() => onSelectInvoice(invoice.id)} />
           ))}
         </div>
       )}
@@ -180,143 +148,154 @@ export function InvoicesScreen({
   );
 }
 
-function InvoiceCard({
-  invoice,
-  onClick,
+// ─── Stat card ────────────────────────────────────────────────────────────────
+
+function StatCard({
+  tone, icon, label, value, active, onClick,
 }: {
-  invoice: Invoice;
+  tone: "paid" | "pending" | "overdue";
+  icon: React.ReactNode;
+  label: string;
+  value: string;
+  active: boolean;
   onClick: () => void;
 }) {
+  const colors = {
+    paid:    { bg: "bg-[#ecfdf5]", icon: "bg-[#059669] text-white", text: "text-[#059669]", activeBg: "bg-[#059669]" },
+    pending: { bg: "bg-[#fffbeb]", icon: "bg-[#d97706] text-white", text: "text-[#d97706]", activeBg: "bg-[#d97706]" },
+    overdue: { bg: "bg-[#fff1f2]", icon: "bg-[#ef3b42] text-white", text: "text-[#ef3b42]", activeBg: "bg-[#ef3b42]" },
+  }[tone];
+
   return (
-    <button type="button" className="block w-full text-left" onClick={onClick}>
-    <Card className="px-4 py-4 transition-shadow hover:shadow-[0_12px_30px_rgba(15,23,42,0.1)] sm:px-6 sm:py-5">
-      <div className="flex items-start justify-between gap-3 sm:gap-4">
-        <div className="flex min-w-0 gap-3 sm:gap-4">
-          <div className="grid size-11 shrink-0 place-items-center rounded-[16px] bg-[#f0f4ff] text-[#9bbcff] sm:size-14 sm:rounded-[18px]">
-            <FileText className="size-7" />
-          </div>
-          <div className="min-w-0">
-            <h3 className="truncate text-[16px] font-extrabold text-[#071122] sm:text-[24px]">
-              {invoice.customerName}
-            </h3>
-            <p className="mt-1 truncate text-[13px] text-[#64748b] sm:text-[18px]">
-              {invoice.items[0]?.description ?? "Invoice"} • Due {formatDate(invoice.dueDate)}
-            </p>
-          </div>
-        </div>
-        <div className="max-w-[38%] shrink-0 text-right">
-          <p className="break-words text-[15px] font-extrabold leading-tight text-[#2563eb] sm:text-[24px]">
-            {formatMoney(invoice.subtotal)}
-          </p>
-          <StatusPill status={invoice.status} />
-        </div>
-      </div>
-      {invoice.balance > 0 && (
-        <div className="mt-4 rounded-2xl bg-[#fff7ed] px-4 py-3 text-[14px] font-semibold text-[#c2410c] sm:text-[18px]">
-          Balance due: {formatMoney(invoice.balance)}
-        </div>
+    <button
+      onClick={onClick}
+      className={cn(
+        "flex flex-col items-start gap-2 overflow-hidden rounded-[16px] p-3 text-left transition-all duration-200 sm:rounded-[20px] sm:p-4",
+        active ? `${colors.activeBg} shadow-[0_6px_20px_rgba(0,0,0,0.2)]` : colors.bg,
       )}
-    </Card>
+    >
+      <div className={cn(
+        "grid size-8 place-items-center rounded-[10px] sm:size-10 sm:rounded-[12px]",
+        active ? "bg-white/25" : colors.icon,
+      )}>
+        {icon}
+      </div>
+      <div className="min-w-0 w-full">
+        <p className={cn(
+          "text-[10px] font-bold uppercase tracking-wide sm:text-[12px]",
+          active ? "text-white/70" : "text-[#94a3b8]",
+        )}>
+          {label}
+        </p>
+        <p className={cn(
+          "mt-0.5 truncate text-[12px] font-extrabold leading-tight sm:text-[15px]",
+          active ? "text-white" : colors.text,
+        )}>
+          {value}
+        </p>
+      </div>
+    </button>
+  );
+}
+
+// ─── Invoice card ─────────────────────────────────────────────────────────────
+
+function InvoiceCard({ invoice, onClick }: { invoice: Invoice; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="w-full overflow-hidden rounded-[18px] bg-white text-left shadow-[0_2px_12px_rgba(15,23,42,0.07)] active:scale-[0.98] transition-transform"
+    >
+      {/* Status accent strip */}
+      <div className={cn(
+        "h-1 w-full",
+        invoice.status === "PAID" ? "bg-[#059669]" :
+        invoice.status === "OVERDUE" ? "bg-[#ef3b42]" : "bg-[#d97706]",
+      )} />
+
+      <div className="px-4 py-4 sm:px-5 sm:py-5">
+        <div className="flex items-start justify-between gap-3">
+          <div className="flex min-w-0 items-center gap-3">
+            <div className={cn(
+              "grid size-10 shrink-0 place-items-center rounded-[13px] sm:size-12 sm:rounded-[15px]",
+              invoice.status === "PAID" ? "bg-[#ecfdf5] text-[#059669]" :
+              invoice.status === "OVERDUE" ? "bg-[#fff1f2] text-[#ef3b42]" : "bg-[#fffbeb] text-[#d97706]",
+            )}>
+              <FileText className="size-5 sm:size-6" />
+            </div>
+            <div className="min-w-0">
+              <p className="truncate text-[15px] font-extrabold text-[#071122] sm:text-[20px]">
+                {invoice.customerName}
+              </p>
+              <p className="mt-0.5 truncate text-[12px] text-[#94a3b8] sm:text-[15px]">
+                {invoice.items[0]?.description ?? "Invoice"} · Due {formatDate(invoice.dueDate)}
+              </p>
+            </div>
+          </div>
+
+          <div className="shrink-0 text-right">
+            <p className="text-[15px] font-extrabold text-[#071122] sm:text-[20px]">
+              {formatMoney(invoice.subtotal)}
+            </p>
+            <StatusPill status={invoice.status} />
+          </div>
+        </div>
+
+        {invoice.balance > 0 && (
+          <div className="mt-3 flex items-center justify-between rounded-[10px] bg-[#fff7ed] px-3 py-2 sm:rounded-[12px] sm:px-4">
+            <span className="text-[12px] font-semibold text-[#92400e] sm:text-[14px]">Balance due</span>
+            <span className="text-[13px] font-extrabold text-[#c2410c] sm:text-[16px]">
+              {formatMoney(invoice.balance)}
+            </span>
+          </div>
+        )}
+      </div>
     </button>
   );
 }
 
 function StatusPill({ status }: { status: Invoice["status"] }) {
   const styles = {
-    PAID: "bg-[#dffbea] text-[#0f9f68]",
+    PAID:    "bg-[#dffbea] text-[#0f9f68]",
     PENDING: "bg-[#fff0d4] text-[#d98900]",
     OVERDUE: "bg-[#ffe4e6] text-[#ef3b42]",
   }[status];
 
   return (
-    <span className={cn("mt-2 inline-flex rounded-full px-2.5 py-1 text-[12px] font-bold sm:px-3 sm:text-[15px]", styles)}>
+    <span className={cn("mt-1 inline-block rounded-full px-2 py-0.5 text-[11px] font-bold sm:px-2.5 sm:text-[13px]", styles)}>
       {status[0] + status.slice(1).toLowerCase()}
     </span>
   );
 }
 
-function InvoiceMessage({
-  title,
-  text,
-  action,
-}: {
-  title: string;
-  text?: string;
-  action?: () => void;
-}) {
+function EmptyState({ isEmpty, onNew }: { isEmpty: boolean; onNew: () => void }) {
   return (
-    <Card className="grid min-h-[220px] place-items-center px-4 py-8 text-center sm:min-h-[426px] sm:px-6">
-      <div className="max-w-[430px]">
-        <div className="mx-auto grid size-[82px] place-items-center rounded-[22px] bg-[#f0f4ff] text-[#9bbcff]">
-          <FileText className="size-10" />
-        </div>
-        <h3 className="mt-5 text-[20px] font-extrabold text-[#071122] sm:mt-8 sm:text-[29px]">
-          {title}
-        </h3>
-        {text && <p className="mt-3 text-[15px] leading-6 text-[#334155] sm:mt-4 sm:text-[22px] sm:leading-8">{text}</p>}
-        {action && (
-          <Button className="mt-6 h-12 rounded-[16px] px-5 sm:mt-8 sm:h-[72px] sm:rounded-[18px] sm:px-9" onClick={action}>
-            Create Invoice
-          </Button>
-        )}
+    <div className="flex flex-col items-center gap-4 rounded-[20px] bg-white px-6 py-12 text-center shadow-[0_4px_16px_rgba(15,23,42,0.06)]">
+      <div className="grid size-16 place-items-center rounded-[20px] bg-[#f0f4ff]">
+        <FileText className="size-8 text-[#9bbcff]" />
       </div>
-    </Card>
-  );
-}
-
-function InvoiceStat({
-  tone,
-  icon,
-  label,
-  value,
-  onClick,
-}: {
-  tone: "paid" | "pending" | "overdue";
-  icon: React.ReactNode;
-  label: string;
-  value: string;
-  onClick: () => void;
-}) {
-  const toneClass = {
-    paid: "border-[#bff4df] bg-[#eafff5] text-[#10b981]",
-    pending: "border-[#fde8a9] bg-[#fffbea] text-[#d97706]",
-    overdue: "border-[#ffd1d6] bg-[#fff0f1] text-[#ef4444]",
-  }[tone];
-
-  return (
-    <button
-      type="button"
-      className={cn(
-        "grid min-h-[96px] place-items-center rounded-[20px] border px-3 py-4 text-center sm:h-[150px] sm:rounded-[24px]",
-        toneClass,
-      )}
-      onClick={onClick}
-    >
       <div>
-        <span className="mx-auto grid size-12 place-items-center rounded-full bg-current/10">
-          {icon}
-        </span>
-        <p className="mt-3 text-[12px] font-bold tracking-wide text-[#526075] sm:mt-4 sm:text-[16px]">
-          {label}
+        <p className="text-[18px] font-extrabold text-[#071122]">
+          {isEmpty ? "No invoices yet" : "No invoices found"}
         </p>
-        <p className="mt-1 break-words text-[14px] font-extrabold sm:mt-2 sm:text-[23px]">{value}</p>
+        <p className="mt-1 text-[13px] text-[#64748b]">
+          {isEmpty ? "Create a professional invoice and send it to your customer" : "Try another filter"}
+        </p>
       </div>
-    </button>
+      {isEmpty && (
+        <Button className="h-11 rounded-[14px] px-6 text-[14px]" onClick={onNew}>
+          Create Invoice
+        </Button>
+      )}
+    </div>
   );
 }
 
 function formatMoney(value: number) {
-  return new Intl.NumberFormat("en-NG", {
-    style: "currency",
-    currency: "NGN",
-    maximumFractionDigits: 0,
-  }).format(value);
+  return new Intl.NumberFormat("en-NG", { style: "currency", currency: "NGN", maximumFractionDigits: 0 }).format(value);
 }
 
-function formatDate(value: string) {
-  return new Intl.DateTimeFormat("en-NG", {
-    day: "2-digit",
-    month: "2-digit",
-    year: "numeric",
-  }).format(new Date(value));
+function formatDate(iso: string) {
+  return new Intl.DateTimeFormat("en-NG", { day: "numeric", month: "short" }).format(new Date(iso));
 }
