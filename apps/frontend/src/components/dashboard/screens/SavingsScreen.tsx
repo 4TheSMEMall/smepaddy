@@ -82,26 +82,28 @@ export function SavingsScreen({
   return (
     <div className="mx-4 pb-10 sm:mx-0">
       {/* Header */}
-      <div className="mb-6 flex items-center gap-4">
-        <button className="grid size-9 place-items-center" onClick={onBack}>
-          <ArrowLeft className="size-7" />
+      <div className="mb-5 flex items-center gap-3">
+        <button className="grid size-10 place-items-center rounded-full bg-white shadow-[0_1px_6px_rgba(15,23,42,0.1)]" onClick={onBack}>
+          <ArrowLeft className="size-5" />
         </button>
         <div>
-          <h2 className="text-[31px] font-extrabold leading-none text-[#071122]">Savings</h2>
-          <p className="mt-0.5 text-[16px] text-[#8b99b3]">Track & withdraw your savings</p>
+          <h2 className="text-[20px] font-extrabold leading-none text-[#071122]">Savings</h2>
+          <p className="mt-0.5 text-[12px] text-[#8b99b3]">Track & withdraw your savings</p>
         </div>
       </div>
 
       {/* Tab pills */}
-      <div className="mb-6 flex gap-2">
+      <div className="mb-5 grid grid-cols-3 gap-2 rounded-[14px] bg-[#f1f5f9] p-1">
         {([["today", "Today"], ["history", "History"], ["setup", "Setup"]] as [Tab, string][]).map(([key, label]) => (
           <button
             key={key}
             type="button"
             onClick={() => setTab(key)}
             className={cn(
-              "flex-1 rounded-full py-2.5 text-[15px] font-bold transition-colors",
-              tab === key ? "bg-[#059669] text-white" : "bg-[#f1f5f9] text-[#64748b]",
+              "rounded-[10px] py-2 text-[13px] font-bold transition-all duration-200",
+              tab === key
+                ? "bg-white text-[#059669] shadow-[0_2px_8px_rgba(15,23,42,0.08)]"
+                : "text-[#64748b]",
             )}
           >
             {label}
@@ -228,15 +230,15 @@ function TodayTab({
       </div>
 
       {/* Record savings form */}
-      <div className="rounded-[24px] bg-white p-6 shadow-[0_10px_26px_rgba(15,23,42,0.07)]">
-        <p className="mb-4 text-[20px] font-extrabold text-[#071122]">Record Savings</p>
-        <label className="mb-2 block text-[17px] font-semibold text-[#334155]">Amount (₦)</label>
+      <div className="rounded-[20px] bg-white p-4 shadow-[0_2px_12px_rgba(15,23,42,0.07)]">
+        <p className="mb-3 text-[16px] font-extrabold text-[#071122]">Record Savings</p>
+        <label className="mb-1.5 block text-[13px] font-semibold text-[#334155]">Amount (₦)</label>
         <input
           type="number"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="0"
-          className="mb-4 h-[64px] w-full rounded-[14px] border border-[#d3dbe6] px-5 text-[24px] font-bold outline-none focus:border-[#059669]"
+          className="mb-3 h-14 w-full rounded-[12px] border border-[#d3dbe6] px-4 text-[20px] font-bold outline-none focus:border-[#059669]"
         />
         <label className="mb-2 block text-[17px] font-semibold text-[#334155]">Note (optional)</label>
         <input

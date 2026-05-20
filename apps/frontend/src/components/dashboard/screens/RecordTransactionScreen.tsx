@@ -74,9 +74,9 @@ export function RecordTransactionScreen({
     <div className="space-y-5 sm:mx-0">
       <div className="flex items-center gap-3">
         <button className="grid size-10 shrink-0 place-items-center rounded-full bg-white shadow-[0_1px_5px_rgba(15,23,42,0.08)]" onClick={onBack}>
-          <ArrowLeft className="size-7" />
+          <ArrowLeft className="size-5" />
         </button>
-        <h2 className="text-[29px] font-extrabold leading-tight text-[#071122]">Record Transaction</h2>
+        <h2 className="text-[20px] font-extrabold leading-tight text-[#071122] sm:text-[29px]">Record Transaction</h2>
       </div>
 
       <div className="grid grid-cols-2 gap-3 sm:gap-6">

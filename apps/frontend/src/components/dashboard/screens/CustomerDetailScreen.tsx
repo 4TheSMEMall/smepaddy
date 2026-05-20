@@ -96,7 +96,7 @@ export function CustomerDetailScreen({
   const { customer, invoices, sales } = data;
 
   return (
-    <div className="mx-4 space-y-5 pb-10 sm:mx-0">
+    <div className="space-y-4 pb-10">
       <div className="flex items-center justify-between">
         <button className="grid size-9 place-items-center" onClick={onBack}>
           <ArrowLeft className="size-7" />
@@ -114,11 +114,11 @@ export function CustomerDetailScreen({
       </div>
 
       {/* Profile card */}
-      <div className="rounded-[28px] bg-gradient-to-br from-[#071122] to-[#1e3a5f] px-7 py-8 text-white shadow-xl">
-        <div className="mb-4 grid size-16 place-items-center rounded-full bg-white/20 text-[28px] font-extrabold">
+      <div className="rounded-[24px] bg-gradient-to-br from-[#071122] to-[#1e3a5f] px-5 py-6 text-white shadow-[0_10px_30px_rgba(15,23,42,0.25)]">
+        <div className="mb-3 grid size-14 place-items-center rounded-full bg-white/20 text-[22px] font-extrabold">
           {customer.name.slice(0, 1).toUpperCase()}
         </div>
-        <p className="text-[26px] font-extrabold leading-tight">{customer.name}</p>
+        <p className="text-[22px] font-extrabold leading-tight">{customer.name}</p>
         {customer.phone && (
           <p className="mt-1 flex items-center gap-2 text-[16px] text-white/70">
             <Phone className="size-4" /> {customer.phone}

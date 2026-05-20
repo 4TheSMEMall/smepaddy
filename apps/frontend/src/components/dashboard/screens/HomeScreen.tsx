@@ -21,6 +21,7 @@ import { getStoredAccessToken } from "@/lib/session";
 import { cn } from "@/lib/utils";
 import type { Period } from "@/types/dashboard";
 
+import { SkeletonCard, SkeletonLine } from "../Skeleton";
 import { PeriodPills } from "../PeriodPills";
 
 export function HomeScreen({
@@ -63,13 +64,24 @@ export function HomeScreen({
       <PeriodPills activePeriod={activePeriod} onPeriodChange={onPeriodChange} />
 
       {/* Money In / Money Out */}
-      <div className="grid grid-cols-2 gap-3">
-        <MoneyCard tone="in" value={summary?.moneyIn ?? 0} period={activePeriod} />
-        <MoneyCard tone="out" value={summary?.moneyOut ?? 0} period={activePeriod} />
-      </div>
+      {!summary ? (
+        <div className="grid grid-cols-2 gap-3">
+          <SkeletonCard><SkeletonLine className="h-20 rounded-[20px]" /></SkeletonCard>
+          <SkeletonCard><SkeletonLine className="h-20 rounded-[20px]" /></SkeletonCard>
+        </div>
+      ) : (
+        <div className="grid grid-cols-2 gap-3">
+          <MoneyCard tone="in" value={summary.moneyIn} period={activePeriod} />
+          <MoneyCard tone="out" value={summary.moneyOut} period={activePeriod} />
+        </div>
+      )}
 
       {/* Cash at Hand */}
-      <CashCard value={summary?.cashAtHand ?? 0} />
+      {!summary ? (
+        <SkeletonLine className="h-[88px] rounded-[22px]" />
+      ) : (
+        <CashCard value={summary.cashAtHand} />
+      )}
 
       {/* Quick actions row */}
       <QuickActions onExpense={onExpense} />

@@ -224,8 +224,22 @@ export function TransactionsScreen({
         ))}
       </div>
 
-      <div className="space-y-3 sm:space-y-4">
-        {loading && <TransactionMessage title="Loading transactions..." />}
+      <div className="space-y-3">
+        {loading && !filteredTransactions.length && (
+          <div className="space-y-3">
+            {[1,2,3,4].map((i) => (
+              <div key={i} className="flex items-center gap-3 rounded-[18px] bg-white p-4 shadow-[0_2px_8px_rgba(15,23,42,0.06)]">
+                <div className="size-11 shrink-0 animate-pulse rounded-[14px] bg-[#e2e8f0]" />
+                <div className="flex-1 space-y-2">
+                  <div className="h-3.5 w-3/5 animate-pulse rounded bg-[#e2e8f0]" />
+                  <div className="h-3 w-2/5 animate-pulse rounded bg-[#f1f5f9]" />
+                </div>
+                <div className="h-4 w-14 animate-pulse rounded bg-[#e2e8f0]" />
+              </div>
+            ))}
+          </div>
+        )}
+        {loading && filteredTransactions.length > 0 && <TransactionMessage title="Loading transactions..." />}
         {error && !loading && <TransactionMessage title={error} />}
         {!loading && !error && filteredTransactions.length === 0 && (
           <TransactionMessage
