@@ -1,0 +1,589 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>SME Paddy — UI Prototype</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; -webkit-tap-highlight-color: transparent; }
+  :root {
+    --green: #00c282; --green-dark: #009669;
+    --blue: #1557df; --blue-dark: #0d40b8;
+    --red: #ef3b42; --amber: #d97706;
+    --dark: #071122; --grey: #94a3b8; --bg: #eef3f9;
+    --radius-sm: 14px; --radius-md: 18px; --radius-lg: 22px;
+    --shadow-sm: 0 2px 8px rgba(0,0,0,0.06);
+    --shadow-md: 0 6px 20px rgba(0,0,0,0.09);
+    --shadow-lg: 0 12px 32px rgba(0,0,0,0.14);
+  }
+  body { font-family: -apple-system, BlinkMacSystemFont, 'Inter', sans-serif; background: var(--bg); color: var(--dark); }
+
+  /* ── Layout ── */
+  .phone { max-width: 390px; margin: 0 auto; min-height: 100vh; background: var(--bg); position: relative; overflow-x: hidden; }
+  .screens { display: flex; gap: 0; }
+  .screen { min-width: 390px; padding: 0 16px 100px; transition: transform 0.3s cubic-bezier(.4,0,.2,1); }
+  .content-area { padding-top: 8px; }
+
+  /* ── Top nav ── */
+  .topbar { position: sticky; top: 0; z-index: 20; background: rgba(255,255,255,0.95); backdrop-filter: blur(16px); border-bottom: 1px solid #e8edf5; padding: 0 16px; height: 60px; display: flex; align-items: center; justify-content: space-between; }
+  .brand { display: flex; align-items: center; gap: 10px; }
+  .brand-icon { width: 36px; height: 36px; border-radius: 11px; background: linear-gradient(135deg, #1557df, #0d40b8); display: grid; place-items: center; color: white; font-size: 13px; font-weight: 800; box-shadow: 0 4px 12px rgba(21,87,223,0.3); }
+  .brand-name { font-size: 18px; font-weight: 800; color: var(--dark); }
+  .coin-badge { display: flex; align-items: center; gap: 6px; height: 36px; padding: 0 12px; border-radius: 100px; border: 1px solid #fde8a9; background: #fffdf3; font-size: 14px; font-weight: 700; color: #d57a00; }
+  .coin-icon { font-size: 14px; }
+
+  /* ── Bottom nav (IMPROVED — icons only) ── */
+  .bottomnav { position: fixed; bottom: 0; left: 50%; transform: translateX(-50%); width: 100%; max-width: 390px; background: rgba(255,255,255,0.97); backdrop-filter: blur(20px); border-top: 1px solid #e4e9f0; box-shadow: 0 -4px 24px rgba(15,23,42,0.08); display: grid; grid-template-columns: repeat(5,1fr); height: 64px; z-index: 30; }
+  .nav-item { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; cursor: pointer; position: relative; transition: all .15s; }
+  .nav-item.active { color: var(--blue); }
+  .nav-item:not(.active) { color: #94a3b8; }
+  .nav-icon-wrap { width: 40px; height: 28px; display: grid; place-items: center; border-radius: 10px; transition: all .2s; }
+  .nav-item.active .nav-icon-wrap { background: #eff4ff; }
+  .nav-dot { position: absolute; top: 6px; width: 24px; height: 3px; border-radius: 0 0 3px 3px; background: var(--blue); opacity: 0; transition: opacity .2s; }
+  .nav-item.active .nav-dot { opacity: 1; }
+  .nav-label { font-size: 10px; font-weight: 600; }
+  .nav-icon { font-size: 18px; }
+
+  /* ── Cards ── */
+  .card { background: white; border-radius: var(--radius-md); box-shadow: var(--shadow-sm); overflow: hidden; }
+  .card-elevated { box-shadow: var(--shadow-md); }
+
+  /* ── Section label ── */
+  .section-label { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: .06em; color: var(--grey); margin-bottom: 10px; }
+
+  /* ── Period pills ── */
+  .period-row { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: none; margin-bottom: 16px; }
+  .period-row::-webkit-scrollbar { display: none; }
+  .pill { flex-shrink: 0; height: 34px; padding: 0 14px; border-radius: 100px; font-size: 13px; font-weight: 600; cursor: pointer; transition: all .2s; border: none; }
+  .pill.active { background: var(--blue); color: white; box-shadow: 0 4px 12px rgba(21,87,223,0.3); }
+  .pill:not(.active) { background: white; color: #64748b; box-shadow: 0 1px 4px rgba(15,23,42,0.08); }
+
+  /* ── Money cards ── */
+  .money-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 14px; }
+  .money-card { position: relative; overflow: hidden; border-radius: 20px; padding: 14px; color: white; }
+  .money-card.in { background: linear-gradient(135deg, #00c282, #009669); box-shadow: 0 8px 24px rgba(0,194,130,0.35); }
+  .money-card.out { background: linear-gradient(135deg, #ff3d71, #d4004c); box-shadow: 0 8px 24px rgba(255,61,113,0.35); }
+  .money-card::before { content: ''; position: absolute; right: -20px; top: -20px; width: 80px; height: 80px; border-radius: 50%; background: rgba(255,255,255,0.12); }
+  .money-tag { display: inline-flex; align-items: center; gap: 4px; background: rgba(255,255,255,0.2); border-radius: 100px; padding: 3px 8px; font-size: 10px; font-weight: 700; margin-bottom: 8px; }
+  .money-amount { font-size: 19px; font-weight: 800; line-height: 1; word-break: break-all; }
+  .money-period { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 4px; }
+
+  /* ── Cash card ── */
+  .cash-card { background: linear-gradient(135deg, #0f172a, #1e3a5f); border-radius: 22px; padding: 18px 18px; color: white; margin-bottom: 14px; box-shadow: 0 12px 32px rgba(15,23,42,0.25); display: flex; align-items: center; justify-content: space-between; }
+  .cash-label { font-size: 10px; font-weight: 700; letter-spacing: .1em; color: rgba(255,255,255,0.5); text-transform: uppercase; }
+  .cash-amount { font-size: 28px; font-weight: 800; margin-top: 6px; }
+  .cash-icon { width: 48px; height: 48px; border-radius: 16px; background: linear-gradient(135deg, #00c282, #009669); display: grid; place-items: center; font-size: 22px; box-shadow: 0 6px 16px rgba(0,194,130,0.4); }
+
+  /* ── Quick actions ── */
+  .qa-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 8px; margin-bottom: 16px; }
+  .qa-item { display: flex; flex-direction: column; align-items: center; gap: 6px; cursor: pointer; }
+  .qa-icon { width: 50px; height: 50px; border-radius: 16px; display: grid; place-items: center; font-size: 22px; transition: transform .15s; }
+  .qa-icon:active { transform: scale(0.93); }
+  .qa-label { font-size: 10px; font-weight: 600; color: #334155; text-align: center; line-height: 1.2; }
+
+  /* ── Skeleton loading ── */
+  @keyframes shimmer { 0% { background-position: -400px 0; } 100% { background-position: 400px 0; } }
+  .skeleton { background: linear-gradient(90deg, #e2e8f0 25%, #f1f5f9 50%, #e2e8f0 75%); background-size: 800px 100%; animation: shimmer 1.4s ease-in-out infinite; border-radius: 8px; }
+  .sk-line { height: 14px; margin-bottom: 8px; }
+  .sk-circle { border-radius: 50%; }
+  .sk-rect { border-radius: 12px; }
+  .skeleton-card { background: white; border-radius: var(--radius-md); padding: 16px; box-shadow: var(--shadow-sm); }
+
+  /* ── Transaction cards ── */
+  .tx-card { background: white; border-radius: 18px; overflow: hidden; box-shadow: 0 2px 12px rgba(15,23,42,0.07); margin-bottom: 10px; display: flex; align-items: center; padding: 14px; gap: 12px; position: relative; cursor: pointer; transition: transform .1s; }
+  .tx-card:active { transform: scale(0.98); }
+  .tx-accent { position: absolute; left: 0; top: 0; bottom: 0; width: 4px; border-radius: 18px 0 0 18px; }
+  .tx-icon { width: 44px; height: 44px; border-radius: 14px; display: grid; place-items: center; font-size: 18px; flex-shrink: 0; }
+  .tx-body { flex: 1; min-width: 0; }
+  .tx-title { font-size: 15px; font-weight: 700; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tx-sub { font-size: 12px; color: var(--grey); margin-top: 2px; }
+  .tx-amount { font-size: 15px; font-weight: 800; flex-shrink: 0; }
+  .tx-chevron { color: #c3cdd8; flex-shrink: 0; font-size: 14px; }
+
+  /* ── Stock cards ── */
+  .stock-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .stock-card { background: white; border-radius: 18px; overflow: hidden; box-shadow: var(--shadow-sm); cursor: pointer; transition: transform .1s; }
+  .stock-card:active { transform: scale(0.97); }
+  .stock-img { height: 75px; background: linear-gradient(135deg, #f8fafc, #f1f5f9); display: flex; align-items: center; justify-content: center; font-size: 28px; position: relative; }
+  .stock-badge { position: absolute; right: 6px; top: 6px; padding: 2px 7px; border-radius: 100px; font-size: 10px; font-weight: 700; }
+  .stock-badge.owned { background: #eff6ff; color: #3b82f6; }
+  .stock-badge.consign { background: #fff0d4; color: #d97706; }
+  .stock-badge.low { background: #fef3c7; color: #d97706; position: absolute; left: 6px; top: 6px; right: auto; }
+  .stock-body { padding: 10px 12px 12px; }
+  .stock-name { font-size: 13px; font-weight: 700; color: var(--dark); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .stock-cat { font-size: 11px; color: var(--grey); margin-top: 2px; }
+  .stock-footer { display: flex; align-items: center; justify-content: space-between; margin-top: 8px; }
+  .stock-price { font-size: 13px; font-weight: 800; color: var(--blue); }
+  .stock-qty { padding: 2px 8px; border-radius: 100px; font-size: 10px; font-weight: 700; color: white; }
+  .qty-in { background: #16a34a; }
+  .qty-low { background: #d97706; }
+
+  /* ── Success toast ── */
+  @keyframes slideUp { from { transform: translateY(80px); opacity: 0; } to { transform: translateY(0); opacity: 1; } }
+  @keyframes slideDown { from { transform: translateY(0); opacity: 1; } to { transform: translateY(80px); opacity: 0; } }
+  .toast { position: fixed; bottom: 80px; left: 50%; transform: translateX(-50%); background: #065f46; color: white; border-radius: 100px; padding: 12px 20px; font-size: 14px; font-weight: 700; display: flex; align-items: center; gap: 8px; box-shadow: 0 8px 24px rgba(6,95,70,0.4); z-index: 100; white-space: nowrap; animation: slideUp .3s cubic-bezier(.34,1.56,.64,1); }
+  .toast.hide { animation: slideDown .3s ease-in forwards; }
+
+  /* ── Tab bar ── */
+  .tab-bar { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; margin-bottom: 14px; }
+  .tab-bar::-webkit-scrollbar { display: none; }
+  .tab { flex-shrink: 0; height: 34px; padding: 0 14px; border-radius: 100px; font-size: 13px; font-weight: 600; border: none; cursor: pointer; transition: all .2s; }
+  .tab.active { background: var(--dark); color: white; }
+  .tab:not(.active) { background: white; color: #64748b; box-shadow: 0 1px 4px rgba(15,23,42,0.08); }
+
+  /* ── Invoice card ── */
+  .inv-card { background: white; border-radius: var(--radius-md); overflow: hidden; box-shadow: var(--shadow-sm); margin-bottom: 10px; cursor: pointer; transition: transform .1s; }
+  .inv-card:active { transform: scale(0.98); }
+  .inv-strip { height: 3px; }
+  .inv-strip.paid { background: #059669; }
+  .inv-strip.pending { background: #d97706; }
+  .inv-strip.overdue { background: var(--red); }
+  .inv-body { padding: 12px 14px; display: flex; align-items: flex-start; gap: 10px; }
+  .inv-icon { width: 40px; height: 40px; border-radius: 12px; display: grid; place-items: center; font-size: 18px; flex-shrink: 0; }
+  .inv-info { flex: 1; min-width: 0; }
+  .inv-name { font-size: 14px; font-weight: 700; color: var(--dark); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .inv-desc { font-size: 12px; color: var(--grey); margin-top: 2px; }
+  .inv-right { text-align: right; flex-shrink: 0; }
+  .inv-amount { font-size: 14px; font-weight: 800; color: var(--dark); }
+  .inv-status { margin-top: 3px; display: inline-block; padding: 2px 8px; border-radius: 100px; font-size: 11px; font-weight: 700; }
+  .status-paid { background: #dffbea; color: #0f9f68; }
+  .status-pending { background: #fff0d4; color: #d98900; }
+  .status-overdue { background: #ffe4e6; color: var(--red); }
+  .inv-balance { margin: 0 14px 12px; padding: 8px 12px; background: #fff7ed; border-radius: 10px; font-size: 12px; font-weight: 700; color: #c2410c; display: flex; justify-content: space-between; }
+
+  /* ── Page switcher ── */
+  .page-tabs { display: flex; gap: 6px; padding: 12px 16px; background: white; border-bottom: 1px solid #f1f5f9; overflow-x: auto; scrollbar-width: none; }
+  .page-tabs::-webkit-scrollbar { display: none; }
+  .page-tab { flex-shrink: 0; padding: 6px 14px; border-radius: 100px; font-size: 12px; font-weight: 700; border: none; cursor: pointer; transition: all .2s; }
+  .page-tab.active { background: var(--blue); color: white; }
+  .page-tab:not(.active) { background: #f1f5f9; color: #64748b; }
+
+  /* ── Stat cards ── */
+  .stat-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-bottom: 14px; }
+  .stat-card { border-radius: 16px; padding: 10px; cursor: pointer; transition: all .2s; }
+  .stat-card.paid-card { background: #ecfdf5; }
+  .stat-card.pending-card { background: #fffbeb; }
+  .stat-card.overdue-card { background: #fff1f2; }
+  .stat-card.active-card { box-shadow: 0 6px 20px rgba(0,0,0,0.18); }
+  .stat-icon-wrap { width: 32px; height: 32px; border-radius: 10px; display: grid; place-items: center; font-size: 16px; margin-bottom: 6px; }
+  .stat-label { font-size: 10px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; }
+  .stat-value { font-size: 12px; font-weight: 800; margin-top: 2px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+
+  /* ── Buttons ── */
+  .btn { display: inline-flex; align-items: center; gap: 6px; border: none; cursor: pointer; font-weight: 700; transition: all .15s; }
+  .btn:active { transform: scale(0.96); }
+  .btn-primary { background: var(--blue); color: white; border-radius: 12px; padding: 12px 20px; font-size: 15px; box-shadow: 0 4px 12px rgba(21,87,223,0.3); }
+  .btn-sm { padding: 8px 14px; font-size: 13px; border-radius: 10px; }
+</style>
+</head>
+<body>
+
+<div class="phone">
+  <!-- PAGE SWITCHER -->
+  <div class="page-tabs">
+    <button class="page-tab active" onclick="showPage('home')">🏠 Home</button>
+    <button class="page-tab" onclick="showPage('transactions')">💸 Transactions</button>
+    <button class="page-tab" onclick="showPage('stock')">📦 Stock</button>
+    <button class="page-tab" onclick="showPage('invoices')">🧾 Invoices</button>
+    <button class="page-tab" onclick="showPage('skeleton')">⏳ Skeleton</button>
+  </div>
+
+  <!-- TOPBAR -->
+  <div class="topbar">
+    <div class="brand">
+      <div class="brand-icon">SP</div>
+      <span class="brand-name">Mikama Services</span>
+    </div>
+    <div style="display:flex;align-items:center;gap:8px">
+      <button style="width:36px;height:36px;border-radius:50%;background:#f1f5f9;border:none;cursor:pointer;font-size:16px;">🔔</button>
+      <div class="coin-badge">
+        <span class="coin-icon">🪙</span>
+        <span>1,147</span>
+        <span style="font-size:12px;color:#8cc84b">🌱</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ HOME PAGE ══ -->
+  <div id="page-home" class="screen content-area">
+    <div class="period-row">
+      <button class="pill active">This Week</button>
+      <button class="pill">This Month</button>
+      <button class="pill">This Quarter</button>
+      <button class="pill">This Year</button>
+    </div>
+
+    <div class="money-grid">
+      <div class="money-card in">
+        <div class="money-tag">↗ MONEY IN</div>
+        <div class="money-amount">₦4.9M</div>
+        <div class="money-period">This Week</div>
+      </div>
+      <div class="money-card out">
+        <div class="money-tag">↙ MONEY OUT</div>
+        <div class="money-amount">₦37K</div>
+        <div class="money-period">This Week</div>
+      </div>
+    </div>
+
+    <div class="cash-card">
+      <div>
+        <div class="cash-label">Cash at Hand</div>
+        <div class="cash-amount">₦4,883,001</div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5);margin-top:4px">Available balance</div>
+      </div>
+      <div class="cash-icon">💰</div>
+    </div>
+
+    <p class="section-label">Quick Actions</p>
+    <div class="qa-grid">
+      <div class="qa-item">
+        <div class="qa-icon" style="background:linear-gradient(135deg,#1557df,#0d40b8);box-shadow:0 6px 16px rgba(21,87,223,0.35)">📦</div>
+        <span class="qa-label">Add Product</span>
+      </div>
+      <div class="qa-item">
+        <div class="qa-icon" style="background:linear-gradient(135deg,#7c3aed,#6d28d9);box-shadow:0 6px 16px rgba(124,58,237,0.35)">✨</div>
+        <span class="qa-label">Add Service</span>
+      </div>
+      <div class="qa-item" onclick="showToast()">
+        <div class="qa-icon" style="background:linear-gradient(135deg,#ef3b42,#d4004c);box-shadow:0 6px 16px rgba(239,59,66,0.35)">💸</div>
+        <span class="qa-label">Record Expense</span>
+      </div>
+      <div class="qa-item">
+        <div class="qa-icon" style="background:linear-gradient(135deg,#d97706,#b45309);box-shadow:0 6px 16px rgba(217,119,6,0.35)">📊</div>
+        <span class="qa-label">View Reports</span>
+      </div>
+    </div>
+
+    <p class="section-label">Recent Sales</p>
+    <div class="card">
+      <div class="tx-card" style="border-radius:0;box-shadow:none;border-bottom:1px solid #f1f5f9">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:#00c282;border-radius:18px 0 0 18px"></div>
+        <div class="tx-icon" style="background:#f0fdf7;color:#00c282">🛒</div>
+        <div class="tx-body">
+          <div class="tx-title">Samsung Speakers</div>
+          <div class="tx-sub">2 min ago · Oga Mike</div>
+        </div>
+        <div class="tx-amount" style="color:#00c282">+₦230K</div>
+        <div class="tx-chevron">›</div>
+      </div>
+      <div class="tx-card" style="border-radius:0;box-shadow:none;border-bottom:1px solid #f1f5f9">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:#00c282;border-radius:18px 0 0 18px"></div>
+        <div class="tx-icon" style="background:#f0fdf7;color:#00c282">🛒</div>
+        <div class="tx-body">
+          <div class="tx-title">Fabric Material</div>
+          <div class="tx-sub">1h ago</div>
+          <span style="background:#fff4e0;color:#d98900;border-radius:100px;padding:2px 8px;font-size:11px;font-weight:700;">Credit</span>
+        </div>
+        <div class="tx-amount" style="color:#00c282">+₦45K</div>
+        <div class="tx-chevron">›</div>
+      </div>
+      <div class="tx-card" style="border-radius:0;box-shadow:none">
+        <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:#ef3b42;border-radius:18px 0 0 18px"></div>
+        <div class="tx-icon" style="background:#fff0f0;color:#ef3b42">💸</div>
+        <div class="tx-body">
+          <div class="tx-title">Transport</div>
+          <div class="tx-sub">3h ago</div>
+        </div>
+        <div class="tx-amount" style="color:#ef3b42">-₦5K</div>
+        <div class="tx-chevron">›</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ TRANSACTIONS PAGE ══ -->
+  <div id="page-transactions" class="screen content-area" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <h2 style="font-size:24px;font-weight:800">Transactions</h2>
+      <button class="btn btn-primary btn-sm" style="font-size:13px">+ Record</button>
+    </div>
+    <div class="period-row">
+      <button class="pill active">This Week</button>
+      <button class="pill">This Month</button>
+      <button class="pill">This Quarter</button>
+    </div>
+    <div class="tab-bar">
+      <button class="tab active">All</button>
+      <button class="tab">Money In</button>
+      <button class="tab">Money Out</button>
+    </div>
+    <div class="tx-card">
+      <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:#00c282;border-radius:18px 0 0 18px"></div>
+      <div class="tx-icon" style="background:#f0fdf7;color:#00c282">🛒</div>
+      <div class="tx-body"><div class="tx-title">Samsung Speakers</div><div class="tx-sub">Today · Oga Mike</div></div>
+      <div class="tx-amount" style="color:#00c282">+₦230,000</div>
+      <div class="tx-chevron">›</div>
+    </div>
+    <div class="tx-card">
+      <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:#ef3b42;border-radius:18px 0 0 18px"></div>
+      <div class="tx-icon" style="background:#fff0f0;color:#ef3b42">💸</div>
+      <div class="tx-body"><div class="tx-title">Generator Fuel</div><div class="tx-sub">Today · Auto-recorded</div></div>
+      <div class="tx-amount" style="color:#ef3b42">-₦3,500</div>
+      <div class="tx-chevron">›</div>
+    </div>
+    <div class="tx-card">
+      <div style="position:absolute;left:0;top:0;bottom:0;width:4px;background:#00c282;border-radius:18px 0 0 18px"></div>
+      <div class="tx-icon" style="background:#f0fdf7;color:#00c282">🛒</div>
+      <div class="tx-body"><div class="tx-title">Fabric Material</div><div class="tx-sub">Yesterday</div><span style="background:#fff4e0;color:#d98900;border-radius:100px;padding:2px 8px;font-size:11px;font-weight:700">Credit</span></div>
+      <div class="tx-amount" style="color:#00c282">+₦45,000</div>
+      <div class="tx-chevron">›</div>
+    </div>
+  </div>
+
+  <!-- ══ STOCK PAGE ══ -->
+  <div id="page-stock" class="screen content-area" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <h2 style="font-size:24px;font-weight:800">My Stock</h2>
+      <button class="btn btn-primary btn-sm">+ Add Item</button>
+    </div>
+    <div style="display:flex;height:44px;align-items:center;gap:10px;background:white;border-radius:14px;padding:0 14px;box-shadow:0 1px 4px rgba(15,23,42,0.06);margin-bottom:12px">
+      <span>🔍</span>
+      <span style="font-size:14px;color:#94a3b8">Search items...</span>
+    </div>
+    <div class="period-row" style="margin-bottom:10px">
+      <button class="pill active" style="display:flex;align-items:center;gap:5px">📦 All</button>
+      <button class="pill" style="display:flex;align-items:center;gap:5px">✅ Owned</button>
+      <button class="pill" style="display:flex;align-items:center;gap:5px">🤝 Consignment</button>
+      <button class="pill" style="display:flex;align-items:center;gap:5px">⚠️ Restock <span style="background:#ffe4e6;color:#ef3b42;border-radius:100px;padding:1px 6px;font-size:10px;font-weight:700">3</span></button>
+    </div>
+    <div class="stock-grid">
+      <div class="stock-card">
+        <div class="stock-img">📺
+          <span class="stock-badge owned">Owned</span>
+        </div>
+        <div class="stock-body">
+          <div class="stock-name">Samsung TV 43"</div>
+          <div class="stock-cat">Electronics</div>
+          <div class="stock-footer">
+            <div class="stock-price">₦185K</div>
+            <div class="stock-qty qty-in">12 pcs</div>
+          </div>
+        </div>
+      </div>
+      <div class="stock-card">
+        <div class="stock-img">👗
+          <span class="stock-badge consign">Consign</span>
+          <span class="stock-badge low">Low</span>
+        </div>
+        <div class="stock-body">
+          <div class="stock-name">Cotton Fabric</div>
+          <div class="stock-cat">Fashion</div>
+          <div class="stock-footer">
+            <div class="stock-price">₦4,500</div>
+            <div class="stock-qty qty-low">2 yds</div>
+          </div>
+        </div>
+      </div>
+      <div class="stock-card">
+        <div class="stock-img">📦
+          <span class="stock-badge owned">Owned</span>
+        </div>
+        <div class="stock-body">
+          <div class="stock-name">Home Theatre</div>
+          <div class="stock-cat">Electronics</div>
+          <div class="stock-footer">
+            <div class="stock-price">₦230K</div>
+            <div class="stock-qty qty-in">5 pcs</div>
+          </div>
+        </div>
+      </div>
+      <div class="stock-card">
+        <div class="stock-img">👟
+          <span class="stock-badge consign">Consign</span>
+        </div>
+        <div class="stock-body">
+          <div class="stock-name">Nike Sneakers</div>
+          <div class="stock-cat">Footwear</div>
+          <div class="stock-footer">
+            <div class="stock-price">₦35K</div>
+            <div class="stock-qty qty-in">8 pcs</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══ INVOICES PAGE ══ -->
+  <div id="page-invoices" class="screen content-area" style="display:none">
+    <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:14px">
+      <h2 style="font-size:24px;font-weight:800">Invoices</h2>
+      <button class="btn btn-primary btn-sm">+ New</button>
+    </div>
+    <div class="stat-grid">
+      <div class="stat-card paid-card">
+        <div class="stat-icon-wrap" style="background:#059669;color:white">✓</div>
+        <div class="stat-label" style="color:#059669">Paid</div>
+        <div class="stat-value" style="color:#065f46">₦4.2M</div>
+      </div>
+      <div class="stat-card pending-card">
+        <div class="stat-icon-wrap" style="background:#d97706;color:white">🕐</div>
+        <div class="stat-label" style="color:#d97706">Pending</div>
+        <div class="stat-value" style="color:#92400e">₦890K</div>
+      </div>
+      <div class="stat-card overdue-card">
+        <div class="stat-icon-wrap" style="background:#ef3b42;color:white">⚠</div>
+        <div class="stat-label" style="color:#ef3b42">Overdue</div>
+        <div class="stat-value" style="color:#9b1c1c">₦45K</div>
+      </div>
+    </div>
+    <div class="period-row" style="margin-bottom:14px">
+      <button class="pill active">All</button>
+      <button class="pill">Paid</button>
+      <button class="pill">Pending</button>
+      <button class="pill">Overdue</button>
+    </div>
+    <div class="inv-card">
+      <div class="inv-strip paid"></div>
+      <div class="inv-body">
+        <div class="inv-icon" style="background:#ecfdf5;color:#059669">🧾</div>
+        <div class="inv-info"><div class="inv-name">Oga Mike</div><div class="inv-desc">Samsung TV · Due 20 May</div></div>
+        <div class="inv-right"><div class="inv-amount">₦185,000</div><span class="inv-status status-paid">Paid</span></div>
+      </div>
+    </div>
+    <div class="inv-card">
+      <div class="inv-strip pending"></div>
+      <div class="inv-body">
+        <div class="inv-icon" style="background:#fffbeb;color:#d97706">🧾</div>
+        <div class="inv-info"><div class="inv-name">Mama Ngozi</div><div class="inv-desc">Cotton Fabric × 5 · Due 25 May</div></div>
+        <div class="inv-right"><div class="inv-amount">₦45,000</div><span class="inv-status status-pending">Pending</span></div>
+      </div>
+      <div class="inv-balance"><span>Balance due</span><span>₦25,000</span></div>
+    </div>
+    <div class="inv-card">
+      <div class="inv-strip overdue"></div>
+      <div class="inv-body">
+        <div class="inv-icon" style="background:#fff1f2;color:#ef3b42">🧾</div>
+        <div class="inv-info"><div class="inv-name">Mr Adeyemi</div><div class="inv-desc">Sneakers × 2 · Was 10 May</div></div>
+        <div class="inv-right"><div class="inv-amount">₦35,000</div><span class="inv-status status-overdue">Overdue</span></div>
+      </div>
+      <div class="inv-balance" style="background:#fff1f2;color:#9b1c1c"><span>Balance due</span><span>₦35,000</span></div>
+    </div>
+  </div>
+
+  <!-- ══ SKELETON PAGE ══ -->
+  <div id="page-skeleton" class="screen content-area" style="display:none">
+    <p style="font-size:12px;font-weight:700;color:#94a3b8;text-align:center;margin-bottom:16px;letter-spacing:.05em">SKELETON LOADING STATE</p>
+    <!-- Money cards skeleton -->
+    <div class="money-grid" style="margin-bottom:14px">
+      <div style="border-radius:20px;overflow:hidden"><div class="skeleton sk-rect" style="height:95px"></div></div>
+      <div style="border-radius:20px;overflow:hidden"><div class="skeleton sk-rect" style="height:95px"></div></div>
+    </div>
+    <!-- Cash skeleton -->
+    <div class="skeleton sk-rect" style="height:88px;margin-bottom:14px"></div>
+    <!-- Transaction skeletons -->
+    <p class="section-label">Recent Transactions</p>
+    <div class="card" style="padding:14px">
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div class="skeleton sk-circle" style="width:44px;height:44px;flex-shrink:0"></div>
+        <div style="flex:1">
+          <div class="skeleton sk-line" style="width:60%"></div>
+          <div class="skeleton sk-line" style="width:40%;height:10px"></div>
+        </div>
+        <div class="skeleton" style="width:60px;height:18px;border-radius:6px"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px;margin-bottom:14px">
+        <div class="skeleton sk-circle" style="width:44px;height:44px;flex-shrink:0"></div>
+        <div style="flex:1">
+          <div class="skeleton sk-line" style="width:50%"></div>
+          <div class="skeleton sk-line" style="width:30%;height:10px"></div>
+        </div>
+        <div class="skeleton" style="width:50px;height:18px;border-radius:6px"></div>
+      </div>
+      <div style="display:flex;align-items:center;gap:12px">
+        <div class="skeleton sk-circle" style="width:44px;height:44px;flex-shrink:0"></div>
+        <div style="flex:1">
+          <div class="skeleton sk-line" style="width:55%"></div>
+          <div class="skeleton sk-line" style="width:35%;height:10px"></div>
+        </div>
+        <div class="skeleton" style="width:55px;height:18px;border-radius:6px"></div>
+      </div>
+    </div>
+    <br/>
+    <!-- Stock skeleton -->
+    <p class="section-label">Stock Items</p>
+    <div class="stock-grid">
+      <div class="skeleton sk-rect" style="height:145px"></div>
+      <div class="skeleton sk-rect" style="height:145px"></div>
+      <div class="skeleton sk-rect" style="height:145px"></div>
+      <div class="skeleton sk-rect" style="height:145px"></div>
+    </div>
+  </div>
+
+  <!-- BOTTOM NAV (IMPROVED — icons only) -->
+  <div class="bottomnav">
+    <div class="nav-item active" onclick="switchNav(this,'home')">
+      <div class="nav-dot"></div>
+      <div class="nav-icon-wrap"><span class="nav-icon">🏠</span></div>
+      <span class="nav-label">Home</span>
+    </div>
+    <div class="nav-item" onclick="switchNav(this,'transactions')">
+      <div class="nav-dot"></div>
+      <div class="nav-icon-wrap"><span class="nav-icon">⇄</span></div>
+      <span class="nav-label">Transactions</span>
+    </div>
+    <div class="nav-item" onclick="switchNav(this,'stock')">
+      <div class="nav-dot"></div>
+      <div class="nav-icon-wrap"><span class="nav-icon">📦</span></div>
+      <span class="nav-label">My Stock</span>
+    </div>
+    <div class="nav-item" onclick="switchNav(this,'invoices')">
+      <div class="nav-dot"></div>
+      <div class="nav-icon-wrap"><span class="nav-icon">🧾</span></div>
+      <span class="nav-label">Invoices</span>
+    </div>
+    <div class="nav-item" onclick="switchNav(this,'home')">
+      <div class="nav-dot"></div>
+      <div class="nav-icon-wrap"><span class="nav-icon">•••</span></div>
+      <span class="nav-label">More</span>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div id="toast" class="toast" style="display:none">
+  ✅ Expense recorded! +3 coins
+</div>
+
+<script>
+function showPage(id) {
+  document.querySelectorAll('.screen').forEach(s => s.style.display = 'none');
+  document.getElementById('page-' + id).style.display = 'block';
+  document.querySelectorAll('.page-tab').forEach(t => t.classList.remove('active'));
+  const pages = ['home','transactions','stock','invoices','skeleton'];
+  const idx = pages.indexOf(id);
+  document.querySelectorAll('.page-tab')[idx]?.classList.add('active');
+}
+
+function switchNav(el, page) {
+  document.querySelectorAll('.nav-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+  showPage(page);
+}
+
+function showToast() {
+  const t = document.getElementById('toast');
+  t.style.display = 'flex';
+  t.classList.remove('hide');
+  setTimeout(() => {
+    t.classList.add('hide');
+    setTimeout(() => t.style.display = 'none', 300);
+  }, 2500);
+}
+
+// Pill click interaction
+document.querySelectorAll('.pill').forEach(p => {
+  p.addEventListener('click', function() {
+    this.closest('.period-row').querySelectorAll('.pill').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+
+document.querySelectorAll('.tab').forEach(t => {
+  t.addEventListener('click', function() {
+    this.closest('.tab-bar').querySelectorAll('.tab').forEach(x => x.classList.remove('active'));
+    this.classList.add('active');
+  });
+});
+</script>
+</body>
+</html>

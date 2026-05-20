@@ -161,7 +161,7 @@ function QuickActions({ onExpense }: { onExpense: () => void }) {
       <p className="mb-3 text-[13px] font-bold uppercase tracking-wide text-[#94a3b8]">
         Quick Actions
       </p>
-      <div className="quick-action-grid grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 gap-3 sm:grid-cols-4 sm:gap-2">
         {actions.map(({ label, icon: Icon, color, shadow, onPress }) => (
           <button
             key={label}
@@ -169,13 +169,13 @@ function QuickActions({ onExpense }: { onExpense: () => void }) {
             className="flex flex-col items-center gap-2"
           >
             <div className={cn(
-              "grid size-12 place-items-center rounded-[16px] bg-gradient-to-br text-white sm:size-14 sm:rounded-[18px]",
+              "grid size-full aspect-square max-h-[72px] w-full place-items-center rounded-[18px] bg-gradient-to-br text-white sm:size-14 sm:rounded-[18px]",
               color,
             )}
               style={{ boxShadow: `0 6px 16px ${shadow}` }}>
-              <Icon className="size-6" />
+              <Icon className="size-7 sm:size-6" />
             </div>
-            <span className="min-h-7 text-center text-[10px] font-semibold leading-tight text-[#334155] sm:text-[11px]">
+            <span className="text-center text-[13px] font-semibold leading-tight text-[#334155] sm:text-[11px]">
               {label}
             </span>
           </button>
