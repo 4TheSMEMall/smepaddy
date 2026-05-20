@@ -19,7 +19,7 @@ export class DashboardService {
     weekStart.setDate(now.getDate() - now.getDay());
     weekStart.setHours(0, 0, 0, 0);
 
-    const [moneyIn, moneyOut, creditBalance, lowStockCount, recentSales] = await Promise.all([
+    const [moneyIn, moneyOut, creditBalance, lowStockCount, stockCount, salesCount, invoiceCount, recentSales] = await Promise.all([
       prisma.saleTransaction.aggregate({
         where: {
           businessProfileId,
@@ -48,6 +48,9 @@ export class DashboardService {
           lowStockAlertQuantity: { not: null },
         },
       }),
+      prisma.stockItem.count({ where: { businessProfileId, archivedAt: null } }),
+      prisma.saleTransaction.count({ where: { businessProfileId } }),
+      prisma.invoice.count({ where: { businessProfileId } }),
       prisma.saleTransaction.findMany({
         where: { businessProfileId },
         orderBy: { createdAt: "desc" },
@@ -76,6 +79,12 @@ export class DashboardService {
       cashAtHand: totalMoneyIn - totalMoneyOut,
       outstandingInvoices: fromKobo(creditBalance._sum.balanceKobo ?? 0),
       lowStockCount,
+      onboarding: {
+        stockAdded: stockCount > 0,
+        saleRecorded: salesCount > 0,
+        invoiceCreated: invoiceCount > 0,
+        completed: stockCount > 0 && salesCount > 0 && invoiceCount > 0,
+      },
       recentSales: recentSales.map((sale) => ({
         id: sale.id,
         title: sale.lineItems.map((line: { stockItem: { name: string } }) => line.stockItem.name).join(", ") || "Sale",

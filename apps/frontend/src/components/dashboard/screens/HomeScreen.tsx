@@ -5,6 +5,7 @@ import {
   ArrowDownRight,
   ArrowUpRight,
   Banknote,
+  CheckCircle2,
   ChevronRight,
   Package,
   Sparkles,
@@ -17,6 +18,7 @@ import { PaddyCoinIcon } from "@/components/PaddyCoinIcon";
 import { ApiError } from "@/lib/api";
 import { makeCacheKey, readClientCache, writeClientCache } from "@/lib/clientCache";
 import { getDashboardSummary, type DashboardSummary } from "@/lib/dashboardApi";
+import { claimDailyLogin } from "@/lib/coinApi";
 import { getStoredAccessToken } from "@/lib/session";
 import { cn } from "@/lib/utils";
 import type { Period } from "@/types/dashboard";
@@ -86,8 +88,13 @@ export function HomeScreen({
       {/* Quick actions row */}
       <QuickActions onExpense={onExpense} />
 
-      {/* Setup card */}
-      {showSetup && <SetupCard onDismiss={() => setShowSetup(false)} />}
+      {/* Setup card — only show if not yet completed and not dismissed */}
+      {showSetup && !summary?.onboarding?.completed && (
+        <SetupCard
+          onboarding={summary?.onboarding}
+          onDismiss={() => setShowSetup(false)}
+        />
+      )}
 
       {/* Recent transactions */}
       <RecentCard sales={summary?.recentSales ?? []} />
@@ -199,25 +206,41 @@ function QuickActions({ onExpense }: { onExpense: () => void }) {
 
 // ─── Setup card ───────────────────────────────────────────────────────────────
 
-function SetupCard({ onDismiss }: { onDismiss: () => void }) {
+function SetupCard({
+  onboarding,
+  onDismiss,
+}: {
+  onboarding?: DashboardSummary["onboarding"];
+  onDismiss: () => void;
+}) {
   const steps = [
-    { n: "1", title: "Add your first product", sub: "Stock your shop or list a service" },
-    { n: "2", title: "Record your first sale", sub: "Log a sale, service, or expense" },
-    { n: "3", title: "Create your first invoice", sub: "Send a professional invoice" },
+    { key: "stockAdded",      title: "Add your first product", sub: "Stock your shop or list a service", done: onboarding?.stockAdded ?? false },
+    { key: "saleRecorded",    title: "Record your first sale",  sub: "Log a sale, service, or expense",   done: onboarding?.saleRecorded ?? false },
+    { key: "invoiceCreated",  title: "Create your first invoice", sub: "Send a professional invoice",      done: onboarding?.invoiceCreated ?? false },
   ];
+
+  const doneCount = steps.filter((s) => s.done).length;
 
   return (
     <div className="overflow-hidden rounded-[22px] bg-white shadow-[0_4px_20px_rgba(15,23,42,0.07)]">
       {/* Header */}
-      <div className="flex items-center justify-between bg-gradient-to-r from-[#eff4ff] to-[#e0eaff] px-5 py-4">
+      <div className="flex items-center justify-between bg-gradient-to-r from-[#eff4ff] to-[#e0eaff] px-4 py-3.5">
         <div className="flex items-center gap-3">
-          <div className="grid size-11 place-items-center rounded-full border-2 border-[#1557df]/20 bg-white text-[13px] font-extrabold text-[#1557df]">
-            0/3
+          {/* Progress ring */}
+          <div className="relative grid size-11 place-items-center">
+            <svg className="absolute inset-0" width="44" height="44" viewBox="0 0 44 44">
+              <circle cx="22" cy="22" r="18" fill="none" stroke="#dbe8ff" strokeWidth="4" />
+              <circle cx="22" cy="22" r="18" fill="none" stroke="#1557df" strokeWidth="4"
+                strokeDasharray={`${(doneCount / 3) * 113} 113`}
+                strokeLinecap="round" transform="rotate(-90 22 22)"
+                style={{ transition: "stroke-dasharray 0.5s ease" }} />
+            </svg>
+            <span className="text-[12px] font-extrabold text-[#1557df]">{doneCount}/3</span>
           </div>
           <div>
-            <p className="text-[15px] font-bold text-[#071122]">Set up your business</p>
-            <p className="flex items-center gap-1 text-[13px] text-[#d97706]">
-              <PaddyCoinIcon className="size-3.5" />
+            <p className="text-[14px] font-bold text-[#071122]">Set up your business</p>
+            <p className="flex items-center gap-1 text-[12px] text-[#d97706]">
+              <PaddyCoinIcon className="size-3" />
               +50 coins on completion
             </p>
           </div>
@@ -228,18 +251,23 @@ function SetupCard({ onDismiss }: { onDismiss: () => void }) {
       </div>
 
       {/* Steps */}
-      <div className="divide-y divide-[#f1f5f9] px-5">
-        {steps.map(({ n, title, sub }) => (
-          <button key={n} className="flex w-full items-center gap-3 py-3.5 text-left active:bg-[#f8fafc]">
-            <span className="grid size-8 shrink-0 place-items-center rounded-full border border-[#e2e8f0] text-[13px] font-bold text-[#94a3b8]">
-              {n}
+      <div className="divide-y divide-[#f1f5f9] px-4">
+        {steps.map(({ key, title, sub, done }) => (
+          <div key={key} className="flex items-center gap-3 py-3">
+            <span className={cn(
+              "grid size-7 shrink-0 place-items-center rounded-full text-[12px] font-bold",
+              done ? "bg-[#059669] text-white" : "border border-[#e2e8f0] text-[#94a3b8]",
+            )}>
+              {done ? <CheckCircle2 className="size-4" /> : "·"}
             </span>
             <span className="flex-1">
-              <span className="block text-[14px] font-semibold text-[#071122]">{title}</span>
-              <span className="text-[12px] text-[#94a3b8]">{sub}</span>
+              <span className={cn("block text-[13px] font-semibold", done ? "text-[#94a3b8] line-through" : "text-[#071122]")}>
+                {title}
+              </span>
+              {!done && <span className="text-[11px] text-[#94a3b8]">{sub}</span>}
             </span>
-            <ChevronRight className="size-4 text-[#c1cad8]" />
-          </button>
+            {!done && <ChevronRight className="size-4 text-[#c1cad8]" />}
+          </div>
         ))}
       </div>
     </div>

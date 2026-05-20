@@ -25,11 +25,13 @@ export function TransactionDetailScreen({
   sale,
   onBack,
   onOpenInvoice,
+  onOpenCustomer,
   businessName,
 }: {
   sale: SaleListItem;
   onBack: () => void;
   onOpenInvoice?: (invoiceId: string) => void;
+  onOpenCustomer?: (customerId: string) => void;
   businessName?: string;
 }) {
   const [invoice, setInvoice] = useState<Invoice | null>(null);
@@ -102,7 +104,20 @@ export function TransactionDetailScreen({
             icon={<User className="size-5" />}
             tone="blue"
             label="Customer"
-            value={sale.customerName}
+            value={
+              sale.customerId && onOpenCustomer ? (
+                <button
+                  type="button"
+                  onClick={() => onOpenCustomer(sale.customerId!)}
+                  className="flex items-center gap-1.5 text-[#1557df] underline underline-offset-2"
+                >
+                  {sale.customerName}
+                  <ChevronRight className="size-3.5" />
+                </button>
+              ) : (
+                sale.customerName
+              )
+            }
           />
         )}
         <DetailRow

@@ -6,6 +6,12 @@ export type DashboardSummary = {
   cashAtHand: number;
   outstandingInvoices: number;
   lowStockCount: number;
+  onboarding: {
+    stockAdded: boolean;
+    saleRecorded: boolean;
+    invoiceCreated: boolean;
+    completed: boolean;
+  };
   recentSales: {
     id: string;
     title: string;

@@ -461,9 +461,9 @@ export function InvoiceDetailsScreen({
         </div>
       )}
 
-      {/* Download / Share invoice */}
+      {/* Download / WhatsApp / Share invoice */}
       {invoice && (
-        <div className="flex gap-3">
+        <div className="grid grid-cols-3 gap-2">
           <button
             type="button"
             onClick={() =>
@@ -486,11 +486,32 @@ export function InvoiceDetailsScreen({
                 status: invoice.status,
               })
             }
-            className="flex flex-1 items-center justify-center gap-2 rounded-[16px] bg-[#f1f5f9] py-4 text-[17px] font-bold text-[#334155]"
+            className="flex flex-col items-center justify-center gap-1.5 rounded-[14px] bg-[#f1f5f9] py-3 text-[13px] font-bold text-[#334155]"
           >
             <Download className="size-5" />
             Download
           </button>
+
+          {/* WhatsApp — send to customer if phone exists */}
+          <button
+            type="button"
+            onClick={() => {
+              const phone = invoice.customerPhone;
+              const num = phone
+                ? phone.replace(/\D/g, "").replace(/^0/, "234")
+                : null;
+              const msg = `Hi ${invoice.customerName}, here's your invoice from ${businessName ?? "SME Paddy"}.\n\nINV-${invoice.id.slice(-4).toUpperCase()}\nAmount: NGN ${invoice.subtotal.toLocaleString()}\nDue: ${new Date(invoice.dueDate).toLocaleDateString("en-NG", { day: "numeric", month: "short", year: "numeric" })}\n\nPlease make payment before the due date. Thank you! 🙏`;
+              const url = num
+                ? `https://wa.me/${num}?text=${encodeURIComponent(msg)}`
+                : `https://wa.me/?text=${encodeURIComponent(msg)}`;
+              window.open(url, "_blank");
+            }}
+            className="flex flex-col items-center justify-center gap-1.5 rounded-[14px] bg-[#dcfce7] py-3 text-[13px] font-bold text-[#16a34a]"
+          >
+            <span className="text-[18px] leading-none">💬</span>
+            WhatsApp
+          </button>
+
           <button
             type="button"
             onClick={() =>
@@ -513,10 +534,10 @@ export function InvoiceDetailsScreen({
                 status: invoice.status,
               })
             }
-            className="flex flex-1 items-center justify-center gap-2 rounded-[16px] bg-[#1557df] py-4 text-[17px] font-bold text-white"
+            className="flex flex-col items-center justify-center gap-1.5 rounded-[14px] bg-[#eff4ff] py-3 text-[13px] font-bold text-[#1557df]"
           >
             <Share2 className="size-5" />
-            Share
+            Share PDF
           </button>
         </div>
       )}

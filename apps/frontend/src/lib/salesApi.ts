@@ -26,6 +26,7 @@ export type SaleResponse = {
   sale: {
     id: string;
     invoiceId: string | null;
+    customerId: string | null;
     customerName: string | null;
     paymentStatus: PaymentStatus;
     paymentMethod: PaymentMethod | null;

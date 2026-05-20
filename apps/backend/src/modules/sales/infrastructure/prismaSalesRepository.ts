@@ -7,6 +7,7 @@ import type { CreateSaleData, SalesRepository } from "../domain/salesRepository.
 const saleSelect = {
   id: true,
   invoiceId: true,
+  customerId: true,
   customerName: true,
   paymentStatus: true,
   paymentMethod: true,
@@ -43,6 +44,7 @@ export class PrismaSalesRepository implements SalesRepository {
       sales: page.map((sale) => ({
       id: sale.id,
       invoiceId: sale.invoiceId,
+      customerId: sale.customerId ?? null,
       customerName: sale.customerName,
       paymentStatus: sale.paymentStatus,
       paymentMethod: sale.paymentMethod,

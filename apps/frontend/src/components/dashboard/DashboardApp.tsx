@@ -196,6 +196,10 @@ export function DashboardApp() {
               sale={selectedSale}
               businessName={account?.business?.businessName}
               onBack={() => setScreen("transactions")}
+              onOpenCustomer={(customerId) => {
+                setSelectedCustomerId(customerId);
+                setScreen("customer-detail");
+              }}
               onOpenInvoice={(invoiceId) => {
                 setSelectedInvoiceId(invoiceId);
                 setActiveTab("invoices");

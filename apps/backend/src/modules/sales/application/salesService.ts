@@ -58,6 +58,7 @@ export class SalesService {
       sale: {
         id: sale.id,
         invoiceId: sale.invoiceId,
+        customerId: sale.customerId ?? null,
         customerName: sale.customerName,
         paymentStatus: sale.paymentStatus,
         paymentMethod: sale.paymentMethod,
@@ -92,6 +93,7 @@ export class SalesService {
           sales: result.sales.map((sale) => ({
             id: sale.id,
             invoiceId: sale.invoiceId,
+            customerId: sale.customerId ?? null,
             customerName: sale.customerName,
             itemNames: sale.itemNames,
             paymentStatus: sale.paymentStatus,
