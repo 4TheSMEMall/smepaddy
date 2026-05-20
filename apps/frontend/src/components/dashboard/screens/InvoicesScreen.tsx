@@ -93,26 +93,26 @@ export function InvoicesScreen({
   }, [activeFilter, invoices]);
 
   return (
-    <div className="mx-4 sm:mx-0">
-      <div className="mb-6 flex items-center justify-between">
-        <h2 className="text-[33px] font-extrabold text-[#071122]">Invoices</h2>
-        <div className="flex gap-3">
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-[28px] font-extrabold text-[#071122] sm:text-[33px]">Invoices</h2>
+        <div className="flex min-w-0 flex-1 justify-end gap-2 sm:flex-none sm:gap-3">
           <Button
             variant="secondary"
             size="sm"
-            className="h-12 rounded-3xl px-4 text-[#94a3b8]"
+            className="h-10 rounded-2xl px-3 text-[14px] text-[#94a3b8] sm:h-12 sm:rounded-3xl sm:px-4 sm:text-[18px]"
           >
             <Download />
-            Export
+            <span className="hidden min-[380px]:inline">Export</span>
           </Button>
-          <Button size="sm" className="h-12 rounded-3xl px-5" onClick={onNewInvoice}>
+          <Button size="sm" className="h-10 rounded-2xl px-3 text-[14px] sm:h-12 sm:rounded-3xl sm:px-5 sm:text-[18px]" onClick={onNewInvoice}>
             <Plus />
             New
           </Button>
         </div>
       </div>
 
-      <div className="mb-6 grid grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 gap-3 min-[390px]:grid-cols-3 sm:mb-6 sm:gap-4">
         <InvoiceStat
           tone="paid"
           icon={<CheckCircle2 className="size-6" />}
@@ -136,12 +136,12 @@ export function InvoicesScreen({
         />
       </div>
 
-      <div className="mb-7 flex flex-wrap gap-3">
+      <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1 sm:mb-7 sm:flex-wrap sm:gap-3">
         {(["All", "Paid", "Pending", "Overdue"] as InvoiceFilter[]).map((filter) => (
           <button
             key={filter}
             className={cn(
-              "h-[56px] rounded-2xl border border-[#d9e0ea] bg-white px-6 text-[22px] font-semibold text-[#526075] shadow-[0_1px_2px_rgba(15,23,42,0.06)]",
+              "h-10 shrink-0 rounded-2xl border border-[#d9e0ea] bg-white px-4 text-[14px] font-semibold text-[#526075] shadow-[0_1px_2px_rgba(15,23,42,0.06)] sm:h-[56px] sm:px-6 sm:text-[22px]",
               activeFilter === filter &&
                 "border-[#2563eb] bg-[#2563eb] text-white shadow-[0_2px_5px_rgba(37,99,235,0.28)]",
             )}
@@ -166,7 +166,7 @@ export function InvoicesScreen({
         />
       )}
       {!loading && !error && filteredInvoices.length > 0 && (
-        <div className="space-y-4">
+        <div className="space-y-3 sm:space-y-4">
           {filteredInvoices.map((invoice) => (
             <InvoiceCard
               key={invoice.id}
@@ -189,30 +189,30 @@ function InvoiceCard({
 }) {
   return (
     <button type="button" className="block w-full text-left" onClick={onClick}>
-    <Card className="px-6 py-5 transition-shadow hover:shadow-[0_12px_30px_rgba(15,23,42,0.1)]">
-      <div className="flex items-start justify-between gap-4">
-        <div className="flex min-w-0 gap-4">
-          <div className="grid size-14 shrink-0 place-items-center rounded-[18px] bg-[#f0f4ff] text-[#9bbcff]">
+    <Card className="px-4 py-4 transition-shadow hover:shadow-[0_12px_30px_rgba(15,23,42,0.1)] sm:px-6 sm:py-5">
+      <div className="flex items-start justify-between gap-3 sm:gap-4">
+        <div className="flex min-w-0 gap-3 sm:gap-4">
+          <div className="grid size-11 shrink-0 place-items-center rounded-[16px] bg-[#f0f4ff] text-[#9bbcff] sm:size-14 sm:rounded-[18px]">
             <FileText className="size-7" />
           </div>
           <div className="min-w-0">
-            <h3 className="truncate text-[24px] font-extrabold text-[#071122]">
+            <h3 className="truncate text-[16px] font-extrabold text-[#071122] sm:text-[24px]">
               {invoice.customerName}
             </h3>
-            <p className="mt-1 text-[18px] text-[#64748b]">
+            <p className="mt-1 truncate text-[13px] text-[#64748b] sm:text-[18px]">
               {invoice.items[0]?.description ?? "Invoice"} • Due {formatDate(invoice.dueDate)}
             </p>
           </div>
         </div>
-        <div className="shrink-0 text-right">
-          <p className="text-[24px] font-extrabold text-[#2563eb]">
+        <div className="max-w-[38%] shrink-0 text-right">
+          <p className="break-words text-[15px] font-extrabold leading-tight text-[#2563eb] sm:text-[24px]">
             {formatMoney(invoice.subtotal)}
           </p>
           <StatusPill status={invoice.status} />
         </div>
       </div>
       {invoice.balance > 0 && (
-        <div className="mt-4 rounded-2xl bg-[#fff7ed] px-4 py-3 text-[18px] font-semibold text-[#c2410c]">
+        <div className="mt-4 rounded-2xl bg-[#fff7ed] px-4 py-3 text-[14px] font-semibold text-[#c2410c] sm:text-[18px]">
           Balance due: {formatMoney(invoice.balance)}
         </div>
       )}
@@ -229,7 +229,7 @@ function StatusPill({ status }: { status: Invoice["status"] }) {
   }[status];
 
   return (
-    <span className={cn("mt-2 inline-flex rounded-full px-3 py-1 text-[15px] font-bold", styles)}>
+    <span className={cn("mt-2 inline-flex rounded-full px-2.5 py-1 text-[12px] font-bold sm:px-3 sm:text-[15px]", styles)}>
       {status[0] + status.slice(1).toLowerCase()}
     </span>
   );
@@ -245,17 +245,17 @@ function InvoiceMessage({
   action?: () => void;
 }) {
   return (
-    <Card className="grid min-h-[426px] place-items-center px-6 text-center">
+    <Card className="grid min-h-[220px] place-items-center px-4 py-8 text-center sm:min-h-[426px] sm:px-6">
       <div className="max-w-[430px]">
         <div className="mx-auto grid size-[82px] place-items-center rounded-[22px] bg-[#f0f4ff] text-[#9bbcff]">
           <FileText className="size-10" />
         </div>
-        <h3 className="mt-8 text-[29px] font-extrabold text-[#071122]">
+        <h3 className="mt-5 text-[20px] font-extrabold text-[#071122] sm:mt-8 sm:text-[29px]">
           {title}
         </h3>
-        {text && <p className="mt-4 text-[22px] leading-8 text-[#334155]">{text}</p>}
+        {text && <p className="mt-3 text-[15px] leading-6 text-[#334155] sm:mt-4 sm:text-[22px] sm:leading-8">{text}</p>}
         {action && (
-          <Button className="mt-8 h-[72px] rounded-[18px] px-9" onClick={action}>
+          <Button className="mt-6 h-12 rounded-[16px] px-5 sm:mt-8 sm:h-[72px] sm:rounded-[18px] sm:px-9" onClick={action}>
             Create Invoice
           </Button>
         )}
@@ -287,7 +287,7 @@ function InvoiceStat({
     <button
       type="button"
       className={cn(
-        "grid h-[150px] place-items-center rounded-[24px] border text-center",
+        "grid min-h-[96px] place-items-center rounded-[20px] border px-3 py-4 text-center sm:h-[150px] sm:rounded-[24px]",
         toneClass,
       )}
       onClick={onClick}
@@ -296,10 +296,10 @@ function InvoiceStat({
         <span className="mx-auto grid size-12 place-items-center rounded-full bg-current/10">
           {icon}
         </span>
-        <p className="mt-4 text-[16px] font-bold tracking-wide text-[#526075]">
+        <p className="mt-3 text-[12px] font-bold tracking-wide text-[#526075] sm:mt-4 sm:text-[16px]">
           {label}
         </p>
-        <p className="mt-2 text-[23px] font-extrabold">{value}</p>
+        <p className="mt-1 break-words text-[14px] font-extrabold sm:mt-2 sm:text-[23px]">{value}</p>
       </div>
     </button>
   );

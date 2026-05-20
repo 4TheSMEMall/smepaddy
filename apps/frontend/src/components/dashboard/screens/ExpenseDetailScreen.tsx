@@ -45,13 +45,13 @@ export function ExpenseDetailScreen({
     expenseCategoryItems.find((c) => c.label === expense.category)?.icon ?? Tag;
 
   return (
-    <div className="mx-4 space-y-5 pb-8 sm:mx-0">
-      <button className="grid size-9 place-items-center" onClick={onBack}>
+    <div className="space-y-5 pb-8">
+      <button className="grid size-10 place-items-center rounded-full bg-white shadow-[0_1px_5px_rgba(15,23,42,0.08)]" onClick={onBack}>
         <ArrowLeft className="size-7" />
       </button>
 
       {/* Hero card — red gradient */}
-      <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#ef3b42] to-[#b91c1c] px-7 py-9 text-white shadow-[0_14px_36px_rgba(185,28,28,0.28)]">
+      <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#ef3b42] to-[#b91c1c] px-5 py-7 text-white shadow-[0_14px_36px_rgba(185,28,28,0.28)] sm:rounded-[28px] sm:px-7 sm:py-9">
         <div className="pointer-events-none absolute -right-10 -top-10 size-[180px] rounded-full bg-white/10" />
         <div className="pointer-events-none absolute -bottom-12 -left-8 size-[140px] rounded-full bg-white/[0.07]" />
 
@@ -63,17 +63,17 @@ export function ExpenseDetailScreen({
             </span>
           </div>
 
-          <p className="text-center text-[54px] font-extrabold leading-none tracking-tight">
+          <p className="break-words text-center text-[34px] font-extrabold leading-none tracking-tight sm:text-[54px]">
             -{formatMoney(expense.amount)}
           </p>
-          <p className="mt-3 text-center text-[18px] font-semibold text-white/70">
+          <p className="mt-3 text-center text-[14px] font-semibold text-white/70 sm:text-[18px]">
             {formatFullDate(expense.createdAt)}
           </p>
         </div>
       </div>
 
       {/* Detail rows */}
-      <div className="rounded-[24px] bg-white px-6 py-2 shadow-[0_10px_26px_rgba(15,23,42,0.07)]">
+      <div className="rounded-[22px] bg-white px-4 py-2 shadow-[0_10px_26px_rgba(15,23,42,0.07)] sm:rounded-[24px] sm:px-6">
         <DetailRow
           icon={<Tag className="size-5" />}
           tone="amber"
@@ -155,11 +155,11 @@ function DetailRow({
   last?: boolean;
 }) {
   return (
-    <div className={cn("flex items-center gap-4 py-5", !last && "border-b border-[#f0f4f9]")}>
+    <div className={cn("flex items-start gap-3 py-4 sm:items-center sm:gap-4 sm:py-5", !last && "border-b border-[#f0f4f9]")}>
       <IconBubble tone={tone}>{icon}</IconBubble>
       <div className="min-w-0 flex-1">
         <p className="text-[13px] font-bold uppercase tracking-wide text-[#94a3b8]">{label}</p>
-        <div className="mt-0.5 text-[20px] font-semibold text-[#0f172a]">{value}</div>
+        <div className="mt-0.5 break-words text-[15px] font-semibold text-[#0f172a] sm:text-[20px]">{value}</div>
       </div>
     </div>
   );

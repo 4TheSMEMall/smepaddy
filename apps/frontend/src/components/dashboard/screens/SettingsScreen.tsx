@@ -22,11 +22,14 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
   const [testing, setTesting] = useState(false);
 
   useEffect(() => {
-    if (typeof window === "undefined" || !("Notification" in window)) {
-      setPermState("unsupported");
-    } else {
-      setPermState(Notification.permission);
-    }
+    const timer = setTimeout(() => {
+      if (typeof window === "undefined" || !("Notification" in window)) {
+        setPermState("unsupported");
+      } else {
+        setPermState(Notification.permission);
+      }
+    }, 0);
+    return () => clearTimeout(timer);
   }, []);
 
   async function handleEnableNotifications() {
@@ -98,7 +101,7 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
           type="button"
           disabled={permState === "denied" || permState === "unsupported" || registering}
           onClick={handleEnableNotifications}
-          className="flex h-[103px] w-full items-center gap-5 px-6 text-left disabled:opacity-60"
+          className="flex min-h-[86px] w-full items-center gap-3 px-4 py-4 text-left disabled:opacity-60 sm:h-[103px] sm:gap-5 sm:px-6"
         >
           <IconBubble tone={permState === "granted" ? "green" : "amber"}>
             {permState === "denied" ? (
@@ -107,13 +110,13 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
               <Bell className="size-6" />
             )}
           </IconBubble>
-          <span className="flex-1">
-            <span className="block text-[23px] font-semibold">
+          <span className="min-w-0 flex-1">
+            <span className="block text-[16px] font-semibold text-[#071122] sm:text-[23px]">
               {registering ? "Enabling…" : "Push Notifications"}
             </span>
             <span
               className={cn(
-                "text-[19px]",
+                "text-[13px] sm:text-[19px]",
                 permState === "granted" ? "text-[#059669]" : "text-[#334155]",
               )}
             >
@@ -139,7 +142,7 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
             type="button"
             onClick={handleTest}
             disabled={testing}
-            className="w-full rounded-[14px] bg-[#f1f5f9] py-3 text-[18px] font-semibold text-[#334155] disabled:opacity-60"
+            className="w-full rounded-[14px] bg-[#f1f5f9] py-3 text-[15px] font-semibold text-[#334155] disabled:opacity-60 sm:text-[18px]"
           >
             {testing ? "Sending…" : "Send Test Notification"}
           </button>
@@ -159,16 +162,16 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
           <button
             key={row.title}
             className={cn(
-              "flex h-[103px] w-full items-center gap-5 border-b border-[#eef1f5] px-6 text-left last:border-0",
+              "flex min-h-[86px] w-full items-center gap-3 border-b border-[#eef1f5] px-4 py-4 text-left last:border-0 sm:h-[103px] sm:gap-5 sm:px-6",
               index === 1 && "bg-[#f9f7fb]",
             )}
           >
             <IconBubble tone={row.tone}>
               <row.icon className="size-6" />
             </IconBubble>
-            <span className="flex-1">
-              <span className="block text-[23px] font-semibold">{row.title}</span>
-              <span className="text-[19px] text-[#334155]">{row.text}</span>
+            <span className="min-w-0 flex-1">
+              <span className="block text-[16px] font-semibold text-[#071122] sm:text-[23px]">{row.title}</span>
+              <span className="text-[13px] text-[#334155] sm:text-[19px]">{row.text}</span>
             </span>
             <ChevronRight className="size-6 text-[#435064]" />
           </button>

@@ -341,20 +341,21 @@ function SaleForm({
   return (
     <div className="space-y-5">
       <div className="relative">
-        <label className="mb-2 block text-[24px] font-semibold">Select Product</label>
+        <label className="mb-2 block text-[16px] font-semibold text-[#071122] sm:text-[24px]">Select Product</label>
         <button
           type="button"
           className={cn(
-            "flex h-[56px] items-center justify-between rounded-[14px] border border-[#d3dbe6] bg-white px-4 text-[18px] text-[#1f2937] shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-5 sm:text-[23px]",
-            selectedItem ? "w-full max-w-[520px]" : "w-[202px]",
+            "flex h-[56px] w-full max-w-[520px] items-center justify-between rounded-[14px] border border-[#d3dbe6] bg-white px-4 text-[16px] text-[#1f2937] shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:px-5 sm:text-[23px]",
           )}
           onClick={() => setDropdownOpen((open) => !open)}
         >
-          {selectedItem
-            ? `${selectedItem.name} (${selectedItem.quantity} in stock) - ${formatMoney(selectedItem.sellingPrice)}`
-            : loading
-              ? "Loading..."
-              : "Choose item"}
+          <span className="truncate">
+            {selectedItem
+              ? `${selectedItem.name} (${selectedItem.quantity} in stock) - ${formatMoney(selectedItem.sellingPrice)}`
+              : loading
+                ? "Loading..."
+                : "Choose item"}
+          </span>
           <ChevronDown className="ml-3 size-5 shrink-0 text-[#94a3b8]" />
         </button>
         {dropdownOpen && (
@@ -376,8 +377,8 @@ function SaleForm({
                   setDropdownOpen(false);
                 }}
               >
-                <span>{item.name}</span>
-                <span className="text-right text-[#64748b]">
+                <span className="min-w-0 truncate">{item.name}</span>
+                <span className="shrink-0 text-right text-[#64748b]">
                   {item.quantity} in stock - {formatMoney(item.sellingPrice)}
                 </span>
               </button>
@@ -389,8 +390,8 @@ function SaleForm({
       {selectedItem && (
         <>
           {canUseWholesale && (
-            <div className="flex min-h-[86px] items-center justify-between rounded-[18px] border border-[#fde6a8] bg-[#fffaf0] px-5">
-              <div>
+            <div className="flex min-h-[86px] items-center justify-between gap-3 rounded-[18px] border border-[#fde6a8] bg-[#fffaf0] px-4 py-4 sm:px-5">
+              <div className="min-w-0">
                 <p className="text-[23px] font-bold text-[#111827]">Wholesale Price</p>
                 <p className="mt-1 text-[19px] text-[#f59e0b]">
                   {formatMoney(selectedItem.wholesalePrice)} per unit
@@ -405,7 +406,7 @@ function SaleForm({
           )}
 
           <div>
-            <p className="mb-3 text-[24px] font-semibold">Quantity</p>
+            <p className="mb-3 text-[16px] font-semibold text-[#071122] sm:text-[24px]">Quantity</p>
             <div className="flex items-center gap-3 sm:gap-4">
               <QuantityButton
                 onClick={() => setQuantity((value) => Math.max(1, value - 1))}
@@ -570,22 +571,22 @@ function InvoicePanel({
   onCustomerSelect?: (customer: import("@/lib/customerApi").Customer | null) => void;
 }) {
   return (
-    <div className="rounded-[22px] border border-[#d8e5ff] bg-white px-5 py-5 shadow-[0_10px_28px_rgba(15,23,42,0.07)]">
-      <div className="mb-4 flex items-center justify-between gap-4">
-        <div className="flex items-center gap-3">
-          <div className="grid size-12 place-items-center rounded-2xl bg-[#eaf1ff] text-[#2563eb] shadow-[0_8px_20px_rgba(37,99,235,0.13)]">
+    <div className="rounded-[22px] border border-[#d8e5ff] bg-white px-4 py-5 shadow-[0_10px_28px_rgba(15,23,42,0.07)] sm:px-5">
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+        <div className="flex min-w-0 items-center gap-3">
+          <div className="grid size-11 shrink-0 place-items-center rounded-2xl bg-[#eaf1ff] text-[#2563eb] shadow-[0_8px_20px_rgba(37,99,235,0.13)] sm:size-12">
             <ReceiptText className="size-6" />
           </div>
-          <div>
-            <h3 className="text-[23px] font-extrabold">Link invoice</h3>
-            <p className="text-[17px] text-[#64748b]">
+          <div className="min-w-0">
+            <h3 className="text-[19px] font-extrabold text-[#071122] sm:text-[23px]">Link invoice</h3>
+            <p className="text-[14px] leading-5 text-[#64748b] sm:text-[17px]">
               Credit sales must be attached to an invoice for tracking.
             </p>
           </div>
         </div>
-        <div className="rounded-2xl bg-[#fff1f2] px-4 py-2 text-right">
+        <div className="rounded-2xl bg-[#fff1f2] px-4 py-2 text-left sm:text-right">
           <p className="text-[14px] font-bold uppercase text-[#64748b]">Balance</p>
-          <p className="text-[21px] font-extrabold text-[#ef3b42]">
+          <p className="break-words text-[18px] font-extrabold text-[#ef3b42] sm:text-[21px]">
             {formatMoney(balance)}
           </p>
         </div>
@@ -621,7 +622,7 @@ function InvoicePanel({
 
           <button
             type="button"
-            className="flex h-[58px] w-full items-center justify-center gap-2 rounded-[16px] border border-[#c8d6ee] bg-[#f8fbff] text-[20px] font-extrabold text-[#2563eb] transition-colors hover:bg-[#eef4ff]"
+            className="flex h-[54px] w-full items-center justify-center gap-2 rounded-[16px] border border-[#c8d6ee] bg-[#f8fbff] text-[16px] font-extrabold text-[#2563eb] transition-colors hover:bg-[#eef4ff] sm:h-[58px] sm:text-[20px]"
             onClick={onAddNew}
           >
             <PlusCircle className="size-5" />
@@ -630,19 +631,19 @@ function InvoicePanel({
         </div>
       ) : (
         <div className="rounded-[18px] border border-[#e2e8f0] bg-[#fbfdff] p-4">
-          <div className="mb-4 flex items-center justify-between gap-4">
-            <div>
-              <p className="text-[20px] font-extrabold text-[#071122]">
+          <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between sm:gap-4">
+            <div className="min-w-0">
+              <p className="text-[17px] font-extrabold text-[#071122] sm:text-[20px]">
                 New invoice details
               </p>
-              <p className="text-[16px] text-[#64748b]">
+              <p className="text-[14px] text-[#64748b] sm:text-[16px]">
                 This invoice will be created when the sale is recorded.
               </p>
             </div>
             {invoices.length > 0 && (
               <button
                 type="button"
-                className="rounded-full border border-[#d3dbe6] bg-white px-4 py-2 text-[16px] font-bold text-[#2563eb]"
+                className="self-start rounded-full border border-[#d3dbe6] bg-white px-4 py-2 text-[14px] font-bold text-[#2563eb] sm:text-[16px]"
                 onClick={onUseExisting}
               >
                 Use existing
@@ -679,11 +680,11 @@ function InvoicePanel({
             />
           </div>
           <label className="mt-4 block">
-            <span className="mb-2 block text-[22px] font-semibold">
+            <span className="mb-2 block text-[16px] font-semibold sm:text-[22px]">
               Notes (optional)
             </span>
             <textarea
-              className="h-24 w-full resize-none rounded-[11px] border border-[#d3dbe6] bg-white px-5 py-4 text-[21px] text-[#334155] outline-none placeholder:text-[#64748b] shadow-[0_1px_2px_rgba(15,23,42,0.04)]"
+              className="h-24 w-full resize-none rounded-[14px] border border-[#d3dbe6] bg-white px-4 py-4 text-[16px] text-[#334155] outline-none placeholder:text-[#64748b] shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:rounded-[11px] sm:px-5 sm:text-[21px]"
               placeholder="Any note for the customer"
               value={notes}
               onChange={(event) => onNotesChange(event.target.value)}
@@ -708,7 +709,7 @@ function InvoiceOption({
     <button
       type="button"
       className={cn(
-        "flex w-full items-center gap-4 rounded-[18px] border bg-white px-4 py-4 text-left transition-all",
+        "flex w-full items-start gap-3 rounded-[18px] border bg-white px-3 py-4 text-left transition-all sm:items-center sm:gap-4 sm:px-4",
         selected
           ? "border-[#2563eb] shadow-[0_10px_24px_rgba(37,99,235,0.14)]"
           : "border-[#e2e8f0] hover:border-[#b8c8e4] hover:bg-[#fbfdff]",
@@ -717,14 +718,14 @@ function InvoiceOption({
     >
       <span
         className={cn(
-          "grid size-12 shrink-0 place-items-center rounded-2xl",
+          "grid size-10 shrink-0 place-items-center rounded-2xl sm:size-12",
           selected ? "bg-[#eaf1ff] text-[#2563eb]" : "bg-[#f1f5f9] text-[#94a3b8]",
         )}
       >
         {selected ? <CheckCircle2 className="size-6" /> : <FileText className="size-6" />}
       </span>
       <span className="min-w-0 flex-1">
-        <span className="block truncate text-[20px] font-extrabold text-[#071122]">
+        <span className="block truncate text-[16px] font-extrabold text-[#071122] sm:text-[20px]">
           {invoice.customerName}
         </span>
         <span className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1 text-[15px] font-semibold text-[#64748b]">
@@ -735,8 +736,8 @@ function InvoiceOption({
           </span>
         </span>
       </span>
-      <span className="shrink-0 text-right">
-        <span className="block text-[20px] font-extrabold text-[#ef3b42]">
+      <span className="max-w-[38%] shrink-0 text-right">
+        <span className="block break-words text-[15px] font-extrabold leading-tight text-[#ef3b42] sm:text-[20px]">
           {formatMoney(invoice.balance)}
         </span>
         <span className={cn("mt-1 inline-flex rounded-full px-3 py-1 text-[13px] font-bold", invoice.status === "OVERDUE" ? "bg-[#ffe4e6] text-[#ef3b42]" : "bg-[#fff5db] text-[#d98900]")}>
@@ -801,7 +802,7 @@ function ExpenseForm({
 
   return (
     <div>
-      <h3 className="mb-3 text-[25px] font-semibold">Category</h3>
+      <h3 className="mb-3 text-[18px] font-semibold text-[#071122] sm:text-[25px]">Category</h3>
       <div className="mb-8 grid grid-cols-2 gap-3 sm:mb-10 sm:grid-cols-4 sm:gap-x-4 sm:gap-y-4">
         {expenseCategoryItems.map((item) => (
           <button
@@ -829,9 +830,9 @@ function ExpenseForm({
         onChange={setAmount}
       />
 
-      <label className="mb-3 block text-[25px] font-semibold">Description (optional)</label>
+      <label className="mb-2 block text-[16px] font-semibold text-[#071122] sm:mb-3 sm:text-[25px]">Description (optional)</label>
       <textarea
-        className="mb-8 h-24 w-full resize-none rounded-[11px] border border-[#cfd7e2] bg-transparent px-5 py-4 text-[24px] text-[#27364a] outline-none placeholder:text-[#94a3b8]"
+        className="mb-8 h-24 w-full resize-none rounded-[14px] border border-[#cfd7e2] bg-white px-4 py-4 text-[16px] text-[#27364a] outline-none placeholder:text-[#94a3b8] sm:rounded-[11px] sm:px-5 sm:text-[24px]"
         placeholder="What was this for?"
         value={description}
         onChange={(e) => setDescription(e.target.value)}
@@ -906,7 +907,7 @@ function StockInput({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-[24px] font-semibold">{label}</span>
+      <span className="mb-2 block text-[16px] font-semibold text-[#071122] sm:text-[24px]">{label}</span>
       <input
         type={type}
         className="h-14 w-full rounded-[14px] border border-[#d3dbe6] bg-white px-4 text-[16px] text-[#334155] outline-none placeholder:text-[#64748b] shadow-[0_1px_2px_rgba(15,23,42,0.04)] sm:h-[72px] sm:px-5 sm:text-[23px]"
@@ -933,7 +934,7 @@ function SegmentedControl({
 }) {
   return (
     <div>
-      <p className="mb-3 text-[24px] font-semibold">{label}</p>
+      <p className="mb-3 text-[16px] font-semibold text-[#071122] sm:text-[24px]">{label}</p>
       <div className="grid min-h-[54px] grid-cols-3 overflow-hidden rounded-[16px] bg-white shadow-[0_1px_5px_rgba(15,23,42,0.08)] sm:h-[60px] sm:rounded-[18px]">
         {options.map((option) => (
           <button

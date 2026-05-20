@@ -29,43 +29,43 @@ export function ProfileScreen({
   account?: CurrentAccountResponse | null;
 }) {
   return (
-    <div className="mx-4 space-y-6 sm:mx-0">
-      <div className="mb-8 flex items-center justify-between">
-        <div className="flex items-center gap-12">
-          <button className="grid size-9 place-items-center" onClick={onBack}>
+    <div className="space-y-5 pb-4 sm:space-y-6">
+      <div className="flex items-center justify-between gap-3 sm:mb-8">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-12">
+          <button className="grid size-10 shrink-0 place-items-center rounded-full bg-white shadow-[0_1px_5px_rgba(15,23,42,0.08)] sm:size-9 sm:bg-transparent sm:shadow-none" onClick={onBack}>
             <ArrowLeft className="size-7" />
           </button>
-          <h2 className="text-[29px] font-extrabold leading-none text-[#071122] sm:text-[31px]">
+          <h2 className="truncate text-[24px] font-extrabold leading-tight text-[#071122] sm:text-[31px]">
             My Profile
           </h2>
         </div>
         <Button
           variant="secondary"
           size="sm"
-          className="h-12 rounded-2xl px-4 text-[21px] font-semibold"
+          className="h-10 rounded-2xl px-3 text-[14px] font-semibold sm:h-12 sm:px-4 sm:text-[21px]"
         >
           <Edit3 className="size-5" />
           Edit
         </Button>
       </div>
 
-      <Card className="px-6 py-8 sm:px-6 sm:py-10">
-        <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:gap-6">
-          <div className="grid size-24 shrink-0 place-items-center rounded-full bg-[#e9efff] text-[#2563eb]">
-            <UserRound className="size-12" strokeWidth={2.6} />
+      <Card className="px-4 py-6 sm:px-6 sm:py-10">
+        <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:gap-6">
+          <div className="grid size-20 shrink-0 place-items-center rounded-full bg-[#e9efff] text-[#2563eb] sm:size-24">
+            <UserRound className="size-10 sm:size-12" strokeWidth={2.6} />
           </div>
-          <div>
-            <h3 className="text-[28px] font-extrabold leading-tight text-[#050b18]">
+          <div className="min-w-0">
+            <h3 className="break-words text-[22px] font-extrabold leading-tight text-[#050b18] sm:text-[28px]">
               {account?.user?.fullName ?? "—"}
             </h3>
             {account?.user?.phone && (
-              <p className="mt-2 flex items-center gap-2 text-[21px] leading-6 text-[#4b5565]">
+              <p className="mt-2 flex items-center gap-2 text-[15px] leading-6 text-[#4b5565] sm:text-[21px]">
                 <Phone className="size-5" />
                 {account.user.phone}
               </p>
             )}
             {account?.user?.email && (
-              <p className="mt-1 flex items-center gap-2 break-all text-[21px] leading-6 text-[#4b5565]">
+              <p className="mt-1 flex items-center gap-2 break-all text-[15px] leading-6 text-[#4b5565] sm:text-[21px]">
                 <Mail className="size-5 shrink-0" />
                 {account.user.email}
               </p>
@@ -74,22 +74,22 @@ export function ProfileScreen({
         </div>
       </Card>
 
-      <Card className="px-6 py-8">
+      <Card className="px-4 py-6 sm:px-6 sm:py-8">
         <SectionHeading icon={<Building2 className="size-6" />} title="Business Info" />
         <InfoRow label="Name" value={account?.business?.businessName ?? "—"} />
         <InfoRow label="Type" value={account?.business?.businessType ?? "—"} />
       </Card>
 
-      <Card className="px-6 py-8">
+      <Card className="px-4 py-6 sm:px-6 sm:py-8">
         <SectionHeading icon={<MapPin className="size-6" />} title="Location" />
-        <p className="mt-5 text-[22px] text-[#374151]">
+        <p className="mt-4 break-words text-[15px] text-[#374151] sm:mt-5 sm:text-[22px]">
           {account?.business?.location ?? "Not set"}
         </p>
       </Card>
 
-      <Card className="px-6 py-8">
+      <Card className="px-4 py-6 sm:px-6 sm:py-8">
         <SectionHeading icon={<PaddyCoinIcon className="size-6" />} title="Paddy Coins" />
-        <div className="mt-7 grid grid-cols-3 gap-3 text-center">
+        <div className="mt-5 grid grid-cols-3 gap-2 text-center sm:mt-7 sm:gap-3">
           <Stat
             value={
               <span className="inline-flex items-center justify-center gap-1.5">
@@ -128,7 +128,7 @@ export function ProfileScreen({
         )}
       </Card>
 
-      <Card className="px-6 py-8">
+      <Card className="px-4 py-6 sm:px-6 sm:py-8">
         <SectionHeading icon={<Users className="size-6" />} title="Refer a Friend" />
         <p className="mt-5 text-[19px] leading-7 text-[#334155] sm:text-[20px]">
           Share your link and earn{" "}
@@ -138,19 +138,19 @@ export function ProfileScreen({
           </span>{" "}
           Paddy Coins for every friend who signs up!
         </p>
-        <div className="mt-4 truncate rounded-[12px] bg-[#f6f8fb] px-5 py-4 text-[21px] text-[#334155]">
+        <div className="mt-4 truncate rounded-[12px] bg-[#f6f8fb] px-4 py-3 text-[14px] text-[#334155] sm:px-5 sm:py-4 sm:text-[21px]">
           https://smepaddy-production.up.railway.app/login?ref=QXJ5...
         </div>
         <div className="mt-5 grid grid-cols-1 gap-3 sm:grid-cols-2">
           <Button
             variant="secondary"
             
-            className="h-[72px] rounded-[18px] text-[22px] font-semibold"
+            className="h-12 rounded-[16px] text-[16px] font-semibold sm:h-[72px] sm:rounded-[18px] sm:text-[22px]"
           >
             <Copy />
             Copy Link
           </Button>
-          <Button className="h-[72px] rounded-[18px] text-[22px] font-semibold">
+          <Button className="h-12 rounded-[16px] text-[16px] font-semibold sm:h-[72px] sm:rounded-[18px] sm:text-[22px]">
             <Share2 />
             Share
           </Button>
@@ -171,9 +171,9 @@ export function ProfileScreen({
         </div>
       </Card>
 
-      <Card className="px-6 py-8">
+      <Card className="px-4 py-6 sm:px-6 sm:py-8">
         <SectionHeading icon={<CalendarDays className="size-6" />} title="Account" />
-        <div className="mt-3 flex items-center justify-between gap-4 text-[22px]">
+        <div className="mt-3 flex items-center justify-between gap-4 text-[15px] sm:text-[22px]">
           <span className="text-[#374151]">Member since</span>
           <span className="font-medium text-[#050b18]">
             {account?.business?.createdAt
@@ -194,7 +194,7 @@ function SectionHeading({
   title: string;
 }) {
   return (
-    <h3 className="flex items-center gap-3 text-[24px] font-bold text-[#050b18]">
+    <h3 className="flex items-center gap-3 text-[18px] font-bold text-[#050b18] sm:text-[24px]">
       <span className="text-[#1557df]">{icon}</span>
       {title}
     </h3>
@@ -203,7 +203,7 @@ function SectionHeading({
 
 function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="mt-5 flex items-center justify-between gap-4 text-[22px]">
+    <div className="mt-4 flex items-center justify-between gap-4 text-[15px] sm:mt-5 sm:text-[22px]">
       <span className="text-[#374151]">{label}</span>
       <span className="text-right font-medium text-[#050b18]">{value}</span>
     </div>
@@ -223,11 +223,11 @@ function Stat({
     <div>
       <p
         style={{ color }}
-        className="text-[30px] font-semibold leading-none sm:text-[31px]"
+        className="text-[18px] font-semibold leading-none sm:text-[31px]"
       >
         {value}
       </p>
-      <p className="mt-2 text-[18px] text-[#374151] sm:text-[19px]">{label}</p>
+      <p className="mt-2 text-[12px] text-[#374151] sm:text-[19px]">{label}</p>
     </div>
   );
 }

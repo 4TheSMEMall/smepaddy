@@ -62,13 +62,13 @@ export function TransactionDetailScreen({
       : sale.paymentStatus;
 
   return (
-    <div className="mx-4 space-y-5 pb-8 sm:mx-0">
-      <button className="grid size-9 place-items-center" onClick={onBack}>
+    <div className="space-y-5 pb-8">
+      <button className="grid size-10 place-items-center rounded-full bg-white shadow-[0_1px_5px_rgba(15,23,42,0.08)]" onClick={onBack}>
         <ArrowLeft className="size-7" />
       </button>
 
       {/* Hero card — gradient with decorative background circles */}
-      <div className="relative overflow-hidden rounded-[28px] bg-gradient-to-br from-[#0aab72] to-[#067352] px-7 py-9 text-white shadow-[0_14px_36px_rgba(7,115,82,0.28)]">
+      <div className="relative overflow-hidden rounded-[24px] bg-gradient-to-br from-[#0aab72] to-[#067352] px-5 py-7 text-white shadow-[0_14px_36px_rgba(7,115,82,0.28)] sm:rounded-[28px] sm:px-7 sm:py-9">
         <div className="pointer-events-none absolute -right-10 -top-10 size-[180px] rounded-full bg-white/10" />
         <div className="pointer-events-none absolute -bottom-12 -left-8 size-[140px] rounded-full bg-white/[0.07]" />
 
@@ -80,17 +80,17 @@ export function TransactionDetailScreen({
             </span>
           </div>
 
-          <p className="text-center text-[54px] font-extrabold leading-none tracking-tight">
+          <p className="break-words text-center text-[34px] font-extrabold leading-none tracking-tight sm:text-[54px]">
             +{formatMoney(displayAmount)}
           </p>
-          <p className="mt-3 text-center text-[18px] font-semibold text-white/70">
+          <p className="mt-3 text-center text-[14px] font-semibold text-white/70 sm:text-[18px]">
             {formatFullDate(sale.createdAt)}
           </p>
         </div>
       </div>
 
       {/* Detail rows grouped in one card */}
-      <div className="rounded-[24px] bg-white px-6 py-2 shadow-[0_10px_26px_rgba(15,23,42,0.07)]">
+      <div className="rounded-[22px] bg-white px-4 py-2 shadow-[0_10px_26px_rgba(15,23,42,0.07)] sm:rounded-[24px] sm:px-6">
         <DetailRow
           icon={<ShoppingBag className="size-5" />}
           tone="green"
@@ -131,23 +131,23 @@ export function TransactionDetailScreen({
       {sale.invoiceId && (
         <button
           type="button"
-          className="w-full rounded-[24px] bg-white px-6 py-5 text-left shadow-[0_10px_26px_rgba(15,23,42,0.07)] active:scale-[0.98] transition-transform duration-100"
+          className="w-full rounded-[22px] bg-white px-4 py-5 text-left shadow-[0_10px_26px_rgba(15,23,42,0.07)] transition-transform duration-100 active:scale-[0.98] sm:rounded-[24px] sm:px-6"
           onClick={() => onOpenInvoice?.(sale.invoiceId!)}
         >
           <p className="mb-4 text-[14px] font-bold uppercase tracking-wide text-[#94a3b8]">
             Linked Invoice
           </p>
-          <div className="flex items-center gap-4">
-            <span className="grid size-[52px] shrink-0 place-items-center rounded-[18px] bg-[#eef4ff] text-[#2563eb]">
+          <div className="flex items-center gap-3 sm:gap-4">
+            <span className="grid size-11 shrink-0 place-items-center rounded-[16px] bg-[#eef4ff] text-[#2563eb] sm:size-[52px] sm:rounded-[18px]">
               <FileText className="size-6" />
             </span>
             <div className="min-w-0 flex-1">
-              <p className="text-[22px] font-extrabold text-[#071122]">
+              <p className="truncate text-[18px] font-extrabold text-[#071122] sm:text-[22px]">
                 INV-{sale.invoiceId.slice(-4).toUpperCase()}
               </p>
-              <p className="text-[17px] text-[#526075]">{formatMoney(sale.subtotal)}</p>
+              <p className="break-words text-[14px] text-[#526075] sm:text-[17px]">{formatMoney(sale.subtotal)}</p>
             </div>
-            <div className="flex items-center gap-3">
+            <div className="flex shrink-0 items-center gap-2 sm:gap-3">
               <StatusBadge status={effectiveStatus} />
               {onOpenInvoice && (
                 <ChevronRight className="size-5 shrink-0 text-[#94a3b8]" />
@@ -158,7 +158,7 @@ export function TransactionDetailScreen({
       )}
 
       {/* Download / Share receipt */}
-      <div className="flex gap-3">
+      <div className="grid grid-cols-2 gap-3">
         <button
           type="button"
           onClick={() =>
@@ -175,7 +175,7 @@ export function TransactionDetailScreen({
               paymentStatus: effectiveStatus,
             })
           }
-          className="flex flex-1 items-center justify-center gap-2 rounded-[16px] bg-[#f1f5f9] py-4 text-[17px] font-bold text-[#334155]"
+          className="flex min-h-12 items-center justify-center gap-2 rounded-[16px] bg-[#f1f5f9] px-3 py-3 text-[15px] font-bold text-[#334155] sm:py-4 sm:text-[17px]"
         >
           <Download className="size-5" />
           Download
@@ -196,7 +196,7 @@ export function TransactionDetailScreen({
               paymentStatus: effectiveStatus,
             })
           }
-          className="flex flex-1 items-center justify-center gap-2 rounded-[16px] bg-[#1557df] py-4 text-[17px] font-bold text-white"
+          className="flex min-h-12 items-center justify-center gap-2 rounded-[16px] bg-[#1557df] px-3 py-3 text-[15px] font-bold text-white sm:py-4 sm:text-[17px]"
         >
           <Share2 className="size-5" />
           Share
@@ -222,7 +222,7 @@ function DetailRow({
   return (
     <div
       className={cn(
-        "flex items-center gap-4 py-5",
+        "flex items-start gap-3 py-4 sm:items-center sm:gap-4 sm:py-5",
         !last && "border-b border-[#f0f4f9]",
       )}
     >
@@ -231,7 +231,7 @@ function DetailRow({
         <p className="text-[13px] font-bold uppercase tracking-wide text-[#94a3b8]">
           {label}
         </p>
-        <div className="mt-0.5 text-[20px] font-semibold text-[#0f172a]">
+        <div className="mt-0.5 break-words text-[15px] font-semibold text-[#0f172a] sm:text-[20px]">
           {value}
         </div>
       </div>
@@ -252,7 +252,7 @@ function StatusBadge({ status }: { status: PaymentStatus }) {
   };
 
   return (
-    <span className={cn("rounded-full px-3 py-1 text-[14px] font-bold", styles[status])}>
+    <span className={cn("inline-flex shrink-0 rounded-full px-2.5 py-1 text-[12px] font-bold sm:px-3 sm:text-[14px]", styles[status])}>
       {labels[status]}
     </span>
   );

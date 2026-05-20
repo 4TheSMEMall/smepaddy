@@ -138,6 +138,13 @@ canvas {
     padding-right: 14px;
   }
 
+  .dashboard-content > [class*="mx-4"],
+  .dashboard-content section[class*="mx-4"],
+  .dashboard-content div[class*="mx-4"] {
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
   .dashboard-content h2 {
     font-size: clamp(1.35rem, 6vw, 1.75rem) !important;
     line-height: 1.12 !important;
@@ -159,10 +166,55 @@ canvas {
   .dashboard-content select {
     min-height: 48px;
     border-radius: 14px;
+    background: #fff;
+  }
+
+  .dashboard-content [class~="grid-cols-4"] {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+  }
+
+  .dashboard-content [class~="grid-cols-2"][class*="gap-10"],
+  .dashboard-content [class~="grid-cols-2"][class*="gap-6"],
+  .dashboard-content [class~="grid-cols-2"][class*="gap-5"] {
+    gap: 0.75rem !important;
+  }
+
+  .dashboard-content [class~="grid-cols-3"][class~="gap-4"],
+  .dashboard-content [class~="grid-cols-3"][class~="gap-5"],
+  .dashboard-content [class~="grid-cols-3"][class~="gap-6"] {
+    grid-template-columns: 1fr !important;
+  }
+
+  .dashboard-content [class~="justify-between"] {
+    gap: 0.75rem;
   }
 
   .dashboard-content [class*="h-[72px]"] {
     height: 56px !important;
+  }
+
+  .dashboard-content [class*="h-[150px]"],
+  .dashboard-content [class*="h-[132px]"],
+  .dashboard-content [class*="h-[120px]"],
+  .dashboard-content [class*="h-[103px]"],
+  .dashboard-content [class*="h-[92px]"],
+  .dashboard-content [class*="h-[88px]"] {
+    height: auto !important;
+    min-height: 92px !important;
+  }
+
+  .dashboard-content [class*="h-[66px]"],
+  .dashboard-content [class*="h-[64px]"],
+  .dashboard-content [class*="h-[60px]"],
+  .dashboard-content [class*="h-[58px]"],
+  .dashboard-content [class*="h-[56px]"] {
+    min-height: 48px !important;
+  }
+
+  .dashboard-content [class*="min-h-[426px]"],
+  .dashboard-content [class*="min-h-[280px]"],
+  .dashboard-content [class*="min-h-[220px]"] {
+    min-height: 180px !important;
   }
 
   .dashboard-content [class*="text-[31px]"],
@@ -180,10 +232,27 @@ canvas {
     line-height: 1.35 !important;
   }
 
+  .dashboard-content [class*="text-[20px]"],
+  .dashboard-content [class*="text-[19px]"],
+  .dashboard-content [class*="text-[18px]"] {
+    font-size: 0.95rem !important;
+    line-height: 1.35 !important;
+  }
+
   .dashboard-content [class*="text-[39px]"],
-  .dashboard-content [class*="text-[35px]"] {
+  .dashboard-content [class*="text-[35px]"],
+  .dashboard-content [class*="text-[54px]"],
+  .dashboard-content [class*="text-[44px]"],
+  .dashboard-content [class*="text-[42px]"],
+  .dashboard-content [class*="text-[38px]"],
+  .dashboard-content [class*="text-[33px]"],
+  .dashboard-content [class*="text-[32px]"] {
     font-size: 1.7rem !important;
     line-height: 1.1 !important;
+  }
+
+  .dashboard-content [class*="gap-12"] {
+    gap: 0.85rem !important;
   }
 
   .dashboard-content [class*="gap-14"] {
@@ -212,6 +281,8 @@ canvas {
 
   .dashboard-content [class*="size-[96px]"],
   .dashboard-content [class*="size-[82px]"],
+  .dashboard-content [class*="size-[60px]"],
+  .dashboard-content [class*="size-[56px]"],
   .dashboard-content [class*="size-[72px]"] {
     width: 56px !important;
     height: 56px !important;
@@ -219,8 +290,40 @@ canvas {
 
   .dashboard-content [class*="w-[202px]"],
   .dashboard-content [class*="w-[300px]"],
-  .dashboard-content [class*="w-[352px]"] {
+  .dashboard-content [class*="w-[352px]"],
+  .dashboard-content [class*="w-[142px]"],
+  .dashboard-content [class*="w-[86%]"] {
     width: 100% !important;
     max-width: 100% !important;
+  }
+
+  .dashboard-content [class*="max-w-[352px]"],
+  .dashboard-content [class*="max-w-[430px]"],
+  .dashboard-content [class*="max-w-[520px]"] {
+    max-width: 100% !important;
+  }
+
+  .dashboard-content [class*="rounded-[28px]"],
+  .dashboard-content [class*="rounded-[30px]"] {
+    border-radius: 22px !important;
+  }
+
+  .dashboard-content [class*="px-5"] {
+    padding-left: 1rem;
+    padding-right: 1rem;
+  }
+
+  .dashboard-content button,
+  .dashboard-content a {
+    max-width: 100%;
+  }
+
+  .dashboard-content [class*="overflow-x-auto"] {
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .dashboard-content [class*="overflow-x-auto"]::-webkit-scrollbar {
+    display: none;
   }
 }

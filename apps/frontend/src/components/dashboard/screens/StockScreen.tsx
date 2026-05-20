@@ -112,34 +112,35 @@ export function StockScreen({
   const lowStockCount = items.filter((item) => item.stockStatus === "LOW_STOCK").length;
 
   return (
-    <div className="mx-4 sm:mx-0">
-      <div className="mb-6 flex items-center justify-between gap-4">
-        <h2 className="text-[33px] font-extrabold leading-none text-[#101827]">
+    <div className="space-y-5">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-[28px] font-extrabold leading-tight text-[#101827] sm:text-[33px]">
           My Stock
         </h2>
-        <div className="flex items-center gap-3">
-          <Button variant="secondary" size="sm" className="h-12 rounded-3xl px-4">
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:flex-none sm:gap-3">
+          <Button variant="secondary" size="sm" className="h-10 rounded-2xl px-3 text-[14px] sm:h-12 sm:rounded-3xl sm:px-4 sm:text-[18px]">
             <Download />
-            Export
+            <span className="hidden min-[380px]:inline">Export</span>
           </Button>
-          <Button size="sm" className="h-12 rounded-3xl px-5" onClick={onAddItem}>
+          <Button size="sm" className="h-10 rounded-2xl px-3 text-[14px] sm:h-12 sm:rounded-3xl sm:px-5 sm:text-[18px]" onClick={onAddItem}>
             <Plus />
-            Add Item
+            <span className="hidden min-[360px]:inline">Add Item</span>
+            <span className="min-[360px]:hidden">Add</span>
           </Button>
         </div>
       </div>
 
-      <label className="mb-6 flex h-[66px] items-center gap-4 rounded-[18px] border border-[#dce3ec] bg-white px-5 shadow-[0_1px_3px_rgba(15,23,42,0.08)]">
-        <Search className="size-6 text-[#8da0ba]" />
+      <label className="flex h-14 items-center gap-3 rounded-[16px] border border-[#dce3ec] bg-white px-4 shadow-[0_1px_3px_rgba(15,23,42,0.08)] sm:mb-6 sm:h-[66px] sm:gap-4 sm:rounded-[18px] sm:px-5">
+        <Search className="size-5 text-[#8da0ba] sm:size-6" />
         <input
           value={search}
           onChange={(event) => setSearch(event.target.value)}
-          className="w-full bg-transparent text-[23px] text-[#334155] outline-none placeholder:text-[#66758a]"
+          className="w-full bg-transparent text-[16px] text-[#334155] outline-none placeholder:text-[#66758a] sm:text-[23px]"
           placeholder="Search items..."
         />
       </label>
 
-      <div className="mb-4 overflow-x-auto pb-2">
+      <div className="no-scrollbar overflow-x-auto pb-1 sm:mb-4 sm:pb-2">
         <div className="flex min-w-max gap-3">
           <FilterPill
             active={filter === "all"}
@@ -169,7 +170,7 @@ export function StockScreen({
         </div>
       </div>
 
-      <div className="mb-7 flex gap-3 overflow-x-auto pb-1">
+      <div className="no-scrollbar flex gap-2 overflow-x-auto pb-1 sm:mb-7 sm:gap-3">
         {categories.map((itemCategory) => (
           <CategoryPill
             key={itemCategory}
@@ -190,7 +191,7 @@ export function StockScreen({
         />
       )}
       {!loading && !error && items.length > 0 && (
-        <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
+        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-5">
           {items.map((item) => (
             <StockCard key={item.id} item={item} onClick={() => onSelectItem(item)} />
           ))}
@@ -218,7 +219,7 @@ function FilterPill({
       type="button"
       onClick={onClick}
       className={cn(
-        "flex h-[56px] items-center gap-2 rounded-2xl border border-[#d9e0ea] bg-white px-5 text-[22px] font-semibold text-[#66758a] shadow-[0_1px_2px_rgba(15,23,42,0.05)] [&_svg]:size-6",
+        "flex h-11 items-center gap-2 rounded-2xl border border-[#d9e0ea] bg-white px-3 text-[14px] font-semibold text-[#66758a] shadow-[0_1px_2px_rgba(15,23,42,0.05)] sm:h-[56px] sm:px-5 sm:text-[22px] [&_svg]:size-5 sm:[&_svg]:size-6",
         active && "border-[#2563eb] bg-[#2563eb] text-white",
       )}
     >
@@ -247,7 +248,7 @@ function CategoryPill({
       type="button"
       onClick={onClick}
       className={cn(
-        "h-11 shrink-0 rounded-2xl border border-[#d9e0ea] bg-white px-6 text-[18px] font-semibold text-[#66758a]",
+        "h-10 shrink-0 rounded-2xl border border-[#d9e0ea] bg-white px-4 text-[14px] font-semibold text-[#66758a] sm:h-11 sm:px-6 sm:text-[18px]",
         active && "border-[#2563eb] bg-[#2563eb] text-white",
       )}
     >
@@ -258,28 +259,28 @@ function CategoryPill({
 
 function StockCard({ item, onClick }: { item: StockItem; onClick: () => void }) {
   return (
-    <button type="button" className="text-left" onClick={onClick}>
-      <Card className="w-full max-w-[352px] px-5 py-6 transition hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.12)]">
-      <div className="mb-5 grid h-[120px] place-items-center rounded-[18px] bg-[#f3f6fa] text-[#c6d1df]">
-        <Package className="size-12" strokeWidth={2.4} />
+    <button type="button" className="w-full text-left" onClick={onClick}>
+      <Card className="w-full px-4 py-5 transition hover:-translate-y-0.5 hover:shadow-[0_6px_18px_rgba(15,23,42,0.12)] sm:max-w-[352px] sm:px-5 sm:py-6">
+      <div className="mb-4 grid min-h-[92px] place-items-center rounded-[18px] bg-[#f3f6fa] text-[#c6d1df] sm:mb-5 sm:h-[120px]">
+        <Package className="size-10 sm:size-12" strokeWidth={2.4} />
       </div>
-      <h3 className="text-[24px] font-bold text-[#1f2937]">{item.name}</h3>
+      <h3 className="truncate text-[17px] font-bold text-[#1f2937] sm:text-[24px]">{item.name}</h3>
       <div className="mt-1 flex items-center gap-2">
-        <span className="text-[19px] text-[#8b99b3]">{item.category}</span>
+        <span className="truncate text-[14px] text-[#8b99b3] sm:text-[19px]">{item.category}</span>
         {item.ownershipType === "CONSIGNMENT" && (
           <span className="rounded-full bg-[#fff0d4] px-2.5 py-0.5 text-[15px] font-bold text-[#f59e0b]">
             Consignment
           </span>
         )}
       </div>
-      <div className="mt-6 flex items-center justify-between gap-3">
-        <span className="text-[25px] font-extrabold text-[#2563eb]">
+      <div className="mt-4 flex items-center justify-between gap-3 sm:mt-6">
+        <span className="break-words text-[17px] font-extrabold text-[#2563eb] sm:text-[25px]">
           {formatMoney(item.sellingPrice)}
         </span>
         {item.itemType === "PRODUCT" && (
           <span
             className={cn(
-              "rounded-full px-3 py-1 text-[19px] font-extrabold text-white",
+              "shrink-0 rounded-full px-2.5 py-1 text-[13px] font-extrabold text-white sm:px-3 sm:text-[19px]",
               item.stockStatus === "IN_STOCK" && "bg-[#16a34a]",
               item.stockStatus === "LOW_STOCK" && "bg-[#f59e0b]",
               item.stockStatus === "OUT_OF_STOCK" && "bg-[#e90012]",

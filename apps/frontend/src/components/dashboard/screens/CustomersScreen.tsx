@@ -18,7 +18,6 @@ import {
   type Customer,
 } from "@/lib/customerApi";
 import { getStoredAccessToken } from "@/lib/session";
-import { cn } from "@/lib/utils";
 
 export function CustomersScreen({
   onBack,
@@ -47,7 +46,10 @@ export function CustomersScreen({
     finally { setLoading(false); }
   }
 
-  useEffect(() => { void load(); }, []);
+  useEffect(() => {
+    const timer = setTimeout(() => void load(), 0);
+    return () => clearTimeout(timer);
+  }, []);
 
   useEffect(() => {
     const t = setTimeout(() => load(search || undefined), 300);
@@ -74,22 +76,22 @@ export function CustomersScreen({
   }
 
   return (
-    <div className="mx-4 pb-8 sm:mx-0">
+    <div className="pb-8">
       {/* Header */}
-      <div className="mb-6 flex items-center justify-between">
-        <div className="flex items-center gap-4">
-          <button className="grid size-9 place-items-center" onClick={onBack}>
+      <div className="mb-5 flex items-center justify-between gap-3 sm:mb-6">
+        <div className="flex min-w-0 items-center gap-3 sm:gap-4">
+          <button className="grid size-10 shrink-0 place-items-center rounded-full bg-white shadow-[0_1px_5px_rgba(15,23,42,0.08)] sm:size-9 sm:bg-transparent sm:shadow-none" onClick={onBack}>
             <ArrowLeft className="size-7" />
           </button>
-          <div>
-            <h2 className="text-[31px] font-extrabold leading-none text-[#071122]">Customers</h2>
+          <div className="min-w-0">
+            <h2 className="truncate text-[24px] font-extrabold leading-tight text-[#071122] sm:text-[31px]">Customers</h2>
             <p className="mt-0.5 text-[16px] text-[#8b99b3]">{customers.length} contact{customers.length !== 1 ? "s" : ""}</p>
           </div>
         </div>
         <button
           type="button"
           onClick={() => setShowForm((v) => !v)}
-          className="flex h-12 items-center gap-2 rounded-3xl bg-[#071122] px-5 text-[16px] font-bold text-white"
+          className="flex h-10 shrink-0 items-center gap-1.5 rounded-2xl bg-[#071122] px-3 text-[14px] font-bold text-white sm:h-12 sm:gap-2 sm:rounded-3xl sm:px-5 sm:text-[16px]"
         >
           <Plus className="size-5" />
           New
@@ -98,7 +100,7 @@ export function CustomersScreen({
 
       {/* Add customer form */}
       {showForm && (
-        <div className="mb-5 rounded-[22px] bg-white p-6 shadow-[0_10px_26px_rgba(15,23,42,0.09)]">
+        <div className="mb-5 rounded-[22px] bg-white p-4 shadow-[0_10px_26px_rgba(15,23,42,0.09)] sm:p-6">
           <p className="mb-4 text-[18px] font-extrabold text-[#071122]">New Customer</p>
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder="Full name *"
             className="mb-3 h-[56px] w-full rounded-[12px] border border-[#d3dbe6] px-4 text-[17px] outline-none focus:border-[#071122]" />
@@ -107,7 +109,7 @@ export function CustomersScreen({
           <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} placeholder="Email (optional)"
             className="mb-4 h-[56px] w-full rounded-[12px] border border-[#d3dbe6] px-4 text-[17px] outline-none focus:border-[#071122]" />
           {error && <p className="mb-3 text-[15px] font-semibold text-[#ef3b42]">{error}</p>}
-          <div className="flex gap-3">
+          <div className="grid grid-cols-2 gap-3">
             <button type="button" onClick={() => setShowForm(false)}
               className="flex-1 rounded-[12px] bg-[#f1f5f9] py-3 text-[16px] font-bold text-[#334155]">
               Cancel
@@ -147,13 +149,13 @@ export function CustomersScreen({
             key={c.id}
             type="button"
             onClick={() => onSelect(c)}
-            className="flex w-full items-center gap-4 rounded-[18px] bg-white px-5 py-4 text-left shadow-[0_4px_16px_rgba(15,23,42,0.07)] active:scale-[0.98] transition-transform"
+            className="flex w-full items-center gap-3 rounded-[18px] bg-white px-4 py-4 text-left shadow-[0_4px_16px_rgba(15,23,42,0.07)] transition-transform active:scale-[0.98] sm:gap-4 sm:px-5"
           >
             <div className="grid size-12 shrink-0 place-items-center rounded-full bg-[#f1f5f9] text-[18px] font-extrabold text-[#334155]">
               {c.name.slice(0, 1).toUpperCase()}
             </div>
             <div className="min-w-0 flex-1">
-              <p className="truncate text-[18px] font-bold text-[#071122]">{c.name}</p>
+              <p className="truncate text-[16px] font-bold text-[#071122] sm:text-[18px]">{c.name}</p>
               {c.phone && (
                 <p className="mt-0.5 flex items-center gap-1.5 text-[14px] text-[#94a3b8]">
                   <Phone className="size-3.5" /> {c.phone}

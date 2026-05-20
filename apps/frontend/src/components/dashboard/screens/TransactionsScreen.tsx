@@ -124,7 +124,8 @@ export function TransactionsScreen({
   );
 
   useEffect(() => {
-    setSelectedPoint(0);
+    const timer = setTimeout(() => setSelectedPoint(0), 0);
+    return () => clearTimeout(timer);
   }, [activePeriod]);
 
   // Merge sales + expenses into one chronological list, filtered by tab.
@@ -145,20 +146,20 @@ export function TransactionsScreen({
   const selected = chartPoints[selectedPoint] ?? chartPoints[0];
 
   return (
-    <div className="mx-4 sm:mx-0">
-      <div className="mb-[22px] flex items-center justify-between">
-        <h2 className="text-[33px] font-extrabold leading-none tracking-normal">
+    <div className="space-y-5 pb-4">
+      <div className="flex flex-wrap items-center justify-between gap-3">
+        <h2 className="text-[28px] font-extrabold leading-tight tracking-normal text-[#071122] sm:text-[33px]">
           Transactions
         </h2>
-        <div className="flex items-center gap-3">
-          <Button variant="secondary" size="sm" className="h-12 rounded-3xl px-4" onClick={() => exportCSV(filteredTransactions, activePeriod)}>
+        <div className="flex min-w-0 flex-1 items-center justify-end gap-2 sm:flex-none sm:gap-3">
+          <Button variant="secondary" size="sm" className="h-10 rounded-2xl px-3 text-[14px] sm:h-12 sm:rounded-3xl sm:px-4 sm:text-[18px]" onClick={() => exportCSV(filteredTransactions, activePeriod)}>
             <Download />
-            Export
+            <span className="hidden min-[380px]:inline">Export</span>
           </Button>
           <Button
             variant="success"
             size="sm"
-            className="h-12 rounded-3xl px-5"
+            className="h-10 rounded-2xl px-3 text-[14px] sm:h-12 sm:rounded-3xl sm:px-5 sm:text-[18px]"
             onClick={onRecord}
           >
             <Plus />
@@ -168,10 +169,10 @@ export function TransactionsScreen({
       </div>
       <PeriodPills activePeriod={activePeriod} onPeriodChange={onPeriodChange} />
 
-      <Card className="mb-[22px] p-6">
-        <div className="mb-6 flex items-center justify-between">
-          <p className="text-[23px] font-bold text-[#13223a]">{activePeriod}</p>
-          <div className="flex items-center gap-4 text-[15px] font-semibold text-[#64748b]">
+      <Card className="p-4 sm:p-6">
+        <div className="mb-5 flex flex-wrap items-center justify-between gap-3">
+          <p className="text-[18px] font-bold text-[#13223a] sm:text-[23px]">{activePeriod}</p>
+          <div className="flex items-center gap-3 text-[12px] font-semibold text-[#64748b] sm:gap-4 sm:text-[15px]">
             <span className="flex items-center gap-1.5">
               <span className="size-3 rounded-full bg-[#08b879]" />
               Money In
@@ -183,7 +184,7 @@ export function TransactionsScreen({
           </div>
         </div>
 
-        <div className="flex h-[226px] items-end justify-around gap-3 px-2 pb-2">
+        <div className="no-scrollbar -mx-1 flex h-[176px] items-end justify-around gap-2 overflow-x-auto px-1 pb-1 sm:h-[226px] sm:gap-3 sm:px-2 sm:pb-2">
           {chartPoints.map((point, index) => (
             <ChartBar
               key={point.label}
@@ -195,23 +196,23 @@ export function TransactionsScreen({
           ))}
         </div>
 
-        <div className="mt-5 rounded-[18px] bg-[#f6f8fb] px-5 py-4">
-          <div className="mb-3 flex items-center justify-between">
-            <p className="text-[19px] font-extrabold text-[#13223a]">
+        <div className="mt-4 rounded-[18px] bg-[#f6f8fb] px-4 py-4 sm:mt-5 sm:px-5">
+          <div className="mb-3 flex flex-wrap items-center justify-between gap-2">
+            <p className="text-[16px] font-extrabold text-[#13223a] sm:text-[19px]">
               {selected.label}
             </p>
-            <p className="text-[16px] font-semibold text-[#64748b]">
+            <p className="text-[12px] font-semibold text-[#64748b] sm:text-[16px]">
               Tap a bar to inspect
             </p>
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 gap-3 min-[360px]:grid-cols-2">
             <SummaryTile label="Money In" value={selected.income} tone="income" />
             <SummaryTile label="Money Out" value={selected.expense} tone="expense" />
           </div>
         </div>
       </Card>
 
-      <div className="mb-6 flex gap-3">
+      <div className="no-scrollbar -mx-1 flex gap-2 overflow-x-auto px-1 pb-1 sm:gap-3">
         {(["All", "Money In", "Money Out"] as TransactionFilter[]).map((item) => (
           <Pill
             key={item}
@@ -223,7 +224,7 @@ export function TransactionsScreen({
         ))}
       </div>
 
-      <div className="space-y-4">
+      <div className="space-y-3 sm:space-y-4">
         {loading && <TransactionMessage title="Loading transactions..." />}
         {error && !loading && <TransactionMessage title={error} />}
         {!loading && !error && filteredTransactions.length === 0 && (
@@ -275,13 +276,13 @@ function ChartBar({
   return (
     <button
       type="button"
-      className="group flex min-w-[44px] flex-1 flex-col items-center gap-3 outline-none"
+      className="group flex min-w-[38px] flex-1 flex-col items-center gap-2 outline-none sm:min-w-[44px] sm:gap-3"
       onClick={onSelect}
     >
-      <div className="relative flex h-[150px] items-end gap-1">
+      <div className="relative flex h-[112px] items-end gap-1 sm:h-[150px]">
         <div
           className={cn(
-            "w-7 rounded-t-lg bg-[#08b879] transition-all",
+            "w-4 rounded-t-md bg-[#08b879] transition-all sm:w-7 sm:rounded-t-lg",
             active && "ring-4 ring-[#c9f5e4]",
             point.income === 0 && "bg-[#d8e1ec]",
           )}
@@ -289,7 +290,7 @@ function ChartBar({
         />
         {expenseHeight > 0 && (
           <div
-            className="w-7 rounded-t-lg bg-[#ef3b42] transition-all"
+            className="w-4 rounded-t-md bg-[#ef3b42] transition-all sm:w-7 sm:rounded-t-lg"
             style={{ height: expenseHeight }}
           />
         )}
@@ -301,7 +302,7 @@ function ChartBar({
       </div>
       <span
         className={cn(
-          "text-[17px] font-semibold text-[#8a97ad]",
+          "text-[12px] font-semibold text-[#8a97ad] sm:text-[17px]",
           active && "text-[#2563eb]",
         )}
       >
@@ -322,10 +323,10 @@ function SummaryTile({
 }) {
   return (
     <div className="rounded-2xl bg-white px-4 py-3">
-      <p className="text-[15px] font-bold uppercase text-[#64748b]">{label}</p>
+      <p className="text-[12px] font-bold uppercase text-[#64748b] sm:text-[15px]">{label}</p>
       <p
         className={cn(
-          "mt-1 text-[22px] font-extrabold",
+          "mt-1 break-words text-[18px] font-extrabold sm:text-[22px]",
           tone === "income" ? "text-[#06a873]" : "text-[#ef3b42]",
         )}
       >
@@ -346,19 +347,19 @@ function TransactionCard({
   const displayAmount = sale.amountPaid > 0 ? sale.amountPaid : sale.subtotal;
 
   const content = (
-    <div className="flex min-h-[104px] w-full items-center gap-5 px-5 py-5">
+    <div className="flex min-h-[92px] w-full items-center gap-3 px-4 py-4 sm:min-h-[104px] sm:gap-5 sm:px-5 sm:py-5">
       {/* Left accent strip */}
       <div className="absolute left-0 top-0 h-full w-[5px] rounded-l-[20px] bg-[#08b879]" />
 
-      <div className="grid size-[52px] shrink-0 place-items-center rounded-[18px] bg-[#eafaf4] text-[#05a970]">
+      <div className="grid size-11 shrink-0 place-items-center rounded-[16px] bg-[#eafaf4] text-[#05a970] sm:size-[52px] sm:rounded-[18px]">
         {isCredit ? <FileText className="size-[22px]" /> : <TrendingUp className="size-[22px]" />}
       </div>
 
       <div className="min-w-0 flex-1">
-        <h3 className="truncate text-[22px] font-bold text-[#0f172a]">
+        <h3 className="truncate text-[16px] font-bold text-[#0f172a] sm:text-[22px]">
           {sale.itemNames.join(", ") || "Sale"}
         </h3>
-        <p className="mt-1 flex items-center gap-2 text-[17px] text-[#8b99b3]">
+        <p className="mt-1 flex min-w-0 items-center gap-2 text-[13px] text-[#8b99b3] sm:text-[17px]">
           {timeAgo(sale.createdAt)}
           {sale.customerName && (
             <>
@@ -374,8 +375,8 @@ function TransactionCard({
         )}
       </div>
 
-      <div className="flex shrink-0 items-center gap-2">
-        <p className="text-[23px] font-extrabold text-[#009f6b]">
+      <div className="flex max-w-[42%] shrink-0 items-center gap-1.5 sm:gap-2">
+        <p className="break-words text-right text-[15px] font-extrabold leading-tight text-[#009f6b] sm:text-[23px]">
           +{formatMoney(displayAmount)}
         </p>
         {onClick && <ChevronRight className="size-5 text-[#c3cdd8]" />}
@@ -406,14 +407,14 @@ function ExpenseCard({ expense, onClick }: { expense: ExpenseItem; onClick?: () 
     "relative overflow-hidden rounded-[20px] bg-white shadow-[0_4px_20px_rgba(15,23,42,0.07)] transition-transform duration-100";
 
   const content = (
-    <div className="flex min-h-[104px] w-full items-center gap-5 px-5 py-5">
+    <div className="flex min-h-[92px] w-full items-center gap-3 px-4 py-4 sm:min-h-[104px] sm:gap-5 sm:px-5 sm:py-5">
       <div className="absolute left-0 top-0 h-full w-[5px] rounded-l-[20px] bg-[#ef3b42]" />
-      <div className="grid size-[52px] shrink-0 place-items-center rounded-[18px] bg-[#fff0f0] text-[#ef3b42]">
+      <div className="grid size-11 shrink-0 place-items-center rounded-[16px] bg-[#fff0f0] text-[#ef3b42] sm:size-[52px] sm:rounded-[18px]">
         <TrendingDown className="size-[22px]" />
       </div>
       <div className="min-w-0 flex-1">
-        <h3 className="truncate text-[22px] font-bold text-[#0f172a]">{expense.category}</h3>
-        <p className="mt-1 text-[17px] text-[#8b99b3]">
+        <h3 className="truncate text-[16px] font-bold text-[#0f172a] sm:text-[22px]">{expense.category}</h3>
+        <p className="mt-1 truncate text-[13px] text-[#8b99b3] sm:text-[17px]">
           {timeAgo(expense.createdAt)}
           {expense.description && (
             <>
@@ -423,8 +424,8 @@ function ExpenseCard({ expense, onClick }: { expense: ExpenseItem; onClick?: () 
           )}
         </p>
       </div>
-      <div className="flex shrink-0 items-center gap-2">
-        <p className="text-[23px] font-extrabold text-[#ef3b42]">
+      <div className="flex max-w-[42%] shrink-0 items-center gap-1.5 sm:gap-2">
+        <p className="break-words text-right text-[15px] font-extrabold leading-tight text-[#ef3b42] sm:text-[23px]">
           -{formatMoney(expense.amount)}
         </p>
         {onClick && <ChevronRight className="size-5 text-[#c3cdd8]" />}

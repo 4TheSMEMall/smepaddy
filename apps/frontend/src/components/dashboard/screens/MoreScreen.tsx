@@ -27,13 +27,13 @@ export function MoreScreen({
   onCustomers: () => void;
 }) {
   return (
-    <div className="grid grid-cols-2 gap-y-6 rounded-[22px] border border-[#dce3ec] bg-white px-4 py-6 shadow-[0_1px_3px_rgba(15,23,42,0.14)]">
+    <div className="grid grid-cols-2 gap-3 rounded-[22px] border border-[#dce3ec] bg-white p-3 shadow-[0_1px_3px_rgba(15,23,42,0.14)] sm:gap-y-6 sm:px-4 sm:py-6">
       {serviceItems.map((item) => (
         <button
           key={item.label}
           onClick={getAction(item.label, onSettings, onProfile, onConsignment, onRecurring, onLoans, onAnalytics, onRewards, onSavings, onCustomers)}
           className={cn(
-            "mx-auto flex h-[132px] w-[86%] flex-col items-center justify-center gap-3 rounded-[18px] text-[18px] font-medium text-[#334155]",
+            "mx-auto flex min-h-[96px] w-full flex-col items-center justify-center gap-2 rounded-[16px] px-2 py-3 text-center text-[14px] font-semibold text-[#334155] sm:h-[132px] sm:w-[86%] sm:gap-3 sm:rounded-[18px] sm:text-[18px]",
             item.active && item.label !== "Settings" && "bg-[#f3f6f9]",
             item.label === "Settings" &&
               "border border-[#bdd0ee] bg-[#f1f6fc] text-[#1557df]",

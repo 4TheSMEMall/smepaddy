@@ -173,12 +173,12 @@ export function AddStockItemScreen({
   }
 
   return (
-    <div className="mx-4 sm:mx-0">
-      <div className="mb-7 flex items-center gap-14">
-        <button className="grid size-9 place-items-center" onClick={onBack}>
+    <div className="space-y-5 pb-4">
+      <div className="flex items-center gap-3 sm:mb-7 sm:gap-14">
+        <button className="grid size-10 shrink-0 place-items-center rounded-full bg-white shadow-[0_1px_5px_rgba(15,23,42,0.08)] sm:size-9 sm:bg-transparent sm:shadow-none" onClick={onBack}>
           <ArrowLeft className="size-7" />
         </button>
-        <h2 className="text-[31px] font-extrabold text-[#071122]">Add New Item</h2>
+        <h2 className="text-[24px] font-extrabold text-[#071122] sm:text-[31px]">Add New Item</h2>
       </div>
 
       <div className="space-y-5">
@@ -226,7 +226,7 @@ export function AddStockItemScreen({
           value={form.wholesalePrice}
           onChange={(value) => updateField("wholesalePrice", value)}
         />
-        <p className="-mt-3 text-[19px] text-[#475569]">
+        <p className="-mt-3 text-[14px] text-[#475569] sm:text-[19px]">
           Price for bulk/wholesale buyers. Leave at 0 if not applicable.
         </p>
 
@@ -282,7 +282,7 @@ export function AddStockItemScreen({
                 />
                 <button
                   type="button"
-                  className="inline-flex items-center gap-2 text-[19px] font-bold text-[#2563eb]"
+                className="inline-flex items-center gap-2 text-[15px] font-bold text-[#2563eb] sm:text-[19px]"
                   onClick={() => setShowSupplierForm(true)}
                 >
                   <Plus className="size-5" />
@@ -293,15 +293,15 @@ export function AddStockItemScreen({
 
             {!suppliersLoading && suppliers.length === 0 && !showSupplierForm && (
               <div className="rounded-[20px] border border-[#fde68a] bg-[#fffaf0] p-5">
-                <h3 className="text-[22px] font-extrabold text-[#0f172a]">
+                <h3 className="text-[18px] font-extrabold text-[#0f172a] sm:text-[22px]">
                   No supplier added yet
                 </h3>
-                <p className="mt-1 text-[18px] text-[#6b7280]">
+                <p className="mt-1 text-[14px] text-[#6b7280] sm:text-[18px]">
                   Add a supplier first so this consignment item can be linked properly.
                 </p>
                 <button
                   type="button"
-                  className="mt-4 inline-flex h-12 items-center gap-2 rounded-2xl bg-[#2563eb] px-5 text-[19px] font-bold text-white"
+                  className="mt-4 inline-flex h-11 items-center gap-2 rounded-2xl bg-[#2563eb] px-4 text-[15px] font-bold text-white sm:h-12 sm:px-5 sm:text-[19px]"
                   onClick={() => setShowSupplierForm(true)}
                 >
                   <Plus className="size-5" />
@@ -326,7 +326,7 @@ export function AddStockItemScreen({
               value={form.ownerCostPerUnit}
               onChange={(value) => updateField("ownerCostPerUnit", value)}
             />
-            <p className="-mt-3 text-[19px] text-[#475569]">
+            <p className="-mt-3 text-[14px] text-[#475569] sm:text-[19px]">
               What you owe the supplier per unit
             </p>
           </div>
@@ -350,7 +350,7 @@ export function AddStockItemScreen({
               value={form.lowStockAlertQuantity}
               onChange={(value) => updateField("lowStockAlertQuantity", value)}
             />
-            <p className="-mt-3 text-[19px] text-[#475569]">
+            <p className="-mt-3 text-[14px] text-[#475569] sm:text-[19px]">
               Get a notification when stock drops below this number
             </p>
             <StockField
@@ -360,27 +360,27 @@ export function AddStockItemScreen({
               value={form.preferredReorderAmount}
               onChange={(value) => updateField("preferredReorderAmount", value)}
             />
-            <p className="-mt-3 text-[19px] text-[#475569]">
+            <p className="-mt-3 text-[14px] text-[#475569] sm:text-[19px]">
               How many do you usually buy? Leave empty for a smart suggestion
             </p>
           </div>
         )}
 
         {error && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-[18px] font-semibold text-red-700">
+          <div className="rounded-2xl border border-red-200 bg-red-50 px-4 py-3 text-[14px] font-semibold text-red-700 sm:text-[18px]">
             {error}
           </div>
         )}
 
         <button
-          className="h-[72px] w-full rounded-[18px] bg-[#2563eb] text-[23px] font-bold text-white disabled:bg-[#87a8ee]"
+          className="h-14 w-full rounded-[16px] bg-[#2563eb] text-[18px] font-bold text-white disabled:bg-[#87a8ee] sm:h-[72px] sm:rounded-[18px] sm:text-[23px]"
           disabled={saving || (isConsignment && !form.supplierId)}
           onClick={handleSubmit}
         >
           {saving ? "Adding item..." : "Add Item"}
         </button>
         <button
-          className="mx-auto flex items-center gap-2 pb-8 pt-2 text-[19px] text-[#66758a]"
+          className="mx-auto flex items-center gap-2 pb-8 pt-2 text-[15px] text-[#66758a] sm:text-[19px]"
           onClick={onDiscard}
         >
           <Trash2 className="size-5" />
@@ -406,12 +406,12 @@ function StockField({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-[24px] font-semibold text-black">{label}</span>
+      <span className="mb-2 block text-[16px] font-semibold text-[#071122] sm:text-[24px]">{label}</span>
       <input
         value={value}
         inputMode={inputMode}
         onChange={(event) => onChange(event.target.value)}
-        className="h-[72px] w-full rounded-[11px] border border-[#d3dbe6] bg-transparent px-5 text-[23px] text-[#334155] outline-none placeholder:text-[#334155] shadow-[0_1px_2px_rgba(15,23,42,0.04)] focus:border-[#3b82ff] focus:ring-2 focus:ring-[#3b82ff]"
+        className="h-14 w-full rounded-[14px] border border-[#d3dbe6] bg-white px-4 text-[16px] text-[#334155] outline-none placeholder:text-[#607086] shadow-[0_1px_2px_rgba(15,23,42,0.04)] focus:border-[#3b82ff] focus:ring-2 focus:ring-[#bfdbfe] sm:h-[72px] sm:rounded-[11px] sm:px-5 sm:text-[23px]"
         placeholder={placeholder}
       />
     </label>
@@ -435,17 +435,17 @@ function SelectField({
 }) {
   return (
     <label className="block">
-      <span className="mb-2 block text-[24px] font-semibold text-black">{label}</span>
+      <span className="mb-2 block text-[16px] font-semibold text-[#071122] sm:text-[24px]">{label}</span>
       <span
         className={cn(
           "relative block",
-          compact ? "w-[142px]" : "w-full sm:w-[300px]",
+          compact ? "w-full sm:w-[142px]" : "w-full sm:w-[300px]",
         )}
       >
         <select
           value={value}
           onChange={(event) => onChange(event.target.value)}
-          className="h-[56px] w-full appearance-none rounded-[11px] border border-[#d3dbe6] bg-transparent px-5 pr-10 text-[23px] text-[#334155] shadow-[0_1px_2px_rgba(15,23,42,0.04)] outline-none focus:border-[#3b82ff] focus:ring-2 focus:ring-[#3b82ff]"
+          className="h-14 w-full appearance-none rounded-[14px] border border-[#d3dbe6] bg-white px-4 pr-10 text-[16px] text-[#334155] shadow-[0_1px_2px_rgba(15,23,42,0.04)] outline-none focus:border-[#3b82ff] focus:ring-2 focus:ring-[#bfdbfe] sm:h-[56px] sm:rounded-[11px] sm:px-5 sm:text-[23px]"
         >
           {placeholder && <option value="">{placeholder}</option>}
           {options.map((option) => {
@@ -481,7 +481,7 @@ function TogglePanel({
   return (
     <section
       className={cn(
-        "flex min-h-[92px] items-center justify-between gap-4 rounded-[20px] border px-5 transition-colors",
+        "flex min-h-[88px] items-center justify-between gap-3 rounded-[20px] border px-4 py-4 transition-colors sm:min-h-[92px] sm:gap-4 sm:px-5",
         tone === "amber" && "border-[#fde68a] bg-[#fffbeb]",
         tone === "blue" && "border-[#cfe0ff] bg-[#eef6ff]",
       )}
@@ -490,9 +490,9 @@ function TogglePanel({
         <span className={cn(tone === "amber" ? "text-[#f59e0b]" : "text-[#1557df]")}>
           {icon}
         </span>
-        <span>
-          <span className="block text-[23px] font-bold text-[#0f172a]">{title}</span>
-          <span className="text-[20px] text-[#66758a]">{text}</span>
+        <span className="min-w-0">
+          <span className="block text-[16px] font-bold text-[#0f172a] sm:text-[23px]">{title}</span>
+          <span className="text-[13px] text-[#66758a] sm:text-[20px]">{text}</span>
         </span>
       </div>
       <Switch checked={checked} onChange={onChange} label={title} />
