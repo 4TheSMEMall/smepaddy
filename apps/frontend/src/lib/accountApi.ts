@@ -1,4 +1,4 @@
-import { getJson } from "@/lib/api";
+import { getJson, patchJson } from "@/lib/api";
 
 export type CurrentAccountResponse = {
   user: {
@@ -19,4 +19,15 @@ export type CurrentAccountResponse = {
 
 export function getCurrentAccount(token: string) {
   return getJson<CurrentAccountResponse>("/me", token);
+}
+
+export function updateBusiness(
+  token: string,
+  data: { businessName: string; businessType: string; location?: string },
+) {
+  return patchJson<{ business: NonNullable<CurrentAccountResponse["business"]> }>(
+    "/business",
+    data as Record<string, unknown>,
+    token,
+  );
 }

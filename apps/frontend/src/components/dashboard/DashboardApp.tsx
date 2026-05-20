@@ -438,7 +438,14 @@ export function DashboardApp() {
               }}
             />
           )}
-          {screen === "profile" && <ProfileScreen onBack={() => setScreen("more")} wallet={wallet} account={account} />}
+          {screen === "profile" && (
+            <ProfileScreen
+              onBack={() => setScreen("more")}
+              wallet={wallet}
+              account={account}
+              onAccountUpdated={setAccount}
+            />
+          )}
           {screen === "settings" && <SettingsScreen onBack={() => setScreen("more")} />}
         </motion.section>
       </AnimatePresence>
