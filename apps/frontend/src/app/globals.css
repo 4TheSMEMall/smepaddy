@@ -88,6 +88,11 @@ canvas {
   display: none;
 }
 
+@keyframes skeleton-shimmer {
+  0%   { background-position: 200% 0; }
+  100% { background-position: -200% 0; }
+}
+
 /* ── Bottom nav safe area ── */
 .nav-safe {
   height: calc(var(--nav-height) + var(--safe-bottom));

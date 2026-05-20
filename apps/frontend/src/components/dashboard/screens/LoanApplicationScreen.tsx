@@ -74,45 +74,43 @@ export function LoanApplicationScreen({
   }
 
   return (
-    <div className="mx-4 space-y-5 pb-8 sm:mx-0">
-      <div className="flex items-center gap-4">
-        <button className="grid size-9 place-items-center" onClick={onBack}>
-          <ArrowLeft className="size-7" />
+    <div className="space-y-4 pb-8">
+      {/* Header */}
+      <div className="flex items-center gap-3">
+        <button className="grid size-10 place-items-center rounded-full bg-white shadow-[0_1px_6px_rgba(15,23,42,0.1)]" onClick={onBack}>
+          <ArrowLeft className="size-5" />
         </button>
-        <h2 className="text-[28px] font-extrabold text-[#071122]">Apply — {tierLabel}</h2>
+        <div>
+          <h2 className="text-[20px] font-extrabold text-[#071122]">Apply for Loan</h2>
+          <p className="text-[13px] text-[#94a3b8]">{tierLabel}</p>
+        </div>
       </div>
 
       {/* Amount */}
-      <div className="rounded-[24px] bg-white px-6 py-6 shadow-[0_10px_26px_rgba(15,23,42,0.07)]">
-        <label className="mb-2 block text-[22px] font-semibold">Amount (₦)</label>
+      <div className="rounded-[20px] bg-white px-4 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.07)]">
+        <label className="mb-2 block text-[15px] font-bold text-[#071122]">Loan Amount (₦)</label>
         <input
           type="number"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           className={cn(
-            "h-[68px] w-full rounded-[14px] border px-5 text-[26px] font-bold outline-none",
+            "h-14 w-full rounded-[12px] border px-4 text-[20px] font-bold outline-none",
             amountValid ? "border-[#1557df] text-[#071122]" : "border-[#ef3b42] text-[#ef3b42]",
           )}
         />
-        <p className="mt-2 text-[15px] text-[#64748b]">
+        <p className="mt-1.5 text-[12px] text-[#94a3b8]">
           Min: {formatMoney(minAmount)} · Max: {formatMoney(maxAmount)}
         </p>
       </div>
 
       {/* Tenure */}
-      <div className="rounded-[24px] bg-white px-6 py-6 shadow-[0_10px_26px_rgba(15,23,42,0.07)]">
-        <p className="mb-3 text-[22px] font-semibold">Repayment Period</p>
-        <div className="flex gap-3">
+      <div className="rounded-[20px] bg-white px-4 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.07)]">
+        <p className="mb-3 text-[15px] font-bold text-[#071122]">Repayment Period</p>
+        <div className="flex gap-2">
           {tenureOptions.map((t) => (
-            <button
-              key={t}
-              type="button"
-              onClick={() => setTenure(t)}
-              className={cn(
-                "flex-1 rounded-[14px] py-3 text-[18px] font-bold transition-colors",
-                tenure === t ? "bg-[#1557df] text-white" : "bg-[#f1f5f9] text-[#334155]",
-              )}
-            >
+            <button key={t} type="button" onClick={() => setTenure(t)}
+              className={cn("flex-1 rounded-[12px] py-2.5 text-[14px] font-bold transition-colors",
+                tenure === t ? "bg-[#1557df] text-white shadow-[0_4px_12px_rgba(21,87,223,0.3)]" : "bg-[#f1f5f9] text-[#334155]")}>
               {t} days
             </button>
           ))}
@@ -120,10 +118,8 @@ export function LoanApplicationScreen({
       </div>
 
       {/* Breakdown */}
-      <div className="rounded-[24px] bg-white px-6 py-6 shadow-[0_10px_26px_rgba(15,23,42,0.07)]">
-        <p className="mb-4 text-[16px] font-bold uppercase tracking-wide text-[#94a3b8]">
-          Repayment Breakdown
-        </p>
+      <div className="rounded-[20px] bg-white px-4 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.07)]">
+        <p className="mb-3 text-[12px] font-bold uppercase tracking-wide text-[#94a3b8]">Repayment Summary</p>
         <Row label="Principal" value={formatMoney(amountNum)} />
         <Row label={`Interest (${(rate * 100).toFixed(0)}% flat)`} value={formatMoney(interest)} />
         <Row label="Total to repay" value={formatMoney(total)} bold />
@@ -131,37 +127,23 @@ export function LoanApplicationScreen({
       </div>
 
       {/* Payment method */}
-      <div className="rounded-[24px] bg-white px-6 py-6 shadow-[0_10px_26px_rgba(15,23,42,0.07)]">
-        <p className="mb-3 text-[22px] font-semibold">Payment Method</p>
-        <div className="flex gap-3">
+      <div className="rounded-[20px] bg-white px-4 py-4 shadow-[0_2px_12px_rgba(15,23,42,0.07)]">
+        <p className="mb-3 text-[15px] font-bold text-[#071122]">Payment Method</p>
+        <div className="flex gap-2">
           {(["Cash", "Transfer", "Card"] as PaymentMethodLabel[]).map((m) => (
-            <button
-              key={m}
-              type="button"
-              onClick={() => setPaymentMethod(m)}
-              className={cn(
-                "flex-1 rounded-[14px] py-3 text-[18px] font-bold transition-colors",
-                paymentMethod === m ? "bg-[#1557df] text-white" : "bg-[#f1f5f9] text-[#334155]",
-              )}
-            >
+            <button key={m} type="button" onClick={() => setPaymentMethod(m)}
+              className={cn("flex-1 rounded-[12px] py-2.5 text-[14px] font-bold transition-colors",
+                paymentMethod === m ? "bg-[#1557df] text-white" : "bg-[#f1f5f9] text-[#334155]")}>
               {m}
             </button>
           ))}
         </div>
       </div>
 
-      {error && (
-        <p className="rounded-[14px] bg-[#fff0f0] px-4 py-3 text-[17px] font-semibold text-[#ef3b42]">
-          {error}
-        </p>
-      )}
+      {error && <p className="rounded-[12px] bg-[#fff0f0] px-4 py-3 text-[13px] font-semibold text-[#ef3b42]">{error}</p>}
 
-      <button
-        type="button"
-        onClick={handleApply}
-        disabled={saving || !amountValid}
-        className="flex h-[68px] w-full items-center justify-center gap-2 rounded-[18px] bg-[#1557df] text-[20px] font-bold text-white shadow-[0_4px_14px_rgba(21,87,223,0.3)] disabled:opacity-60"
-      >
+      <button type="button" onClick={handleApply} disabled={saving || !amountValid}
+        className="flex h-14 w-full items-center justify-center gap-2 rounded-[16px] bg-gradient-to-r from-[#1557df] to-[#0d40b8] text-[16px] font-bold text-white shadow-[0_6px_16px_rgba(21,87,223,0.35)] disabled:opacity-60">
         <Landmark className="size-5" />
         {saving ? "Applying…" : `Get ${formatMoney(total)}`}
       </button>

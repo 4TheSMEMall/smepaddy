@@ -92,42 +92,37 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
           : "Tap to enable push notifications";
 
   return (
-    <div>
+    <div className="space-y-3 pb-6">
+      {/* Header */}
       <ScreenTitle title="Settings" plan="Free Plan" onBack={onBack} />
 
       {/* Push notification row */}
-      <Card className="mb-4 overflow-hidden">
+      <div className="overflow-hidden rounded-[20px] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.07)]">
         <button
           type="button"
           disabled={permState === "denied" || permState === "unsupported" || registering}
           onClick={handleEnableNotifications}
-          className="flex min-h-[86px] w-full items-center gap-3 px-4 py-4 text-left disabled:opacity-60 sm:h-[103px] sm:gap-5 sm:px-6"
+          className="flex w-full items-center gap-3 px-4 py-4 text-left disabled:opacity-60"
         >
-          <IconBubble tone={permState === "granted" ? "green" : "amber"}>
-            {permState === "denied" ? (
-              <BellOff className="size-6" />
-            ) : (
-              <Bell className="size-6" />
-            )}
-          </IconBubble>
+          <div className={cn(
+            "grid size-11 shrink-0 place-items-center rounded-[14px] text-white",
+            permState === "granted" ? "bg-gradient-to-br from-[#059669] to-[#047857]" : "bg-gradient-to-br from-[#d97706] to-[#b45309]",
+          )} style={{ boxShadow: permState === "granted" ? "0 4px 12px rgba(5,150,105,0.3)" : "0 4px 12px rgba(217,119,6,0.3)" }}>
+            {permState === "denied" ? <BellOff className="size-5" /> : <Bell className="size-5" />}
+          </div>
           <span className="min-w-0 flex-1">
-            <span className="block text-[16px] font-semibold text-[#071122] sm:text-[23px]">
+            <span className="block text-[15px] font-semibold text-[#071122]">
               {registering ? "Enabling…" : "Push Notifications"}
             </span>
-            <span
-              className={cn(
-                "text-[13px] sm:text-[19px]",
-                permState === "granted" ? "text-[#059669]" : "text-[#334155]",
-              )}
-            >
+            <span className={cn("text-[12px]", permState === "granted" ? "text-[#059669]" : "text-[#94a3b8]")}>
               {notifLabel}
             </span>
           </span>
           {permState !== "denied" && permState !== "unsupported" && (
-            <ChevronRight className="size-6 text-[#435064]" />
+            <ChevronRight className="size-5 text-[#c1cad8]" />
           )}
         </button>
-      </Card>
+      </div>
 
       {enableError && (
         <p className="mb-3 rounded-[12px] bg-[#fff0f0] px-4 py-3 text-[15px] font-semibold text-[#ef3b42]">
@@ -157,26 +152,23 @@ export function SettingsScreen({ onBack }: { onBack: () => void }) {
         </div>
       )}
 
-      <Card className="overflow-hidden">
+      <div className="overflow-hidden rounded-[20px] bg-white shadow-[0_2px_12px_rgba(15,23,42,0.07)]">
         {settingRows.map((row, index) => (
           <button
             key={row.title}
-            className={cn(
-              "flex min-h-[86px] w-full items-center gap-3 border-b border-[#eef1f5] px-4 py-4 text-left last:border-0 sm:h-[103px] sm:gap-5 sm:px-6",
-              index === 1 && "bg-[#f9f7fb]",
-            )}
+            className="flex w-full items-center gap-3 border-b border-[#f1f5f9] px-4 py-4 text-left last:border-0 active:bg-[#f8fafc]"
           >
             <IconBubble tone={row.tone}>
-              <row.icon className="size-6" />
+              <row.icon className="size-5" />
             </IconBubble>
             <span className="min-w-0 flex-1">
-              <span className="block text-[16px] font-semibold text-[#071122] sm:text-[23px]">{row.title}</span>
-              <span className="text-[13px] text-[#334155] sm:text-[19px]">{row.text}</span>
+              <span className="block text-[14px] font-semibold text-[#071122]">{row.title}</span>
+              <span className="text-[12px] text-[#94a3b8]">{row.text}</span>
             </span>
-            <ChevronRight className="size-6 text-[#435064]" />
+            <ChevronRight className="size-4 text-[#c1cad8]" />
           </button>
         ))}
-      </Card>
+      </div>
     </div>
   );
 }
