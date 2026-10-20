@@ -8,6 +8,7 @@ export type UserRecord = {
   id: string;
   phone: string | null;
   email: string | null;
+  fullName: string | null;
   status: UserStatus;
 };
 
@@ -68,4 +69,10 @@ export interface OnboardingRepository {
   saveAboutYou(input: AboutYouInput & { userId: string }): Promise<void>;
   saveLocation(input: { userId: string; location: string }): Promise<void>;
   markOnboarded(userId: string): Promise<void>;
+  createSession(input: {
+    id: string;
+    userId: string;
+    tokenHash: string;
+    expiresAt: Date;
+  }): Promise<void>;
 }

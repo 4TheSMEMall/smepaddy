@@ -1,7 +1,7 @@
 import { createHmac, timingSafeEqual } from "node:crypto";
 
 const secret = process.env.APP_SECRET ?? "sme-paddy-local-development-secret";
-const authTokenTtlDays = 7;
+const authTokenTtlDays = 14;
 
 export function getAuthTokenExpiry() {
   return new Date(Date.now() + authTokenTtlDays * 24 * 60 * 60 * 1000);

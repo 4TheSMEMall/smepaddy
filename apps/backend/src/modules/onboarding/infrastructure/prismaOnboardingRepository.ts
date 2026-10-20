@@ -16,7 +16,7 @@ export class PrismaOnboardingRepository implements OnboardingRepository {
       where: { phone },
       update: {},
       create: { phone, status: UserStatus.PHONE_PENDING },
-      select: { id: true, phone: true, email: true, status: true },
+      select: { id: true, phone: true, email: true, fullName: true, status: true },
     });
 
     return user;
@@ -27,14 +27,14 @@ export class PrismaOnboardingRepository implements OnboardingRepository {
       where: { email },
       update: {},
       create: { email, status: UserStatus.AUTH_PENDING },
-      select: { id: true, phone: true, email: true, status: true },
+      select: { id: true, phone: true, email: true, fullName: true, status: true },
     });
   }
 
   async findUserById(userId: string): Promise<UserRecord | null> {
     return prisma.user.findUnique({
       where: { id: userId },
-      select: { id: true, phone: true, email: true, status: true },
+      select: { id: true, phone: true, email: true, fullName: true, status: true },
     });
   }
 
@@ -173,7 +173,7 @@ export class PrismaOnboardingRepository implements OnboardingRepository {
       const user = await tx.user.update({
         where: { phone: input.phone },
         data: { status: UserStatus.OTP_VERIFIED },
-        select: { id: true, phone: true, email: true, status: true },
+        select: { id: true, phone: true, email: true, fullName: true, status: true },
       });
 
       return user;
@@ -193,7 +193,7 @@ export class PrismaOnboardingRepository implements OnboardingRepository {
       return tx.user.update({
         where: { email: input.email },
         data: { status: UserStatus.OTP_VERIFIED },
-        select: { id: true, phone: true, email: true, status: true },
+        select: { id: true, phone: true, email: true, fullName: true, status: true },
       });
     });
   }
@@ -243,6 +243,17 @@ export class PrismaOnboardingRepository implements OnboardingRepository {
     await prisma.user.update({
       where: { id: userId },
       data: { status: UserStatus.ONBOARDED },
+    });
+  }
+
+  async createSession(input: {
+    id: string;
+    userId: string;
+    tokenHash: string;
+    expiresAt: Date;
+  }): Promise<void> {
+    await prisma.authSession.create({
+      data: input,
     });
   }
 }

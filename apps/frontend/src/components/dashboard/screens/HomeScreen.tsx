@@ -15,7 +15,6 @@ import {
 } from "lucide-react";
 
 import { PaddyCoinIcon } from "@/components/PaddyCoinIcon";
-import { ApiError } from "@/lib/api";
 import { makeCacheKey, readClientCache, writeClientCache } from "@/lib/clientCache";
 import { getDashboardSummary, type DashboardSummary } from "@/lib/dashboardApi";
 import { claimDailyLogin } from "@/lib/coinApi";
@@ -36,7 +35,9 @@ export function HomeScreen({
   onExpense: () => void;
 }) {
   const [summary, setSummary] = useState<DashboardSummary | null>(null);
+  const [loadFailed, setLoadFailed] = useState(false);
   const [showSetup, setShowSetup] = useState(true);
+  const [retryKey, setRetryKey] = useState(0);
 
   useEffect(() => {
     let cancelled = false;
@@ -50,20 +51,28 @@ export function HomeScreen({
         const freshSummary = await getDashboardSummary(token);
         if (cancelled) return;
         setSummary(freshSummary);
+        setLoadFailed(false);
         writeClientCache(cacheKey, freshSummary);
-      } catch (error) {
-        if (error instanceof ApiError) return;
-        throw error;
+      } catch {
+        // Whatever cache we had (if any) stays on screen; this just stops
+        // the skeleton from spinning forever when the request fails and
+        // lets the person retry instead of being stuck.
+        if (cancelled) return;
+        setLoadFailed(true);
       }
     }
     void loadSummary();
     return () => { cancelled = true; };
-  }, []);
+  }, [retryKey]);
 
   return (
     <div className="space-y-5 pb-2">
       {/* Period filter */}
       <PeriodPills activePeriod={activePeriod} onPeriodChange={onPeriodChange} />
+
+      {!summary && loadFailed && (
+        <LoadErrorCard onRetry={() => setRetryKey((key) => key + 1)} />
+      )}
 
       {/* Money In / Money Out */}
       {!summary ? (
@@ -98,6 +107,24 @@ export function HomeScreen({
 
       {/* Recent transactions */}
       <RecentCard sales={summary?.recentSales ?? []} />
+    </div>
+  );
+}
+
+// ─── Load error ────────────────────────────────────────────────────────────────
+
+function LoadErrorCard({ onRetry }: { onRetry: () => void }) {
+  return (
+    <div className="flex items-center justify-between gap-3 rounded-[18px] border border-[#fecaca] bg-[#fff1f2] px-4 py-3.5">
+      <p className="text-[13px] font-semibold text-[#be123c]">
+        Couldn&apos;t load your latest numbers.
+      </p>
+      <button
+        onClick={onRetry}
+        className="shrink-0 rounded-full bg-[#be123c] px-3.5 py-1.5 text-[12px] font-bold text-white"
+      >
+        Retry
+      </button>
     </div>
   );
 }

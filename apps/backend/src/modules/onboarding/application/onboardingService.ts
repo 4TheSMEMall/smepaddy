@@ -1,3 +1,5 @@
+import { randomUUID } from "node:crypto";
+
 import { AppError } from "../../../shared/application/AppError.js";
 import { logger } from "../../../shared/infrastructure/logger.js";
 import {
@@ -9,6 +11,10 @@ import {
 } from "../../../shared/security/hash.js";
 import { maskEmail, maskPhone } from "../../../shared/security/mask.js";
 import { issueOnboardingToken } from "../../../shared/security/onboardingToken.js";
+import {
+  getAuthTokenExpiry,
+  issueAuthToken,
+} from "../../../shared/security/authToken.js";
 import type {
   AboutYouInput,
   BusinessProfileInput,
@@ -195,7 +201,7 @@ export class OnboardingService {
   }
 
   async saveLocation(userId: string, location: string) {
-    await this.ensureUser(userId);
+    const user = await this.ensureUser(userId);
 
     if (location.trim().length < 2) {
       throw new AppError("Location is required", 422, "LOCATION_REQUIRED");
@@ -204,7 +210,32 @@ export class OnboardingService {
     await this.repository.saveLocation({ userId, location: location.trim() });
     await this.repository.markOnboarded(userId);
 
-    return { ok: true };
+    // Onboarding just finished — log the user straight into a full session
+    // instead of handing back `{ ok: true }` and leaving the frontend with
+    // no access token, which left the dashboard stuck loading post-signup.
+    const sessionId = randomUUID();
+    const expiresAt = getAuthTokenExpiry();
+    const accessToken = issueAuthToken({ userId, sessionId, expiresAt });
+
+    await this.repository.createSession({
+      id: sessionId,
+      userId,
+      tokenHash: hashSecret(accessToken),
+      expiresAt,
+    });
+
+    logger.info("Onboarding completed", { userId, sessionId });
+
+    return {
+      ok: true as const,
+      accessToken,
+      expiresAt: expiresAt.toISOString(),
+      user: {
+        id: user.id,
+        email: user.email,
+        fullName: user.fullName,
+      },
+    };
   }
 
   private validatePhone(rawPhone: string) {

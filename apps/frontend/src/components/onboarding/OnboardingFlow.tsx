@@ -326,7 +326,13 @@ export function OnboardingFlow({ onComplete }: { onComplete: () => void }) {
               onBack={goBack}
               onNext={() =>
                 submit(async () => {
-                  await saveLocation(onboardingToken, location);
+                  const result = await saveLocation(onboardingToken, location);
+                  window.localStorage.setItem("sme_paddy_access_token", result.accessToken);
+                  window.localStorage.setItem(
+                    "sme_paddy_access_token_expires_at",
+                    result.expiresAt,
+                  );
+                  window.localStorage.setItem("sme_paddy_user", JSON.stringify(result.user));
                   onComplete();
                 })
               }

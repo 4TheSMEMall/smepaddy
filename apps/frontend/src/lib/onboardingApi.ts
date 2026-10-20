@@ -54,6 +54,21 @@ export function saveAboutYou(
   return postJson<{ ok: true }>("/onboarding/about-you", input, token);
 }
 
+export type CompleteOnboardingResponse = {
+  ok: true;
+  accessToken: string;
+  expiresAt: string;
+  user: {
+    id: string;
+    email: string | null;
+    fullName: string | null;
+  };
+};
+
 export function saveLocation(token: string, location: string) {
-  return postJson<{ ok: true }>("/onboarding/location", { location }, token);
+  return postJson<CompleteOnboardingResponse>(
+    "/onboarding/location",
+    { location },
+    token,
+  );
 }
